@@ -23,8 +23,8 @@ import io.reactivex.annotations.NonNull;
 /**
  * @author by ZIaDo on 6/14/17.
  */
-class LifecycleRxJavaBinder {
-    static <T> FlowableTransformer<T, T> applyFlowable(@NonNull final LifecycleOwner lifecycleOwner) {
+public class LifecycleRxJavaBinder {
+    public static <T> FlowableTransformer<T, T> applyFlowable(@NonNull final LifecycleOwner lifecycleOwner) {
         return new FlowableTransformer<T, T>() {
             @Override
             public Publisher<T> apply(@NonNull Flowable<T> upstream) {
@@ -38,7 +38,7 @@ class LifecycleRxJavaBinder {
         //        };
     }
 
-    static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner,
+    public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner,
             final BackpressureStrategy strategy) {
         return new ObservableTransformer<T, T>() {
             @Override
@@ -55,7 +55,7 @@ class LifecycleRxJavaBinder {
         //        };
     }
 
-    static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner) {
+    public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner) {
         return new ObservableTransformer<T, T>() {
             @Override
             public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
@@ -73,7 +73,7 @@ class LifecycleRxJavaBinder {
         //        };
     }
 
-    static <T> SingleTransformer<T, T> applySingle(@NonNull final LifecycleOwner lifecycleOwner) {
+    public static <T> SingleTransformer<T, T> applySingle(@NonNull final LifecycleOwner lifecycleOwner) {
         return new SingleTransformer<T, T>() {
             @Override
             public SingleSource<T> apply(@NonNull Single<T> upstream) {
@@ -89,7 +89,7 @@ class LifecycleRxJavaBinder {
         //        };
     }
 
-    static <T> MaybeTransformer<T, T> applyMaybe(@NonNull final LifecycleOwner lifecycleOwner) {
+    public static <T> MaybeTransformer<T, T> applyMaybe(@NonNull final LifecycleOwner lifecycleOwner) {
         return new MaybeTransformer<T, T>() {
             @Override
             public MaybeSource<T> apply(@NonNull Maybe<T> upstream) {
