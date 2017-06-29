@@ -1,28 +1,28 @@
 package com.zeyad.rxredux.core.redux;
 
-import android.os.Bundle;
-import android.view.View;
-import android.widget.Toast;
+import static com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL;
 
-import com.trello.rxlifecycle2.components.support.RxFragment;
+import org.parceler.Parcels;
+
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 import com.zeyad.rxredux.core.snackbar.SnackBarFactory;
 
-import org.parceler.Parcels;
+import android.arch.lifecycle.LifecycleFragment;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 
-import static com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL;
-
 /**
  * @author zeyad on 11/28/16.
  */
-public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment
+public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends LifecycleFragment //RxFragment
         implements LoadDataView<S> {
 
     public INavigator navigator;
@@ -43,7 +43,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
-        if (savedInstanceState != null) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
             viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
         }
         initialize();
@@ -55,27 +55,17 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         uiModelsTransformer = viewModel.uiModels();
         events.toFlowable(BackpressureStrategy.BUFFER)
                 .compose(uiModelsTransformer)
-                .compose(this.<UIModel<S>>bindToLifecycle())
+                //                .compose(this.<UIModel<S>>bindToLifecycle())
+                .compose(LifecycleRxJavaBinder.<UIModel<S>> applyFlowable(this))
                 .subscribe(new UISubscriber<>(this, errorMessageFactory));
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        if (outState != null) {
-            outState.putAll(saveState());
+        if (outState != null && viewState != null) {
+            outState.putParcelable(UI_MODEL, Parcels.wrap(viewState));
         }
         super.onSaveInstanceState(outState);
-    }
-
-    /**
-     * To implement! Saves the viewState of the current view. Do not return null!
-     *
-     * @return {@link Bundle}
-     */
-    private Bundle saveState() {
-        Bundle bundle = new Bundle(1);
-        bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
-        return bundle;
     }
 
     /**

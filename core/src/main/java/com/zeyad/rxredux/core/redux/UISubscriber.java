@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.core.redux;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
+import io.reactivex.annotations.NonNull;
 import io.reactivex.exceptions.OnErrorNotImplementedException;
 import io.reactivex.subscribers.DisposableSubscriber;
 
@@ -21,16 +21,6 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
     }
 
     @Override
-    public void onComplete() {
-    }
-
-    @Override
-    public void onError(Throwable throwable) {
-        Log.e("UISubscriber", "onError", throwable);
-        throw new OnErrorNotImplementedException(throwable);
-    }
-
-    @Override
     public void onNext(UIModel<S> uiModel) {
         Log.d("onNext", "UIModel: " + uiModel.toString());
         view.toggleViews(uiModel.isLoading());
@@ -41,7 +31,18 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
                 Throwable throwable = uiModel.getError();
                 Log.e("UISubscriber", "onNext", throwable);
                 view.showError(errorMessageFactory.getErrorMessage(throwable));
+                //                view.showError(errorMessageFactory.getErrorMessage(uiModel.getError()));
             }
         }
+    }
+
+    @Override
+    public void onError(Throwable throwable) {
+        //        Log.e("UISubscriber", "onError", throwable);
+        throw new OnErrorNotImplementedException(throwable);
+    }
+
+    @Override
+    public void onComplete() {
     }
 }

@@ -1,5 +1,15 @@
 package com.zeyad.rxredux.core.redux;
 
+import java.util.List;
+
+import org.parceler.Parcels;
+
+import com.zeyad.rxredux.core.eventbus.IRxEventBus;
+import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
+import com.zeyad.rxredux.core.navigation.INavigator;
+import com.zeyad.rxredux.core.navigation.NavigatorFactory;
+import com.zeyad.rxredux.core.snackbar.SnackBarFactory;
+
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -8,17 +18,6 @@ import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
 
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
-import com.zeyad.rxredux.core.eventbus.IRxEventBus;
-import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
-import com.zeyad.rxredux.core.navigation.INavigator;
-import com.zeyad.rxredux.core.navigation.NavigatorFactory;
-import com.zeyad.rxredux.core.snackbar.SnackBarFactory;
-
-import org.parceler.Parcels;
-
-import java.util.List;
-
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
@@ -26,7 +25,7 @@ import io.reactivex.Observable;
 /**
  * @author zeyad on 11/28/16.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAppCompatActivity
+public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends LifeCycleAppCompatActivity //LifecycleActivity //RxAppCompatActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -43,48 +42,39 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        if (savedInstanceState != null) {
-            viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
-        }
+        restoreViewStateFromBundle(savedInstanceState);
         initialize();
         setupUI();
-    }
-
-    @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        if (savedInstanceState != null) {
-            viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
-        }
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        if (outState != null) {
-            outState.putAll(saveState());
-        }
-        super.onSaveInstanceState(outState);
-    }
-
-    /**
-     * To implement! Saves the viewState of the current view. Do not return null!
-     *
-     * @return {@link Bundle}
-     */
-    private Bundle saveState() {
-        Bundle bundle = new Bundle(1);
-        bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
-        return bundle;
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER)
-                .compose(uiModelsTransformer)
-                .compose(this.<UIModel<S>>bindToLifecycle())
+        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
+                //                .compose(this.<UIModel<S>>bindToLifecycle())
+                .compose(LifecycleRxJavaBinder.<UIModel<S>> applyFlowable(this))
                 .subscribe(new UISubscriber<>(this, errorMessageFactory));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle bundle) {
+        if (bundle != null && viewState != null) {
+            bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
+        }
+        super.onSaveInstanceState(bundle);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restoreViewStateFromBundle(savedInstanceState);
+    }
+
+    private void restoreViewStateFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
+            viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
+        }
     }
 
     /**
@@ -103,10 +93,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
      * @param containerViewId The container view to where add the fragment.
      * @param fragment        The fragment to be added.
      */
-    public void addFragment(
-            int containerViewId,
-            Fragment fragment,
-            String currentFragTag,
+    public void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
             List<Pair<View, String>> sharedElements) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (sharedElements != null) {

@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.core.redux;
 
-import android.arch.lifecycle.ViewModel;
-
 import org.reactivestreams.Publisher;
+
+import android.arch.lifecycle.ViewModel;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
@@ -22,6 +22,8 @@ public abstract class BaseViewModel<S> extends ViewModel {
     private S initialState;
 
     /**
+     * A different way to initialize an instance without a constructor
+     *
      * @param successStateAccumulator a success State Accumulator.
      * @param initialState            Initial state to start with.
      */
@@ -45,13 +47,13 @@ public abstract class BaseViewModel<S> extends ViewModel {
                                         .flatMap(mapEventsToExecutables())
                                         .map(new Function<Object, Result<?>>() {
                                             @Override
-                                            public Result apply(@NonNull Object result) throws Exception {
+                                            public Result<?> apply(@NonNull Object result) throws Exception {
                                                 return Result.successResult(new ResultBundle<>(event, result));
                                             }
                                         })
                                         .onErrorReturn(new Function<Throwable, Result<?>>() {
                                             @Override
-                                            public Result apply(@NonNull Throwable error) throws Exception {
+                                            public Result<?> apply(@NonNull Throwable error) throws Exception {
                                                 return Result.errorResult(error);
                                             }
                                         })
@@ -68,7 +70,8 @@ public abstract class BaseViewModel<S> extends ViewModel {
                         .scan(UIModel.idleState(new ResultBundle<>("", initialState)),
                                 new BiFunction<UIModel<S>, Result<?>, UIModel<S>>() {
                             @Override
-                            public UIModel<S> apply(@NonNull UIModel<S> currentUIModel, @NonNull Result<?> result) throws Exception {
+                                    public UIModel<S> apply(@NonNull UIModel<S> currentUIModel,
+                                            @NonNull Result<?> result) throws Exception {
                                 String event = result.getEvent();
                                 S bundle = currentUIModel.getBundle();
                                 if (result.isLoading()) {

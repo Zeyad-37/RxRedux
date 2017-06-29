@@ -3,12 +3,12 @@ package com.zeyad.rxredux.core.redux;
 /**
  * @author by ZIaDo on 6/3/17.
  */
-class ResultBundle<E extends BaseEvent, B> {
+class ResultBundle<B> {
 
     private final String event;
     private final B bundle;
 
-    ResultBundle(E event, B bundle) {
+    ResultBundle(BaseEvent event, B bundle) {
         this.event = event.getClass().getSimpleName();
         this.bundle = bundle;
     }

@@ -3,13 +3,13 @@ package com.zeyad.rxredux.core.redux;
 /**
  * @author by ZIaDo on 4/19/17.
  */
-final class Result<B> {
+class Result<B> {
 
+    final Throwable error;
+    final ResultBundle<B> bundle;
     private final boolean isLoading, isSuccessful;
-    private final Throwable error;
-    private final ResultBundle<?, B> bundle;
 
-    private Result(boolean isLoading, Throwable error, boolean isSuccessful, ResultBundle<?, B> bundle) {
+    Result(boolean isLoading, Throwable error, boolean isSuccessful, ResultBundle<B> bundle) {
         this.isLoading = isLoading;
         this.error = error;
         this.isSuccessful = isSuccessful;
@@ -17,14 +17,14 @@ final class Result<B> {
     }
 
     static <B> Result<B> loadingResult() {
-        return new Result<>(true, null, false, new ResultBundle<BaseEvent, B>("", null));
+        return new Result<>(true, null, false, new ResultBundle<B>("", null));
     }
 
     static <B> Result<B> errorResult(Throwable error) {
-        return new Result<>(false, error, false, new ResultBundle<BaseEvent, B>("", null));
+        return new Result<>(false, error, false, new ResultBundle<B>("", null));
     }
 
-    static <B> Result<B> successResult(ResultBundle<?, B> bundle) {
+    static <B> Result<B> successResult(ResultBundle<B> bundle) {
         return new Result<>(false, null, true, bundle);
     }
 
