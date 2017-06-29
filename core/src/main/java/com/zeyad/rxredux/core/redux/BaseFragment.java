@@ -4,13 +4,13 @@ import static com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL;
 
 import org.parceler.Parcels;
 
+import com.trello.rxlifecycle2.components.support.RxFragment;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 import com.zeyad.rxredux.core.snackbar.SnackBarFactory;
 
-import android.arch.lifecycle.LifecycleFragment;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
@@ -22,7 +22,7 @@ import io.reactivex.Observable;
 /**
  * @author zeyad on 11/28/16.
  */
-public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends LifecycleFragment //RxFragment
+public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment
         implements LoadDataView<S> {
 
     public INavigator navigator;
@@ -55,8 +55,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends Lifec
         uiModelsTransformer = viewModel.uiModels();
         events.toFlowable(BackpressureStrategy.BUFFER)
                 .compose(uiModelsTransformer)
-                //                .compose(this.<UIModel<S>>bindToLifecycle())
-                .compose(LifecycleRxJavaBinder.<UIModel<S>> applyFlowable(this))
+                .compose(this.<UIModel<S>> bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory));
     }
 

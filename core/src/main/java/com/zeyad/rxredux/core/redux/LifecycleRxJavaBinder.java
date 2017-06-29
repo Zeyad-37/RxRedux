@@ -32,10 +32,6 @@ public class LifecycleRxJavaBinder {
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData));
             }
         };
-        //        return flowable -> {
-        //            LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(flowable);
-        //            return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData));
-        //        };
     }
 
     public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner,
@@ -48,11 +44,6 @@ public class LifecycleRxJavaBinder {
                         .toObservable();
             }
         };
-        //        return observable -> {
-        //            LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(observable.toFlowable(strategy));
-        //            return Flowable.fromPublisher(LiveDataReactiveStreams
-        //                    .toPublisher(lifecycleOwner, liveData)).toObservable();
-        //        };
     }
 
     public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner) {
@@ -65,12 +56,6 @@ public class LifecycleRxJavaBinder {
                         .toObservable();
             }
         };
-        //        return observable -> {
-        //            LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(observable
-        //                    .toFlowable(BackpressureStrategy.BUFFER));
-        //            return Flowable.fromPublisher(LiveDataReactiveStreams
-        //                    .toPublisher(lifecycleOwner, liveData)).toObservable();
-        //        };
     }
 
     public static <T> SingleTransformer<T, T> applySingle(@NonNull final LifecycleOwner lifecycleOwner) {
@@ -82,11 +67,6 @@ public class LifecycleRxJavaBinder {
                         .singleOrError();
             }
         };
-        //        return single -> {
-        //            LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(single.toFlowable());
-        //            return Flowable.fromPublisher(LiveDataReactiveStreams
-        //                    .toPublisher(lifecycleOwner, liveData)).singleOrError();
-        //        };
     }
 
     public static <T> MaybeTransformer<T, T> applyMaybe(@NonNull final LifecycleOwner lifecycleOwner) {
@@ -98,10 +78,5 @@ public class LifecycleRxJavaBinder {
                         .firstElement();
             }
         };
-        //        return maybe -> {
-        //            LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(maybe.toFlowable());
-        //            return Flowable.fromPublisher(LiveDataReactiveStreams
-        //                    .toPublisher(lifecycleOwner, liveData)).firstElement();
-        //        };
     }
 }

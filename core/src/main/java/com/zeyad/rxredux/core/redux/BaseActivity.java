@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.parceler.Parcels;
 
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
@@ -25,7 +26,7 @@ import io.reactivex.Observable;
 /**
  * @author zeyad on 11/28/16.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends LifeCycleAppCompatActivity //LifecycleActivity //RxAppCompatActivity
+public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAppCompatActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -52,8 +53,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends LifeC
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
         events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
-                //                .compose(this.<UIModel<S>>bindToLifecycle())
-                .compose(LifecycleRxJavaBinder.<UIModel<S>> applyFlowable(this))
+                .compose(this.<UIModel<S>> bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory));
     }
 

@@ -31,14 +31,12 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
                 Throwable throwable = uiModel.getError();
                 Log.e("UISubscriber", "onNext", throwable);
                 view.showError(errorMessageFactory.getErrorMessage(throwable));
-                //                view.showError(errorMessageFactory.getErrorMessage(uiModel.getError()));
             }
         }
     }
 
     @Override
     public void onError(Throwable throwable) {
-        //        Log.e("UISubscriber", "onError", throwable);
         throw new OnErrorNotImplementedException(throwable);
     }
 

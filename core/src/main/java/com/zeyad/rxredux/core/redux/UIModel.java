@@ -5,18 +5,11 @@ package com.zeyad.rxredux.core.redux;
  */
 final class UIModel<S> extends Result<S> {
     private static final String IDLE = "idle", LOADING = "loading", ERROR = "error", SUCCESS = "success";
-    //    private final boolean isLoading, isSuccessful;
-    //    private final Throwable error;
     private final String state;
-    //    private final ResultBundle<?, S> bundle;
 
     private UIModel(String state, boolean isLoading, Throwable error, boolean isSuccessful,
             ResultBundle<S> bundle) {
         super(isLoading, error, isSuccessful, bundle);
-        //        this.isLoading = isLoading;
-        //        this.error = error;
-        //        this.isSuccessful = isSuccessful;
-        //        this.bundle = bundle;
         this.state = state;
     }
 
@@ -36,13 +29,6 @@ final class UIModel<S> extends Result<S> {
         return new UIModel<>(SUCCESS, false, null, true, bundle);
     }
 
-    //    boolean isLoading() {
-    //        return isLoading;
-    //    }
-
-    //    Throwable getError() {
-    //        return error;
-    //    }
     @Override
     S getBundle() {
         return bundle.getBundle();
@@ -51,10 +37,6 @@ final class UIModel<S> extends Result<S> {
     ResultBundle<S> getResultBundle() {
         return bundle;
     }
-
-    //    boolean isSuccessful() {
-    //        return isSuccessful;
-    //    }
 
     @Override
     public String toString() {
