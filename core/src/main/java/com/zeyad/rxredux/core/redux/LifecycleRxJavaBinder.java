@@ -23,7 +23,7 @@ import io.reactivex.annotations.NonNull;
 /**
  * @author by ZIaDo on 6/14/17.
  */
-public class LifecycleRxJavaBinder {
+class LifecycleRxJavaBinder {
     public static <T> FlowableTransformer<T, T> applyFlowable(@NonNull final LifecycleOwner lifecycleOwner) {
         return new FlowableTransformer<T, T>() {
             @Override

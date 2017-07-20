@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 
 apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.Zeyad-37'
+group = 'com.github.Zeyad-37'
 
 android {
     compileSdkVersion 25
@@ -26,16 +26,16 @@ android {
 
 ext {
     supportLibrary = '25.3.1'
-    rxLifeCycle = '2.0.1'
+    rxLifeCycle = '2.1.0'
     parceler = '1.1.1'
     espressoCore = '2.2.2'
-    archComp = '1.0.0-alpha3'
+    archComp = '1.0.0-alpha5'
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile "com.android.support:design:$supportLibrary"
+//    compile "com.android.support:design:$supportLibrary"
     compile "android.arch.lifecycle:extensions:$archComp"
     compile "android.arch.lifecycle:reactivestreams:$archComp"
     compile "com.trello.rxlifecycle2:rxlifecycle:$rxLifeCycle"
