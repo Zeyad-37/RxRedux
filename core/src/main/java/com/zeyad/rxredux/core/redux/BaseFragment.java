@@ -25,7 +25,6 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
 
     public INavigator navigator;
     public IRxEventBus rxEventBus;
-    public ErrorMessageFactory errorMessageFactory;
     public Observable<BaseEvent> events;
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
@@ -54,7 +53,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         events.toFlowable(BackpressureStrategy.BUFFER)
                 .compose(uiModelsTransformer)
                 .compose(this.<UIModel<S>> bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory));
+                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
     }
 
     @Override
@@ -64,6 +63,8 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         }
         super.onSaveInstanceState(outState);
     }
+
+    public abstract ErrorMessageFactory errorMessageFactory();
 
     /**
      * Initialize any objects or any required dependencies.

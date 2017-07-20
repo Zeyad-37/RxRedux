@@ -30,7 +30,6 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
     public IRxEventBus rxEventBus;
-    public ErrorMessageFactory errorMessageFactory;
     public Observable<BaseEvent> events;
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
@@ -53,7 +52,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
         uiModelsTransformer = viewModel.uiModels();
         events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
                 .compose(this.<UIModel<S>> bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory));
+                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
     }
 
     @Override
@@ -75,6 +74,8 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
             viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
         }
     }
+
+    public abstract ErrorMessageFactory errorMessageFactory();
 
     /**
      * Initialize objects or any required dependencies.

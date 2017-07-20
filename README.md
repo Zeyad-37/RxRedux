@@ -2,3 +2,5 @@
 
 # RxRedux
 A library that manages state using RxJava 2. 
+
+Medium Post: https://goo.gl/7oH1B1

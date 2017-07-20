@@ -26,7 +26,7 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
         view.toggleViews(uiModel.isLoading());
         if (!uiModel.isLoading()) {
             if (uiModel.isSuccessful()) {
-                view.renderState(uiModel.getBundle());
+                view.renderSuccessState(uiModel.getBundle());
             } else if (uiModel.getError() != null) {
                 Throwable throwable = uiModel.getError();
                 Log.e("UISubscriber", "onNext", throwable);

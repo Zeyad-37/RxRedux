@@ -5,21 +5,21 @@ interface LoadDataView<S> {
     /**
      * Renders the model of the view
      *
-     * @param s the model to be rendered.
+     * @param successState the model to be rendered.
      */
-    void renderState(S s);
+    void renderSuccessState(S successState);
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.
      *
-     * @param toggle whether to show or hide the loading view.
+     * @param isLoading whether to show or hide the loading view.
      */
-    void toggleViews(boolean toggle);
+    void toggleViews(boolean isLoading);
 
     /**
      * Show an errorResult message
      *
-     * @param message A string representing an errorResult.
+     * @param errorMessage A string representing an errorResult.
      */
-    void showError(String message);
+    void showError(String errorMessage);
 }
