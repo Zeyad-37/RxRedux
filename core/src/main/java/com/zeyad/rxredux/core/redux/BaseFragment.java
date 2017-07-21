@@ -11,7 +11,6 @@ import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import android.os.Bundle;
-import android.widget.Toast;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
@@ -70,12 +69,4 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
      * Initialize any objects or any required dependencies.
      */
     public abstract void initialize();
-
-    public void showToastMessage(String message) {
-        showToastMessage(message, Toast.LENGTH_LONG);
-    }
-
-    public void showToastMessage(String message, int duration) {
-        Toast.makeText(getContext(), message, duration).show();
-    }
 }

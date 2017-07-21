@@ -4,7 +4,8 @@ package com.zeyad.rxredux.core.redux;
  * @author zeyad on 1/24/17.
  */
 final class UIModel<S> extends Result<S> {
-    private static final String IDLE = "idle", LOADING = "loading", ERROR = "error", SUCCESS = "success";
+    static final String IDLE = "idle";
+    private static final String LOADING = "loading", ERROR = "error", SUCCESS = "success";
     private final String state;
 
     private UIModel(String state, boolean isLoading, Throwable error, boolean isSuccessful,

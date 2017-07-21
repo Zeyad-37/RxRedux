@@ -1,5 +1,7 @@
 package com.zeyad.rxredux.core.redux;
 
+import static com.zeyad.rxredux.core.redux.UIModel.IDLE;
+
 import org.reactivestreams.Publisher;
 
 import android.arch.lifecycle.ViewModel;
@@ -10,12 +12,11 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.BiPredicate;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-/**
- * @author zeyad on 11/28/16.
- */
+/*** @author Zeyad*/
 public abstract class BaseViewModel<S> extends ViewModel {
 
     private SuccessStateAccumulator<S> successStateAccumulator;
@@ -67,7 +68,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
                                         (objectResult.isLoading() && objectResult2.isLoading());
                             }
                         })
-                        .scan(UIModel.idleState(new ResultBundle<>("", initialState)),
+                        .scan(UIModel.idleState(new ResultBundle<>(IDLE, initialState)),
                                 new BiFunction<UIModel<S>, Result<?>, UIModel<S>>() {
                             @Override
                                     public UIModel<S> apply(@NonNull UIModel<S> currentUIModel,
@@ -87,6 +88,12 @@ public abstract class BaseViewModel<S> extends ViewModel {
                                 return currentUIModel;
                             }
                         })
+                        .doOnNext(new Consumer<UIModel<S>>() {
+                            @Override
+                            public void accept(@NonNull UIModel<S> suiModel) throws Exception {
+                                initialState = suiModel.getBundle();
+                            }
+                        })
                         .observeOn(AndroidSchedulers.mainThread());
             }
         };
@@ -100,10 +107,14 @@ public abstract class BaseViewModel<S> extends ViewModel {
     public abstract Function<BaseEvent, Flowable<?>> mapEventsToExecutables();
 
     public void setSuccessStateAccumulator(SuccessStateAccumulator<S> successStateAccumulator) {
-        this.successStateAccumulator = successStateAccumulator;
+        if (this.successStateAccumulator == null) {
+            this.successStateAccumulator = successStateAccumulator;
+        }
     }
 
     public void setInitialState(S initialState) {
-        this.initialState = initialState;
+        if (!this.initialState.equals(initialState)) {
+            this.initialState = initialState;
+        }
     }
 }

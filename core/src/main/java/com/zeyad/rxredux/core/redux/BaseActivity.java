@@ -1,7 +1,5 @@
 package com.zeyad.rxredux.core.redux;
 
-import java.util.List;
-
 import org.parceler.Parcels;
 
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
@@ -11,12 +9,7 @@ import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatDelegate;
-import android.util.Pair;
-import android.view.View;
-import android.widget.Toast;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
@@ -86,41 +79,4 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
      * Setup the UI.
      */
     public abstract void setupUI();
-
-    /**
-     * Adds a {@link Fragment} to this activity's layout.
-     *
-     * @param containerViewId The container view to where add the fragment.
-     * @param fragment        The fragment to be added.
-     */
-    public void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
-            List<Pair<View, String>> sharedElements) {
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        if (sharedElements != null) {
-            for (Pair<View, String> pair : sharedElements) {
-                fragmentTransaction.addSharedElement(pair.first, pair.second);
-            }
-        }
-        if (currentFragTag == null || currentFragTag.isEmpty()) {
-            fragmentTransaction.addToBackStack(fragment.getTag());
-        } else {
-            fragmentTransaction.addToBackStack(currentFragTag);
-        }
-        fragmentTransaction.add(containerViewId, fragment, fragment.getTag()).commit();
-    }
-
-    public void removeFragment(String tag) {
-        getSupportFragmentManager()
-                .beginTransaction()
-                .remove(getSupportFragmentManager().findFragmentByTag(tag))
-                .commit();
-    }
-
-    public void showToastMessage(String message) {
-        showToastMessage(message, Toast.LENGTH_LONG);
-    }
-
-    public void showToastMessage(String message, int duration) {
-        Toast.makeText(this, message, duration).show();
-    }
 }
