@@ -21,24 +21,26 @@ import io.reactivex.SingleTransformer;
 import io.reactivex.annotations.NonNull;
 
 /**
- * @author by ZIaDo on 6/14/17.
+ * @author by Zeyad.
  */
 class LifecycleRxJavaBinder {
+    @android.support.annotation.NonNull
     public static <T> FlowableTransformer<T, T> applyFlowable(@NonNull final LifecycleOwner lifecycleOwner) {
         return new FlowableTransformer<T, T>() {
             @Override
-            public Publisher<T> apply(@NonNull Flowable<T> upstream) {
+            public Publisher<T> apply(@android.support.annotation.NonNull @NonNull Flowable<T> upstream) {
                 LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(upstream);
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData));
             }
         };
     }
 
+    @android.support.annotation.NonNull
     public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner,
-            final BackpressureStrategy strategy) {
+            @android.support.annotation.NonNull final BackpressureStrategy strategy) {
         return new ObservableTransformer<T, T>() {
             @Override
-            public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+            public ObservableSource<T> apply(@android.support.annotation.NonNull @NonNull Observable<T> upstream) {
                 LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(upstream.toFlowable(strategy));
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData))
                         .toObservable();
@@ -46,10 +48,11 @@ class LifecycleRxJavaBinder {
         };
     }
 
+    @android.support.annotation.NonNull
     public static <T> ObservableTransformer<T, T> applyObservable(@NonNull final LifecycleOwner lifecycleOwner) {
         return new ObservableTransformer<T, T>() {
             @Override
-            public ObservableSource<T> apply(@NonNull Observable<T> upstream) {
+            public ObservableSource<T> apply(@android.support.annotation.NonNull @NonNull Observable<T> upstream) {
                 LiveData<T> liveData = LiveDataReactiveStreams
                         .fromPublisher(upstream.toFlowable(BackpressureStrategy.BUFFER));
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData))
@@ -58,10 +61,11 @@ class LifecycleRxJavaBinder {
         };
     }
 
+    @android.support.annotation.NonNull
     public static <T> SingleTransformer<T, T> applySingle(@NonNull final LifecycleOwner lifecycleOwner) {
         return new SingleTransformer<T, T>() {
             @Override
-            public SingleSource<T> apply(@NonNull Single<T> upstream) {
+            public SingleSource<T> apply(@android.support.annotation.NonNull @NonNull Single<T> upstream) {
                 LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(upstream.toFlowable());
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData))
                         .singleOrError();
@@ -69,10 +73,11 @@ class LifecycleRxJavaBinder {
         };
     }
 
+    @android.support.annotation.NonNull
     public static <T> MaybeTransformer<T, T> applyMaybe(@NonNull final LifecycleOwner lifecycleOwner) {
         return new MaybeTransformer<T, T>() {
             @Override
-            public MaybeSource<T> apply(@NonNull Maybe<T> upstream) {
+            public MaybeSource<T> apply(@android.support.annotation.NonNull @NonNull Maybe<T> upstream) {
                 LiveData<T> liveData = LiveDataReactiveStreams.fromPublisher(upstream.toFlowable());
                 return Flowable.fromPublisher(LiveDataReactiveStreams.toPublisher(lifecycleOwner, liveData))
                         .firstElement();

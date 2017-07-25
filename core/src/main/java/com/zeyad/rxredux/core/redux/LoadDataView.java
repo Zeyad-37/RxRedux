@@ -1,5 +1,7 @@
 package com.zeyad.rxredux.core.redux;
 
+import io.reactivex.annotations.NonNull;
+
 /** Interface representing a View that will use to load data. */
 interface LoadDataView<S> {
     /**
@@ -7,7 +9,7 @@ interface LoadDataView<S> {
      *
      * @param successState the model to be rendered.
      */
-    void renderSuccessState(S successState);
+    void renderSuccessState(@NonNull S successState);
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.
@@ -21,5 +23,5 @@ interface LoadDataView<S> {
      *
      * @param errorMessage A string representing an errorResult.
      */
-    void showError(String errorMessage);
+    void showError(@NonNull String errorMessage);
 }

@@ -1,7 +1,9 @@
 package com.zeyad.rxredux.core.redux;
 
-/** @author by ZIaDo on 5/4/17. */
-public interface ErrorMessageFactory {
+import io.reactivex.annotations.NonNull;
 
+/** @author by Zeyad. */
+public interface ErrorMessageFactory {
+    @NonNull
     String getErrorMessage(Throwable throwable);
 }

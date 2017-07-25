@@ -7,7 +7,7 @@ import io.reactivex.exceptions.OnErrorNotImplementedException;
 import io.reactivex.subscribers.DisposableSubscriber;
 
 /**
- * @author zeyad on 11/28/16.
+ * @author Zeyad.
  */
 public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscriber<UIModel<S>> {
     @NonNull
@@ -21,7 +21,7 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
     }
 
     @Override
-    public void onNext(UIModel<S> uiModel) {
+    public void onNext(@NonNull UIModel<S> uiModel) {
         Log.d("onNext", "UIModel: " + uiModel.toString());
         view.toggleViews(uiModel.isLoading());
         if (!uiModel.isLoading()) {

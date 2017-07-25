@@ -1,9 +1,11 @@
 package com.zeyad.rxredux.core.redux;
 
+import io.reactivex.annotations.NonNull;
+
 /**
- * @author zeyad on 1/24/17.
+ * @author Zeyad.
  */
-final class UIModel<S> extends Result<S> {
+public final class UIModel<S> extends Result<S> {
     static final String IDLE = "idle";
     private static final String LOADING = "loading", ERROR = "error", SUCCESS = "success";
     private final String state;
@@ -14,18 +16,22 @@ final class UIModel<S> extends Result<S> {
         this.state = state;
     }
 
+    @NonNull
     static <S> UIModel<S> idleState(ResultBundle<S> bundle) {
         return new UIModel<>(IDLE, false, null, false, bundle);
     }
 
+    @NonNull
     static <S> UIModel<S> loadingState(ResultBundle<S> bundle) {
         return new UIModel<>(LOADING, true, null, false, bundle);
     }
 
+    @NonNull
     static <S> UIModel<S> errorState(Throwable error, ResultBundle<S> bundle) {
         return new UIModel<>(ERROR, false, error, false, bundle);
     }
 
+    @NonNull
     static <S> UIModel<S> successState(ResultBundle<S> bundle) {
         return new UIModel<>(SUCCESS, false, null, true, bundle);
     }
@@ -35,8 +41,13 @@ final class UIModel<S> extends Result<S> {
         return bundle.getBundle();
     }
 
-    ResultBundle<S> getResultBundle() {
+    public ResultBundle<S> getResultBundle() {
         return bundle;
+    }
+
+    @NonNull
+    String getKeySelector() {
+        return state.equalsIgnoreCase(LOADING) ? state : state + (bundle != null ? bundle.toString() : "");
     }
 
     @Override
@@ -45,7 +56,6 @@ final class UIModel<S> extends Result<S> {
                 (state.equalsIgnoreCase(SUCCESS) ? state + ", event: " + bundle.getEvent() : state),
                 (error != null ? error.getMessage() : "null"),
                 (getBundle() != null ? getBundle().getClass().getSimpleName() : "null"),
-                state.equalsIgnoreCase(LOADING) ? state : state + (bundle != null ?
-                        bundle.toString() : ""));
+                getKeySelector());
     }
 }

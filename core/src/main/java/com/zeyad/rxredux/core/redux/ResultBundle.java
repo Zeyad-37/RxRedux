@@ -1,14 +1,16 @@
 package com.zeyad.rxredux.core.redux;
 
+import io.reactivex.annotations.NonNull;
+
 /**
- * @author by ZIaDo on 6/3/17.
+ * @author by Zeyad.
  */
 class ResultBundle<B> {
 
     private final String event;
     private final B bundle;
 
-    ResultBundle(BaseEvent event, B bundle) {
+    ResultBundle(@NonNull BaseEvent event, B bundle) {
         this.event = event.getClass().getSimpleName();
         this.bundle = bundle;
     }

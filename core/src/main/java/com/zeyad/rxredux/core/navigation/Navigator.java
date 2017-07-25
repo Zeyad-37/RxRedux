@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 
 /**
  * Class used to navigate through the application.
@@ -20,17 +21,17 @@ final class Navigator implements INavigator {
     }
 
     @Override
-    public void navigateTo(Context context, Intent intent) {
+    public void navigateTo(@NonNull Context context, Intent intent) {
         context.startActivity(intent);
     }
 
     @Override
-    public void navigateTo(Context context, Intent intent, ActivityOptions activityOptions) {
+    public void navigateTo(@NonNull Context context, Intent intent, @NonNull ActivityOptions activityOptions) {
         context.startActivity(intent, activityOptions.toBundle());
     }
 
     @Override
-    public void startForResult(Activity activity, Intent intent, int requestCode) {
+    public void startForResult(@NonNull Activity activity, Intent intent, int requestCode) {
         activity.startActivityForResult(intent, requestCode);
     }
 }

@@ -8,7 +8,10 @@ import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 
 import io.reactivex.BackpressureStrategy;
@@ -16,7 +19,7 @@ import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 
 /**
- * @author zeyad on 11/28/16.
+ * @author Zeyad.
  */
 public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAppCompatActivity
         implements LoadDataView<S> {
@@ -35,6 +38,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
         rxEventBus = RxEventBusFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
+        viewModel = (VM) ViewModelProviders.of(this).get(viewModel.<VM> getClass());
         initialize();
         setupUI();
     }
@@ -49,7 +53,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle bundle) {
+    protected void onSaveInstanceState(@Nullable Bundle bundle) {
         if (bundle != null && viewState != null) {
             bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
         }
@@ -62,12 +66,13 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
         restoreViewStateFromBundle(savedInstanceState);
     }
 
-    private void restoreViewStateFromBundle(Bundle savedInstanceState) {
+    private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
             viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
         }
     }
 
+    @NonNull
     public abstract ErrorMessageFactory errorMessageFactory();
 
     /**

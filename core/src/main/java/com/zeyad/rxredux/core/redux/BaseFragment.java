@@ -10,14 +10,17 @@ import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 
 /**
- * @author zeyad on 11/28/16.
+ * @author Zeyad.
  */
 public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment
         implements LoadDataView<S> {
@@ -34,7 +37,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
@@ -42,6 +45,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
             viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
         }
+        viewModel = (VM) ViewModelProviders.of(this).get(viewModel.<VM> getClass());
         initialize();
     }
 
@@ -56,13 +60,14 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@Nullable Bundle outState) {
         if (outState != null && viewState != null) {
             outState.putParcelable(UI_MODEL, Parcels.wrap(viewState));
         }
         super.onSaveInstanceState(outState);
     }
 
+    @NonNull
     public abstract ErrorMessageFactory errorMessageFactory();
 
     /**
