@@ -8,7 +8,6 @@ import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -38,7 +37,6 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
         rxEventBus = RxEventBusFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
-        viewModel = (VM) ViewModelProviders.of(this).get(viewModel.<VM> getClass());
         initialize();
         setupUI();
     }
