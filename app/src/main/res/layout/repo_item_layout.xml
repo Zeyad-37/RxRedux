@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout android:id="@+id/rl_row_user"
+    style="@style/Widget.CardContent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/sixteen_dp"
+    tools:ignore="UseCompoundDrawables">
+
+    <TextView
+        android:id="@+id/textView_repo_title"
+        style="@android:style/TextAppearance.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/four_dp"
+        android:layout_marginStart="@dimen/four_dp"
+        android:ellipsize="end"
+        android:gravity="center_vertical"
+        android:textSize="@dimen/font_large"
+        android:transitionName="@string/transition_text"
+        tools:text="{user name}" />
+
+</RelativeLayout>

@@ -1,0 +1,18 @@
+<RelativeLayout android:id="@+id/repo_detail"
+    style="?android:attr/textAppearanceLarge"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/sixteen_dp"
+    android:textIsSelectable="true"
+    tools:context=".screens.user.detail.UserDetailFragment">
+
+    <include layout="@layout/view_progress" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/recyclerView_repositories"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="@dimen/eight_dp" />
+</RelativeLayout>

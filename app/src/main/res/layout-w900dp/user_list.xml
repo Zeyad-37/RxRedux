@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    android:baselineAligned="false"
+    android:divider="?android:attr/dividerHorizontal"
+    android:orientation="horizontal"
+    android:showDividers="middle"
+    tools:context=".screens.user.list.UserListActivity">
+
+    <!-- This layout is a two-pane layout for the Users master/detail flow. -->
+
+    <android.support.v7.widget.RecyclerView android:id="@+id/user_list"
+        android:name="com.zeyad.usecases.app.presentation.RepoListFragment"
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="@dimen/item_width"
+        android:layout_height="match_parent"
+        app:layoutManager="LinearLayoutManager"
+        tools:context=".screens.screens.user_list.UserListActivity"
+        tools:listitem="@layout/user_list_content" />
+
+    <com.zeyad.gadapter.fastscroll.FastScroller
+        android:id="@+id/fastscroll"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:orientation="vertical" />
+
+    <FrameLayout
+        android:id="@+id/user_detail_container"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="3" />
+</LinearLayout>
