@@ -24,4 +24,10 @@ interface LoadDataView<S> {
      * @param errorMessage A string representing an errorResult.
      */
     void showError(@NonNull String errorMessage);
+
+    /**
+     * Sets the viewState on the implementing View.
+     * @param bundle state to be saved.
+     */
+    void setState(S bundle);
 }

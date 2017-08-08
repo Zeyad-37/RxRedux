@@ -23,14 +23,19 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
     @Override
     public void onNext(@NonNull UIModel<S> uiModel) {
         Log.d("onNext", "UIModel: " + uiModel.toString());
-        view.toggleViews(uiModel.isLoading());
-        if (!uiModel.isLoading()) {
+        boolean loading = uiModel.isLoading();
+        view.toggleViews(loading);
+        if (!loading) {
             if (uiModel.isSuccessful()) {
-                view.renderSuccessState(uiModel.getBundle());
-            } else if (uiModel.getError() != null) {
-                Throwable throwable = uiModel.getError();
-                Log.e("UISubscriber", "onNext", throwable);
-                view.showError(errorMessageFactory.getErrorMessage(throwable));
+                S bundle = uiModel.getBundle();
+                view.setState(bundle);
+                view.renderSuccessState(bundle);
+            } else {
+                Throwable error = uiModel.getError();
+                if (error != null) {
+                    Log.e("UISubscriber", "onNext", error);
+                    view.showError(errorMessageFactory.getErrorMessage(error));
+                }
             }
         }
     }

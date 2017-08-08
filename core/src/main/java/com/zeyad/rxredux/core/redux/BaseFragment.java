@@ -53,8 +53,13 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         uiModelsTransformer = viewModel.uiModels();
         events.toFlowable(BackpressureStrategy.BUFFER)
                 .compose(uiModelsTransformer)
-                .compose(this.<UIModel<S>> bindToLifecycle())
+                .compose(bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory()));
+    }
+
+    @Override
+    public void setState(S bundle) {
+        viewState = bundle;
     }
 
     @Override
