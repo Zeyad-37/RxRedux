@@ -1,12 +1,18 @@
-package com.zeyad.rxredux.core.redux;
+package com.zeyad.rxredux.core.redux.prelollipop;
 
 import org.parceler.Parcels;
 
-import com.trello.rxlifecycle2.components.RxActivity;
+import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
+import com.zeyad.rxredux.core.redux.BaseEvent;
+import com.zeyad.rxredux.core.redux.BaseViewModel;
+import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
+import com.zeyad.rxredux.core.redux.LoadDataView;
+import com.zeyad.rxredux.core.redux.UIModel;
+import com.zeyad.rxredux.core.redux.UISubscriber;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,7 +26,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxActivity
+public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAppCompatActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -45,8 +51,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAct
     protected void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
-                .compose(bindToLifecycle())
+        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory()));
     }
 
@@ -56,17 +61,17 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAct
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-        restoreViewStateFromBundle(savedInstanceState);
-    }
-
-    @Override
     protected void onSaveInstanceState(@Nullable Bundle bundle) {
         if (bundle != null && viewState != null) {
             bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
         }
         super.onSaveInstanceState(bundle);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+        restoreViewStateFromBundle(savedInstanceState);
     }
 
     private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {

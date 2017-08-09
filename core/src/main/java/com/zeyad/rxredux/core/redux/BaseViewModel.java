@@ -38,7 +38,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @return {@link FlowableTransformer} the Redux pattern transformer.
      */
     @NonNull
-    FlowableTransformer<BaseEvent, UIModel<S>> uiModels() {
+    public FlowableTransformer<BaseEvent, UIModel<S>> uiModels() {
         return new FlowableTransformer<BaseEvent, UIModel<S>>() {
             @Override
             public Flowable<UIModel<S>> apply(@NonNull Flowable<BaseEvent> events) {

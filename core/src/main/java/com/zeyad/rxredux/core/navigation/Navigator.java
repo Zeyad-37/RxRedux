@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.internal.operators.completable.CompletableFromAction;
+
 /**
  * Class used to navigate through the application.
  */
@@ -22,16 +25,31 @@ final class Navigator implements INavigator {
 
     @Override
     public void navigateTo(@NonNull Context context, Intent intent) {
-        context.startActivity(intent);
+        navigateOnMainThread(() -> context.startActivity(intent));
     }
 
     @Override
     public void navigateTo(@NonNull Context context, Intent intent, @NonNull ActivityOptions activityOptions) {
-        context.startActivity(intent, activityOptions.toBundle());
+        navigateOnMainThread(() -> context.startActivity(intent, activityOptions.toBundle()));
     }
 
     @Override
     public void startForResult(@NonNull Activity activity, Intent intent, int requestCode) {
-        activity.startActivityForResult(intent, requestCode);
+        navigateOnMainThread(() -> activity.startActivityForResult(intent, requestCode));
+    }
+
+    @Override
+    public void startForResult(@NonNull Activity activity, Intent intent, int requestCode,
+            @NonNull ActivityOptions activityOptions) {
+        navigateOnMainThread(
+                () -> activity.startActivityForResult(intent, requestCode, activityOptions.toBundle()));
+    }
+
+    private void navigateOnMainThread(final Navigate navigate) {
+        CompletableFromAction.fromAction(navigate::run).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
+    }
+
+    private interface Navigate {
+        void run();
     }
 }

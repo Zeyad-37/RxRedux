@@ -1,12 +1,18 @@
-package com.zeyad.rxredux.core.redux;
+package com.zeyad.rxredux.core.redux.prelollipop;
 
 import org.parceler.Parcels;
 
-import com.trello.rxlifecycle2.components.RxFragment;
+import com.trello.rxlifecycle2.components.support.RxFragment;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
+import com.zeyad.rxredux.core.redux.BaseEvent;
+import com.zeyad.rxredux.core.redux.BaseViewModel;
+import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
+import com.zeyad.rxredux.core.redux.LoadDataView;
+import com.zeyad.rxredux.core.redux.UIModel;
+import com.zeyad.rxredux.core.redux.UISubscriber;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -19,8 +25,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment
-        implements LoadDataView<S> {
+public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment implements LoadDataView<S> {
 
     public INavigator navigator;
     public IRxEventBus rxEventBus;
@@ -49,9 +54,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
     public void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER)
-                .compose(uiModelsTransformer)
-                .compose(bindToLifecycle())
+        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory()));
     }
 

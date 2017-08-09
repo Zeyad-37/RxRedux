@@ -3,7 +3,7 @@ package com.zeyad.rxredux.core.redux;
 import io.reactivex.annotations.NonNull;
 
 /** Interface representing a View that will use to load data. */
-interface LoadDataView<S> {
+public interface LoadDataView<S> {
     /**
      * Renders the model of the view
      *

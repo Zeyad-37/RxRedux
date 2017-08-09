@@ -11,7 +11,7 @@ import android.widget.Toast;
  */
 
 public abstract class BaseFragment<S, VM extends BaseViewModel<S>>
-        extends com.zeyad.rxredux.core.redux.BaseFragment<S, VM> {
+        extends com.zeyad.rxredux.core.redux.prelollipop.BaseFragment<S, VM> {
 
     public void showToastMessage(String message) {
         showToastMessage(message, Toast.LENGTH_LONG);

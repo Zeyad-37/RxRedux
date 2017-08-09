@@ -15,7 +15,7 @@ import android.widget.Toast;
  * @author by ZIaDo on 7/21/17.
  */
 public abstract class BaseActivity<S, VM extends BaseViewModel<S>>
-        extends com.zeyad.rxredux.core.redux.BaseActivity<S, VM> {
+        extends com.zeyad.rxredux.core.redux.prelollipop.BaseActivity<S, VM> {
 
     /**
      * Adds a {@link Fragment} to this activity's layout.
