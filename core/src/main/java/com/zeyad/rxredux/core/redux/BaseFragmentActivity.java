@@ -2,7 +2,7 @@ package com.zeyad.rxredux.core.redux;
 
 import org.parceler.Parcels;
 
-import com.trello.rxlifecycle2.components.RxActivity;
+import com.trello.rxlifecycle2.components.support.RxFragmentActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
@@ -18,9 +18,9 @@ import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 
 /**
- * @author Zeyad.
+ * @author by Zeyad.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxActivity
+public abstract class BaseFragmentActivity<S, VM extends BaseViewModel<S>> extends RxFragmentActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -46,8 +46,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAct
     protected void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
-                .compose(bindToLifecycle())
+        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
                 .subscribe(new UISubscriber<>(this, errorMessageFactory()));
     }
 
