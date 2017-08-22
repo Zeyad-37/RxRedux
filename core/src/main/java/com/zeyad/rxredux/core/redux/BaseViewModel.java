@@ -14,7 +14,6 @@ import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
@@ -30,8 +29,8 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @param successStateAccumulator a success State Accumulator.
      * @param initialState            Initial state to start with.
      */
-    public abstract void init(@NonNull SuccessStateAccumulator<S> successStateAccumulator, @Nullable S initialState,
-            Object... otherDependencies);
+    public abstract void init(SuccessStateAccumulator<S> successStateAccumulator,
+                              S initialState, Object... otherDependencies);
 
     /**
      * A Transformer, given events returns UIModels by applying the redux pattern.
@@ -98,9 +97,5 @@ public abstract class BaseViewModel<S> extends ViewModel {
         if (this.initialState == null || !this.initialState.equals(initialState)) {
             this.initialState = initialState;
         }
-    }
-
-    public S getCurrentState() {
-        return initialState;
     }
 }

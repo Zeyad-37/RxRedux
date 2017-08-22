@@ -47,7 +47,6 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         if (savedInstanceState != null && savedInstanceState.containsKey(BaseActivity.UI_MODEL)) {
             viewState = Parcels.unwrap(savedInstanceState.getParcelable(BaseActivity.UI_MODEL));
         }
-        events = Observable.empty();
         initialize();
     }
 

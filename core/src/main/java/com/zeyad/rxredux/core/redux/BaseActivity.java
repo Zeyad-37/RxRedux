@@ -37,9 +37,8 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAct
         rxEventBus = RxEventBusFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
-        events = Observable.empty();
         initialize();
-        setupUI(savedInstanceState == null);
+        setupUI();
     }
 
     @Override
@@ -86,7 +85,6 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAct
 
     /**
      * Setup the UI.
-     * @param isNew = savedInstanceState == null
      */
-    public abstract void setupUI(boolean isNew);
+    public abstract void setupUI();
 }

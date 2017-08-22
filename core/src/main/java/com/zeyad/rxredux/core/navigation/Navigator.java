@@ -24,31 +24,25 @@ final class Navigator implements INavigator {
     }
 
     @Override
-    public void navigateTo(@NonNull Context context, @NonNull Intent intent) {
+    public void navigateTo(@NonNull Context context, Intent intent) {
         navigateOnMainThread(() -> context.startActivity(intent));
     }
 
     @Override
-    public void navigateTo(@NonNull Context context, @NonNull Intent intent,
-            @NonNull ActivityOptions activityOptions) {
+    public void navigateTo(@NonNull Context context, Intent intent, @NonNull ActivityOptions activityOptions) {
         navigateOnMainThread(() -> context.startActivity(intent, activityOptions.toBundle()));
     }
 
     @Override
-    public void startForResult(@NonNull Activity activity, @NonNull Intent intent, int requestCode) {
+    public void startForResult(@NonNull Activity activity, Intent intent, int requestCode) {
         navigateOnMainThread(() -> activity.startActivityForResult(intent, requestCode));
     }
 
     @Override
-    public void startForResult(@NonNull Activity activity, @NonNull Intent intent, int requestCode,
+    public void startForResult(@NonNull Activity activity, Intent intent, int requestCode,
             @NonNull ActivityOptions activityOptions) {
         navigateOnMainThread(
                 () -> activity.startActivityForResult(intent, requestCode, activityOptions.toBundle()));
-    }
-
-    @Override
-    public void startService(@NonNull Context context, @NonNull Intent intent) {
-        context.startService(intent);
     }
 
     private void navigateOnMainThread(final Navigate navigate) {
