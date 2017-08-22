@@ -7,12 +7,14 @@ import android.content.Intent;
 import android.support.annotation.NonNull;
 
 public interface INavigator {
-    void navigateTo(Context context, Intent intent);
+    void navigateTo(@NonNull Context context, @NonNull Intent intent);
 
-    void navigateTo(Context context, Intent intent, ActivityOptions activityOptions);
+    void navigateTo(@NonNull Context context, @NonNull Intent intent, @NonNull ActivityOptions activityOptions);
 
-    void startForResult(Activity activity, Intent intent, int requestCode);
+    void startForResult(@NonNull Activity activity, @NonNull Intent intent, int requestCode);
 
-    void startForResult(@NonNull Activity activity, Intent intent, int requestCode,
+    void startForResult(@NonNull Activity activity, @NonNull Intent intent, int requestCode,
             @NonNull ActivityOptions activityOptions);
+
+    void startService(@NonNull Context context, @NonNull Intent intent);
 }
