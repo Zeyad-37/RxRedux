@@ -3,6 +3,7 @@ package com.zeyad.rxredux.screens;
 import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.snackbar.SnackBarFactory;
 
+import android.os.Parcelable;
 import android.view.View;
 import android.widget.Toast;
 
@@ -10,7 +11,7 @@ import android.widget.Toast;
  * @author by ZIaDo on 7/21/17.
  */
 
-public abstract class BaseFragment<S, VM extends BaseViewModel<S>>
+public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>>
         extends com.zeyad.rxredux.core.redux.prelollipop.BaseFragment<S, VM> {
 
     public void showToastMessage(String message) {

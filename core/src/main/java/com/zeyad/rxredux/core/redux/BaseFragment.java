@@ -1,7 +1,5 @@
 package com.zeyad.rxredux.core.redux;
 
-import org.parceler.Parcels;
-
 import com.trello.rxlifecycle2.components.RxFragment;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
@@ -9,6 +7,7 @@ import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
@@ -19,7 +18,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFragment
+public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>> extends RxFragment
         implements LoadDataView<S> {
 
     public INavigator navigator;
@@ -40,7 +39,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
         if (savedInstanceState != null && savedInstanceState.containsKey(BaseActivity.UI_MODEL)) {
-            viewState = Parcels.unwrap(savedInstanceState.getParcelable(BaseActivity.UI_MODEL));
+            viewState = savedInstanceState.getParcelable(BaseActivity.UI_MODEL);
         }
         events = Observable.empty();
         initialize();
@@ -64,7 +63,7 @@ public abstract class BaseFragment<S, VM extends BaseViewModel<S>> extends RxFra
     @Override
     public void onSaveInstanceState(@Nullable Bundle outState) {
         if (outState != null && viewState != null) {
-            outState.putParcelable(BaseActivity.UI_MODEL, Parcels.wrap(viewState));
+            outState.putParcelable(BaseActivity.UI_MODEL, viewState);
         }
         super.onSaveInstanceState(outState);
     }

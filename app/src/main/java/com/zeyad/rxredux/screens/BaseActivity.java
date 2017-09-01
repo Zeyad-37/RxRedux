@@ -5,6 +5,7 @@ import java.util.List;
 import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.snackbar.SnackBarFactory;
 
+import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Pair;
@@ -14,7 +15,7 @@ import android.widget.Toast;
 /**
  * @author by ZIaDo on 7/21/17.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>>
+public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>>
         extends com.zeyad.rxredux.core.redux.prelollipop.BaseActivity<S, VM> {
 
     /**

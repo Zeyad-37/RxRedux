@@ -1,6 +1,6 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import static com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL;
+import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
 
 import java.util.List;
 

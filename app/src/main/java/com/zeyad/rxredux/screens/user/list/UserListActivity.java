@@ -123,7 +123,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
     }
 
     @Override
-    public void setupUI() {
+    public void setupUI(boolean isNew) {
         setContentView(R.layout.activity_user_list);
         ButterKnife.bind(this);
         setSupportActionBar(toolbar);
@@ -196,11 +196,12 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
                 switch (viewType) {
                 case SECTION_HEADER:
                     return new SectionHeaderViewHolder(
-                            mLayoutInflater.inflate(R.layout.section_header_layout, parent, false));
+                            getLayoutInflater().inflate(R.layout.section_header_layout, parent, false));
                 case R.layout.empty_view:
-                    return new EmptyViewHolder(mLayoutInflater.inflate(R.layout.empty_view, parent, false));
+                    return new EmptyViewHolder(getLayoutInflater().inflate(R.layout.empty_view, parent, false));
                 case R.layout.user_item_layout:
-                    return new UserViewHolder(mLayoutInflater.inflate(R.layout.user_item_layout, parent, false));
+                    return new UserViewHolder(
+                            getLayoutInflater().inflate(R.layout.user_item_layout, parent, false));
                 default:
                     return null;
                 }
@@ -211,7 +212,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
             if (actionMode != null) {
                 toggleSelection(position);
             } else if (itemInfo.getData() instanceof User) {
-                User userModel = (User) itemInfo.getData();
+                User userModel = itemInfo.getData();
                 UserDetailState userDetailState = UserDetailState.builder().setUser(userModel).setIsTwoPane(twoPane)
                         .build();
                 Pair<View, String> pair = null;

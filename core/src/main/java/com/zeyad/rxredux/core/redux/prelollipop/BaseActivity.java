@@ -1,7 +1,5 @@
 package com.zeyad.rxredux.core.redux.prelollipop;
 
-import org.parceler.Parcels;
-
 import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
@@ -15,6 +13,7 @@ import com.zeyad.rxredux.core.redux.UIModel;
 import com.zeyad.rxredux.core.redux.UISubscriber;
 
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
@@ -26,7 +25,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxAppCompatActivity
+public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>> extends RxAppCompatActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -64,7 +63,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
     @Override
     protected void onSaveInstanceState(@Nullable Bundle bundle) {
         if (bundle != null && viewState != null) {
-            bundle.putParcelable(UI_MODEL, Parcels.wrap(viewState));
+            bundle.putParcelable(UI_MODEL, viewState);
         }
         super.onSaveInstanceState(bundle);
     }
@@ -77,7 +76,7 @@ public abstract class BaseActivity<S, VM extends BaseViewModel<S>> extends RxApp
 
     private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {
         if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
-            viewState = Parcels.unwrap(savedInstanceState.getParcelable(UI_MODEL));
+            viewState = savedInstanceState.getParcelable(UI_MODEL);
         }
     }
 

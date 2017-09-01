@@ -1,6 +1,6 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import static com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL;
+import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -123,7 +123,7 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
                 new ArrayList<>()) {
             @Override
             public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                return new RepositoryViewHolder(mLayoutInflater.inflate(viewType, parent, false));
+                return new RepositoryViewHolder(getLayoutInflater().inflate(viewType, parent, false));
             }
         };
         recyclerViewRepositories.setAdapter(repositoriesAdapter);
