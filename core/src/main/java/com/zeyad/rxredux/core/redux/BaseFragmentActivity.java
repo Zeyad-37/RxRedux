@@ -1,15 +1,16 @@
 package com.zeyad.rxredux.core.redux;
 
-import com.trello.rxlifecycle2.components.support.RxFragmentActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatDelegate;
 
 import io.reactivex.BackpressureStrategy;
@@ -20,7 +21,7 @@ import io.reactivex.Observable;
  * @author by Zeyad.
  */
 public abstract class BaseFragmentActivity<S extends Parcelable, VM extends BaseViewModel<S>>
-        extends RxFragmentActivity
+        extends FragmentActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -43,11 +44,20 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
     }
 
     @Override
+    protected void onSaveInstanceState(@Nullable Bundle bundle) {
+        if (bundle != null && viewState != null) {
+            bundle.putParcelable(UI_MODEL, viewState);
+        }
+        super.onSaveInstanceState(bundle);
+    }
+
+    @Override
     protected void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
+        LiveDataReactiveStreams
+                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 
     @Override
@@ -59,14 +69,6 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         restoreViewStateFromBundle(savedInstanceState);
-    }
-
-    @Override
-    protected void onSaveInstanceState(@Nullable Bundle bundle) {
-        if (bundle != null && viewState != null) {
-            bundle.putParcelable(UI_MODEL, viewState);
-        }
-        super.onSaveInstanceState(bundle);
     }
 
     private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {

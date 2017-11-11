@@ -1,11 +1,15 @@
 package com.zeyad.rxredux.core.redux;
 
-import com.trello.rxlifecycle2.components.RxFragment;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
+import android.app.Fragment;
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LifecycleRegistry;
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
@@ -18,8 +22,8 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>> extends RxFragment
-        implements LoadDataView<S> {
+public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>> extends Fragment
+        implements LoadDataView<S>, LifecycleOwner {
 
     public INavigator navigator;
     public IRxEventBus rxEventBus;
@@ -27,6 +31,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
     public S viewState;
+    private LifecycleRegistry mLifecycleRegistry;
 
     public BaseFragment() {
         super();
@@ -35,6 +40,8 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mLifecycleRegistry = new LifecycleRegistry(this);
+        mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
@@ -48,16 +55,17 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
     @Override
     public void onStart() {
         super.onStart();
+        mLifecycleRegistry.markState(Lifecycle.State.STARTED);
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER)
-                .compose(uiModelsTransformer)
-                .compose(bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
+        LiveDataReactiveStreams
+                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 
     @Override
-    public void setState(S bundle) {
-        viewState = bundle;
+    public void onResume() {
+        super.onResume();
+        mLifecycleRegistry.markState(Lifecycle.State.RESUMED);
     }
 
     @Override
@@ -68,6 +76,17 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         super.onSaveInstanceState(outState);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mLifecycleRegistry.markState(Lifecycle.State.DESTROYED);
+    }
+
+    @Override
+    public void setState(S bundle) {
+        viewState = bundle;
+    }
+
     @NonNull
     public abstract ErrorMessageFactory errorMessageFactory();
 
@@ -75,4 +94,10 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
      * Initialize any objects or any required dependencies.
      */
     public abstract void initialize();
+
+    @NonNull
+    @Override
+    public Lifecycle getLifecycle() {
+        return mLifecycleRegistry;
+    }
 }

@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.core.redux.prelollipop;
 
-import com.trello.rxlifecycle2.components.support.RxAppCompatActivity;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
@@ -10,12 +9,14 @@ import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.core.redux.LoadDataView;
 import com.zeyad.rxredux.core.redux.UIModel;
-import com.zeyad.rxredux.core.redux.UISubscriber;
+import com.zeyad.rxredux.core.redux.UIObserver;
 
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.AppCompatDelegate;
 
 import io.reactivex.BackpressureStrategy;
@@ -25,7 +26,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>> extends RxAppCompatActivity
+public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>> extends AppCompatActivity
         implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
@@ -36,7 +37,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     public S viewState;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
@@ -51,13 +52,9 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     protected void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
-    }
-
-    @Override
-    public void setState(S bundle) {
-        viewState = bundle;
+        LiveDataReactiveStreams
+                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 
     @Override
@@ -66,6 +63,11 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
             bundle.putParcelable(UI_MODEL, viewState);
         }
         super.onSaveInstanceState(bundle);
+    }
+
+    @Override
+    public void setState(S bundle) {
+        viewState = bundle;
     }
 
     @Override

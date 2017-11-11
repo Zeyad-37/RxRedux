@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.core.redux.prelollipop;
 
-import com.trello.rxlifecycle2.components.support.RxFragment;
 import com.zeyad.rxredux.core.eventbus.IRxEventBus;
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
@@ -10,12 +9,14 @@ import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.core.redux.LoadDataView;
 import com.zeyad.rxredux.core.redux.UIModel;
-import com.zeyad.rxredux.core.redux.UISubscriber;
+import com.zeyad.rxredux.core.redux.UIObserver;
 
+import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
@@ -24,7 +25,7 @@ import io.reactivex.Observable;
 /**
  * @author Zeyad.
  */
-public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>> extends RxFragment
+public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewModel<S>> extends Fragment
         implements LoadDataView<S> {
 
     public INavigator navigator;
@@ -44,8 +45,9 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
         rxEventBus = RxEventBusFactory.getInstance();
-        if (savedInstanceState != null && savedInstanceState.containsKey(BaseActivity.UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(BaseActivity.UI_MODEL);
+        if (savedInstanceState != null
+                && savedInstanceState.containsKey(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL)) {
+            viewState = savedInstanceState.getParcelable(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL);
         }
         events = Observable.empty();
         initialize();
@@ -55,21 +57,22 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
     public void onStart() {
         super.onStart();
         uiModelsTransformer = viewModel.uiModels();
-        events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer).compose(bindToLifecycle())
-                .subscribe(new UISubscriber<>(this, errorMessageFactory()));
-    }
-
-    @Override
-    public void setState(S bundle) {
-        viewState = bundle;
+        LiveDataReactiveStreams
+                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 
     @Override
     public void onSaveInstanceState(@Nullable Bundle outState) {
         if (outState != null && viewState != null) {
-            outState.putParcelable(BaseActivity.UI_MODEL, viewState);
+            outState.putParcelable(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL, viewState);
         }
         super.onSaveInstanceState(outState);
+    }
+
+    @Override
+    public void setState(S bundle) {
+        viewState = bundle;
     }
 
     @NonNull
@@ -80,3 +83,4 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
      */
     public abstract void initialize();
 }
+
