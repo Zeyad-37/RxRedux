@@ -28,7 +28,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
 
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
-    public IRxEventBus rxEventBus;
+    public IRxEventBus<Observable<BaseEvent>> rxEventBus;
     public Observable<BaseEvent> events;
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
@@ -46,6 +46,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
         restoreViewStateFromBundle(savedInstanceState);
         events = Observable.empty();
         initialize();
+        uiModelsTransformer = viewModel.uiModels();
         setupUI(savedInstanceState == null);
     }
 
@@ -59,9 +60,12 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     protected void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        uiModelsTransformer = viewModel.uiModels();
         LiveDataReactiveStreams
                 .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
+        LiveDataReactiveStreams.fromPublisher(rxEventBus.toFlowable()
+                .flatMap(eventObservable -> events.mergeWith(eventObservable).toFlowable(BackpressureStrategy.BUFFER))
+                .compose(uiModelsTransformer))
                 .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 

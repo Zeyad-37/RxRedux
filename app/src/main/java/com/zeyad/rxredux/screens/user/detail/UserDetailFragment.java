@@ -1,26 +1,5 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.parceler.Parcels;
-
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.drawable.GlideDrawable;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.zeyad.gadapter.GenericRecyclerViewAdapter;
-import com.zeyad.gadapter.ItemInfo;
-import com.zeyad.rxredux.R;
-import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
-import com.zeyad.rxredux.screens.BaseFragment;
-import com.zeyad.rxredux.screens.user.list.User;
-import com.zeyad.rxredux.screens.user.list.UserListActivity;
-import com.zeyad.rxredux.utils.Utils;
-import com.zeyad.usecases.api.DataServiceFactory;
-
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -43,9 +22,30 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.GlideDrawable;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
+import com.zeyad.gadapter.GenericRecyclerViewAdapter;
+import com.zeyad.gadapter.ItemInfo;
+import com.zeyad.rxredux.R;
+import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
+import com.zeyad.rxredux.screens.BaseFragment;
+import com.zeyad.rxredux.screens.user.list.User;
+import com.zeyad.rxredux.screens.user.list.UserListActivity;
+import com.zeyad.rxredux.utils.Utils;
+import com.zeyad.usecases.api.DataServiceFactory;
+
+import org.parceler.Parcels;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
+
+import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
@@ -135,7 +135,7 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
         User user = viewState.getUser();
         List<Repository> repoModels = viewState.getRepos();
         if (Utils.isNotEmpty(repoModels)) {
-            repositoriesAdapter.setDataList(Observable.fromIterable(repoModels)
+            repositoriesAdapter.animateTo(Observable.fromIterable(repoModels)
                     .map(repository -> new ItemInfo(repository, R.layout.repo_item_layout))
                     .toList(repoModels.size()).blockingGet());
         }
@@ -144,27 +144,19 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
                 @Override
                 public boolean onException(Exception e, String model, Target<GlideDrawable> target,
                         boolean isFirstResource) {
-                    FragmentActivity activity = getActivity();
-                    if (activity != null) {
-                        activity.supportStartPostponedEnterTransition();
-                    }
-                    return false;
+                    return glideRequestListenerCore();
                 }
 
                 @Override
                 public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
                         boolean isFromMemoryCache, boolean isFirstResource) {
-                    FragmentActivity activity = getActivity();
-                    if (activity != null) {
-                        activity.supportStartPostponedEnterTransition();
-                    }
-                    return false;
+                    return glideRequestListenerCore();
                 }
             };
             if (userDetailState.isTwoPane()) {
                 UserListActivity activity = (UserListActivity) getActivity();
                 if (activity != null) {
-                    Toolbar appBarLayout = (Toolbar) activity.findViewById(R.id.toolbar);
+                    Toolbar appBarLayout = activity.findViewById(R.id.toolbar);
                     if (appBarLayout != null) {
                         appBarLayout.setTitle(user.getLogin());
                     }
@@ -177,9 +169,7 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
                 UserDetailActivity activity = (UserDetailActivity) getActivity();
                 if (activity != null) {
                     CollapsingToolbarLayout appBarLayout = activity.collapsingToolbarLayout;
-                    if (appBarLayout != null) {
-                        appBarLayout.setTitle(user.getLogin());
-                    }
+                    appBarLayout.setTitle(user.getLogin());
                     if (Utils.isNotEmpty(user.getAvatarUrl())) {
                         Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
                                 .into(activity.imageViewAvatar);
@@ -188,6 +178,11 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
             }
         }
         //        applyPalette();
+    }
+
+    boolean glideRequestListenerCore() {
+        Utils.runIfNotNull(getActivity(), FragmentActivity::supportStartPostponedEnterTransition);
+        return false;
     }
 
     @Override

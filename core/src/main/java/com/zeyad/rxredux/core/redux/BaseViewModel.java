@@ -1,13 +1,5 @@
 package com.zeyad.rxredux.core.redux;
 
-import static com.zeyad.rxredux.core.redux.Result.loadingResult;
-import static com.zeyad.rxredux.core.redux.Result.successResult;
-import static com.zeyad.rxredux.core.redux.UIModel.IDLE;
-import static com.zeyad.rxredux.core.redux.UIModel.errorState;
-import static com.zeyad.rxredux.core.redux.UIModel.idleState;
-import static com.zeyad.rxredux.core.redux.UIModel.loadingState;
-import static com.zeyad.rxredux.core.redux.UIModel.successState;
-
 import android.arch.lifecycle.ViewModel;
 
 import io.reactivex.Flowable;
@@ -17,6 +9,14 @@ import io.reactivex.annotations.NonNull;
 import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.zeyad.rxredux.core.redux.Result.loadingResult;
+import static com.zeyad.rxredux.core.redux.Result.successResult;
+import static com.zeyad.rxredux.core.redux.UIModel.IDLE;
+import static com.zeyad.rxredux.core.redux.UIModel.errorState;
+import static com.zeyad.rxredux.core.redux.UIModel.idleState;
+import static com.zeyad.rxredux.core.redux.UIModel.loadingState;
+import static com.zeyad.rxredux.core.redux.UIModel.successState;
 
 /*** @author Zeyad. */
 public abstract class BaseViewModel<S> extends ViewModel {
@@ -30,6 +30,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @param successStateAccumulator a success State Accumulator.
      * @param initialState            Initial state to start with.
      */
+    // TODO: 12/11/17 Use DI!
     public abstract void init(@NonNull SuccessStateAccumulator<S> successStateAccumulator, @Nullable S initialState,
             Object... otherDependencies);
 

@@ -1,10 +1,5 @@
 package com.zeyad.rxredux.core.redux;
 
-import com.zeyad.rxredux.core.eventbus.IRxEventBus;
-import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
-import com.zeyad.rxredux.core.navigation.INavigator;
-import com.zeyad.rxredux.core.navigation.NavigatorFactory;
-
 import android.app.Fragment;
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleOwner;
@@ -14,6 +9,11 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.zeyad.rxredux.core.eventbus.IRxEventBus;
+import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
+import com.zeyad.rxredux.core.navigation.INavigator;
+import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
@@ -26,7 +26,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         implements LoadDataView<S>, LifecycleOwner {
 
     public INavigator navigator;
-    public IRxEventBus rxEventBus;
+    public IRxEventBus<Observable<BaseEvent>> rxEventBus;
     public Observable<BaseEvent> events;
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
@@ -50,15 +50,19 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         }
         events = Observable.empty();
         initialize();
+        uiModelsTransformer = viewModel.uiModels();
     }
 
     @Override
     public void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        uiModelsTransformer = viewModel.uiModels();
         LiveDataReactiveStreams
                 .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
+        LiveDataReactiveStreams.fromPublisher(rxEventBus.toFlowable()
+                .flatMap(eventObservable -> events.mergeWith(eventObservable).toFlowable(BackpressureStrategy.BUFFER))
+                .compose(uiModelsTransformer))
                 .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 

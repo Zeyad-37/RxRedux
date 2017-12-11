@@ -1,42 +1,5 @@
 package com.zeyad.rxredux.screens.user.list;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
-import static com.zeyad.gadapter.ItemInfo.SECTION_HEADER;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-
-import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView;
-import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
-import com.jakewharton.rxbinding2.view.RxMenuItem;
-import com.zeyad.gadapter.GenericRecyclerViewAdapter;
-import com.zeyad.gadapter.ItemInfo;
-import com.zeyad.gadapter.OnStartDragListener;
-import com.zeyad.gadapter.SimpleItemTouchHelperCallback;
-import com.zeyad.gadapter.fastscroll.FastScroller;
-import com.zeyad.gadapter.stickyheaders.StickyLayoutManager;
-import com.zeyad.gadapter.stickyheaders.exposed.StickyHeaderListener;
-import com.zeyad.rxredux.R;
-import com.zeyad.rxredux.core.redux.BaseEvent;
-import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
-import com.zeyad.rxredux.core.redux.SuccessStateAccumulator;
-import com.zeyad.rxredux.core.redux.UISubscriber;
-import com.zeyad.rxredux.screens.BaseActivity;
-import com.zeyad.rxredux.screens.user.detail.UserDetailActivity;
-import com.zeyad.rxredux.screens.user.detail.UserDetailFragment;
-import com.zeyad.rxredux.screens.user.detail.UserDetailState;
-import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent;
-import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent;
-import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent;
-import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder;
-import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder;
-import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder;
-import com.zeyad.rxredux.utils.Utils;
-import com.zeyad.usecases.api.DataServiceFactory;
-
 import android.app.ActivityOptions;
 import android.app.SearchManager;
 import android.arch.lifecycle.ViewModelProviders;
@@ -61,11 +24,46 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView;
+import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView;
+import com.jakewharton.rxbinding2.view.RxMenuItem;
+import com.zeyad.gadapter.GenericRecyclerViewAdapter;
+import com.zeyad.gadapter.ItemInfo;
+import com.zeyad.gadapter.OnStartDragListener;
+import com.zeyad.gadapter.SimpleItemTouchHelperCallback;
+import com.zeyad.gadapter.fastscroll.FastScroller;
+import com.zeyad.gadapter.stickyheaders.StickyLayoutManager;
+import com.zeyad.gadapter.stickyheaders.exposed.StickyHeaderListener;
+import com.zeyad.rxredux.R;
+import com.zeyad.rxredux.core.redux.BaseEvent;
+import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
+import com.zeyad.rxredux.core.redux.SuccessStateAccumulator;
+import com.zeyad.rxredux.screens.BaseActivity;
+import com.zeyad.rxredux.screens.user.detail.UserDetailActivity;
+import com.zeyad.rxredux.screens.user.detail.UserDetailFragment;
+import com.zeyad.rxredux.screens.user.detail.UserDetailState;
+import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent;
+import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent;
+import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent;
+import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder;
+import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder;
+import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder;
+import com.zeyad.rxredux.utils.Utils;
+import com.zeyad.usecases.api.DataServiceFactory;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.BackpressureStrategy;
 import io.reactivex.Observable;
 import io.reactivex.Single;
+
+import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
+import static com.zeyad.gadapter.ItemInfo.SECTION_HEADER;
 
 /**
  * An activity representing a list of Repos. This activity has different presentations for handset
@@ -76,6 +74,7 @@ import io.reactivex.Single;
 public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         implements OnStartDragListener, ActionMode.Callback {
     public static final int PAGE_SIZE = 6;
+    public static final String FIRED = "fired!";
 
     @BindView(R.id.imageView_avatar)
     public ImageView imageViewAvatar;
@@ -113,13 +112,9 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         viewModel = ViewModelProviders.of(this).get(UserListVM.class);
         viewModel.init(getUserListStateSuccessStateAccumulator(), viewState, DataServiceFactory.getInstance());
         if (viewState == null) {
-            events = Single.<BaseEvent> just(new GetPaginatedUsersEvent(0))
-                    .doOnSuccess(event -> Log.d("GetPaginatedUsersEvent", "fired!")).toObservable();
+            events = Single.<BaseEvent>just(new GetPaginatedUsersEvent(0))
+                    .doOnSuccess(event -> Log.d("GetPaginatedUsersEvent", FIRED)).toObservable();
         }
-        rxEventBus.toFlowable().compose(bindToLifecycle())
-                .subscribe(stream -> events.mergeWith((Observable<BaseEvent>) stream)
-                        .toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer)
-                        .compose(bindToLifecycle()).subscribe(new UISubscriber<>(this, errorMessageFactory())));
     }
 
     @Override
@@ -139,19 +134,19 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
             List<User> users = currentStateBundle == null ? new ArrayList<>() : currentStateBundle.getUsers();
             List<User> searchList = new ArrayList<>();
             switch (event) {
-            case "GetPaginatedUsersEvent":
-                users.addAll(resultList);
-                break;
-            case "SearchUsersEvent":
-                searchList.clear();
-                searchList.addAll(resultList);
-                break;
-            case "DeleteUsersEvent":
-                users = Observable.fromIterable(users).filter(user -> !resultList.contains((long) user.getId()))
-                        .distinct().toList().blockingGet();
-                break;
-            default:
-                break;
+                case "GetPaginatedUsersEvent":
+                    users.addAll(resultList);
+                    break;
+                case "SearchUsersEvent":
+                    searchList.clear();
+                    searchList.addAll(resultList);
+                    break;
+                case "DeleteUsersEvent":
+                    users = Observable.fromIterable(users).filter(user -> !resultList.contains((long) user.getId()))
+                            .distinct().toList().blockingGet();
+                    break;
+                default:
+                    break;
             }
             int lastId = users.get(users.size() - 1).getId();
             users = new ArrayList<>(new HashSet<>(users));
@@ -167,11 +162,11 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         List<User> users = viewState.getUsers();
         List<User> searchList = viewState.getSearchList();
         if (Utils.isNotEmpty(searchList)) {
-            usersAdapter.setDataList(Observable.fromIterable(searchList)
+            usersAdapter.animateTo(Observable.fromIterable(searchList)
                     .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
                     .toList(users.size()).blockingGet());
         } else if (Utils.isNotEmpty(users)) {
-            usersAdapter.setDataList(Observable.fromIterable(users)
+            usersAdapter.animateTo(Observable.fromIterable(users)
                     .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
                     .toList(users.size()).blockingGet());
         }
@@ -194,16 +189,17 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
             @Override
             public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
                 switch (viewType) {
-                case SECTION_HEADER:
-                    return new SectionHeaderViewHolder(
-                            getLayoutInflater().inflate(R.layout.section_header_layout, parent, false));
-                case R.layout.empty_view:
-                    return new EmptyViewHolder(getLayoutInflater().inflate(R.layout.empty_view, parent, false));
-                case R.layout.user_item_layout:
-                    return new UserViewHolder(
-                            getLayoutInflater().inflate(R.layout.user_item_layout, parent, false));
-                default:
-                    return null;
+                    case SECTION_HEADER:
+                        return new SectionHeaderViewHolder(getLayoutInflater()
+                                .inflate(R.layout.section_header_layout, parent, false));
+                    case R.layout.empty_view:
+                        return new EmptyViewHolder(getLayoutInflater()
+                                .inflate(R.layout.empty_view, parent, false));
+                    case R.layout.user_item_layout:
+                        return new UserViewHolder(getLayoutInflater()
+                                .inflate(R.layout.user_item_layout, parent, false));
+                    default:
+                        throw new IllegalArgumentException("Could not find view of type " + viewType);
                 }
             }
         };
@@ -253,12 +249,9 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
             }
             return true;
         });
-        usersAdapter.setOnItemSwipeListener(itemInfo -> {
-            events = events.mergeWith(Observable.defer(() -> Observable
-                    .just(new DeleteUsersEvent(Collections.singletonList(((User) itemInfo.getData()).getLogin())))
-                    .doOnEach(notification -> Log.d("DeleteEvent", "fired!"))));
-            rxEventBus.send(events);
-        });
+        events = events.mergeWith(usersAdapter.getItemSwipeObservable()
+                .map(itemInfo -> new DeleteUsersEvent(Collections.singletonList(((User) itemInfo.getData()).getLogin())))
+                .doOnEach(notification -> Log.d("DeleteEvent", FIRED)));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         StickyLayoutManager stickyLayoutManager = new TopSnappedStickyLayoutManager(this, usersAdapter);
         stickyLayoutManager.setStickyHeaderListener(new StickyHeaderListener() {
@@ -276,21 +269,22 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         userRecycler.setAdapter(usersAdapter);
         usersAdapter.setAllowSelection(true);
         fastScroller.setRecyclerView(userRecycler);
-        events = events
-                .mergeWith(Observable.defer(() -> RxRecyclerView.scrollStateChanges(userRecycler).map(integer -> {
-                    if (integer == SCROLL_STATE_SETTLING) {
-                        int totalItemCount = layoutManager.getItemCount();
-                        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                        return (layoutManager.getChildCount() + firstVisibleItemPosition) >= totalItemCount
-                                && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE
-                                        ? new GetPaginatedUsersEvent(viewState.getLastId())
-                                        : new GetPaginatedUsersEvent(-1);
-                    } else {
-                        return new GetPaginatedUsersEvent(-1);
-                    }
-                }).filter(usersNextPageEvent -> usersNextPageEvent.getLastId() != -1)
-                        .throttleLast(200, TimeUnit.MILLISECONDS).debounce(300, TimeUnit.MILLISECONDS)
-                        .doOnNext(searchUsersEvent -> Log.d("NextPageEvent", "fired!"))));
+        events = events.mergeWith(RxRecyclerView.scrollStateChanges(userRecycler).map(integer -> {
+            if (integer == SCROLL_STATE_SETTLING) {
+                int totalItemCount = layoutManager.getItemCount();
+                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                return (layoutManager.getChildCount() + firstVisibleItemPosition) >= totalItemCount
+                        && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE
+                        ? new GetPaginatedUsersEvent(viewState.getLastId())
+                        : new GetPaginatedUsersEvent(-1);
+            } else {
+                return new GetPaginatedUsersEvent(-1);
+            }
+        })
+                .filter(usersNextPageEvent -> usersNextPageEvent.getLastId() != -1)
+                .throttleLast(200, TimeUnit.MILLISECONDS)
+                .debounce(300, TimeUnit.MILLISECONDS)
+                .doOnNext(searchUsersEvent -> Log.d("NextPageEvent", FIRED)));
         itemTouchHelper = new ItemTouchHelper(new SimpleItemTouchHelperCallback(usersAdapter));
         itemTouchHelper.attachToRecyclerView(userRecycler);
     }
@@ -302,16 +296,18 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
         searchView.setOnCloseListener(() -> {
-            events = events.mergeWith(Single.<BaseEvent> just(new GetPaginatedUsersEvent(viewState.getLastId()))
-                    .doOnSuccess(event -> Log.d("CloseSearchViewEvent", "fired!")).toObservable());
+            events = events.mergeWith(Single.
+                    <BaseEvent>just(new GetPaginatedUsersEvent(viewState == null ? -1 : viewState.getLastId()))
+                    .doOnSuccess(event -> Log.d("CloseSearchViewEvent", FIRED)).toObservable());
             rxEventBus.send(events);
             return false;
         });
-        events = events.mergeWith(
-                RxSearchView.queryTextChanges(searchView).filter(charSequence -> !charSequence.toString().isEmpty())
-                        .map(query -> new SearchUsersEvent(query.toString()))
-                        .throttleLast(100, TimeUnit.MILLISECONDS).debounce(200, TimeUnit.MILLISECONDS)
-                        .doOnNext(searchUsersEvent -> Log.d("SearchEvent", "eventFired")));
+        events = events.mergeWith(RxSearchView.queryTextChanges(searchView)
+                .filter(charSequence -> !charSequence.toString().isEmpty())
+                .map(query -> new SearchUsersEvent(query.toString()))
+                .throttleLast(100, TimeUnit.MILLISECONDS)
+                .debounce(200, TimeUnit.MILLISECONDS)
+                .doOnEach(searchUsersEvent -> Log.d("SearchEvent", FIRED)));
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -342,7 +338,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
                         .map(itemInfo -> ((User) itemInfo.getData()).getLogin()).toList().blockingGet()))
                 .doOnEach(notification -> {
                     actionMode.finish();
-                    Log.d("DeleteEvent", "fired!");
+                    Log.d("DeleteEvent", FIRED);
                 })));
         rxEventBus.send(events);
         return true;
@@ -365,7 +361,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         try {
             usersAdapter.clearSelection();
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e("onDestroyActionMode", e.getMessage(), e);
         }
         actionMode = null;
         toolbar.setVisibility(View.VISIBLE);
