@@ -31,7 +31,7 @@ public class UISubscriber<V extends LoadDataView<S>, S> extends DisposableSubscr
                 view.setState(bundle);
                 view.renderSuccessState(bundle);
             } else {
-                Throwable error = uiModel.getError();
+                Throwable error = uiModel.getThrowable();
                 if (error != null) {
                     Log.e("UISubscriber", "onNext", error);
                     view.showError(errorMessageFactory.getErrorMessage(error));

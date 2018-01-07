@@ -1,13 +1,13 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import java.util.List;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.zeyad.rxredux.screens.user.User;
 
 import org.parceler.Transient;
 
-import com.zeyad.rxredux.screens.user.list.User;
-
-import android.os.Parcel;
-import android.os.Parcelable;
+import java.util.List;
 
 /**
  * @author zeyad on 1/25/17.

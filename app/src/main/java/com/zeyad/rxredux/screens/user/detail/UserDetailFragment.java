@@ -31,7 +31,7 @@ import com.zeyad.gadapter.ItemInfo;
 import com.zeyad.rxredux.R;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.screens.BaseFragment;
-import com.zeyad.rxredux.screens.user.list.User;
+import com.zeyad.rxredux.screens.user.User;
 import com.zeyad.rxredux.screens.user.list.UserListActivity;
 import com.zeyad.rxredux.utils.Utils;
 import com.zeyad.usecases.api.DataServiceFactory;
@@ -100,11 +100,7 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
             viewState = Parcels.unwrap(arguments.getParcelable(UI_MODEL));
         }
         viewModel = ViewModelProviders.of(this).get(UserDetailVM.class);
-        viewModel.init(
-                (newResult, event, currentStateBundle) -> UserDetailState.builder()
-                        .setRepos((List<Repository>) newResult).setUser(currentStateBundle.getUser())
-                        .setIsTwoPane(currentStateBundle.isTwoPane()).build(),
-                viewState, DataServiceFactory.getInstance());
+        viewModel.init(viewState, DataServiceFactory.getInstance());
         events = Observable.just(new GetReposEvent(viewState.getUser().getLogin()));
     }
 

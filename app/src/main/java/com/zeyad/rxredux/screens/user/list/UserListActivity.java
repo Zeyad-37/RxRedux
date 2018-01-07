@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v7.util.DiffUtil;
 import android.support.v7.view.ActionMode;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -32,13 +33,13 @@ import com.zeyad.gadapter.ItemInfo;
 import com.zeyad.gadapter.OnStartDragListener;
 import com.zeyad.gadapter.SimpleItemTouchHelperCallback;
 import com.zeyad.gadapter.fastscroll.FastScroller;
-import com.zeyad.gadapter.stickyheaders.StickyLayoutManager;
-import com.zeyad.gadapter.stickyheaders.exposed.StickyHeaderListener;
 import com.zeyad.rxredux.R;
 import com.zeyad.rxredux.core.redux.BaseEvent;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
-import com.zeyad.rxredux.core.redux.SuccessStateAccumulator;
 import com.zeyad.rxredux.screens.BaseActivity;
+import com.zeyad.rxredux.screens.user.User;
+import com.zeyad.rxredux.screens.user.UserDiffCallBack;
+import com.zeyad.rxredux.screens.user.ViewModelFactory;
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity;
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment;
 import com.zeyad.rxredux.screens.user.detail.UserDetailState;
@@ -53,7 +54,6 @@ import com.zeyad.usecases.api.DataServiceFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -110,7 +110,8 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
     @Override
     public void initialize() {
         viewModel = ViewModelProviders.of(this).get(UserListVM.class);
-        viewModel.init(getUserListStateSuccessStateAccumulator(), viewState, DataServiceFactory.getInstance());
+        viewModel = new ViewModelFactory().create(UserListVM.class);
+        viewModel.init(viewState, DataServiceFactory.getInstance());
         if (viewState == null) {
             events = Single.<BaseEvent>just(new GetPaginatedUsersEvent(0))
                     .doOnSuccess(event -> Log.d("GetPaginatedUsersEvent", FIRED)).toObservable();
@@ -127,48 +128,31 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         twoPane = findViewById(R.id.user_detail_container) != null;
     }
 
-    @NonNull
-    private SuccessStateAccumulator<UserListState> getUserListStateSuccessStateAccumulator() {
-        return (newResult, event, currentStateBundle) -> {
-            List resultList = (List) newResult;
-            List<User> users = currentStateBundle == null ? new ArrayList<>() : currentStateBundle.getUsers();
-            List<User> searchList = new ArrayList<>();
-            switch (event) {
-                case "GetPaginatedUsersEvent":
-                    users.addAll(resultList);
-                    break;
-                case "SearchUsersEvent":
-                    searchList.clear();
-                    searchList.addAll(resultList);
-                    break;
-                case "DeleteUsersEvent":
-                    users = Observable.fromIterable(users).filter(user -> !resultList.contains((long) user.getId()))
-                            .distinct().toList().blockingGet();
-                    break;
-                default:
-                    break;
-            }
-            int lastId = users.get(users.size() - 1).getId();
-            users = new ArrayList<>(new HashSet<>(users));
-            Collections.sort(users,
-                    (user1, user2) -> String.valueOf(user1.getId()).compareTo(String.valueOf(user2.getId())));
-            return UserListState.builder().users(users).searchList(searchList).lastId(lastId).build();
-        };
-    }
-
+    // TODO: 1/7/18 Optimize
     @Override
     public void renderSuccessState(UserListState state) {
-        viewState = state;
-        List<User> users = viewState.getUsers();
-        List<User> searchList = viewState.getSearchList();
+        List<User> users = state.getUsers();
+        List<User> searchList = state.getSearchList();
         if (Utils.isNotEmpty(searchList)) {
-            usersAdapter.animateTo(Observable.fromIterable(searchList)
-                    .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
-                    .toList(users.size()).blockingGet());
+            if (usersAdapter.getDataList().isEmpty()) {
+                usersAdapter.animateTo(Observable.fromIterable(searchList)
+                        .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
+                        .toList(searchList.size()).blockingGet());
+            } else {
+                DiffUtil.calculateDiff(new UserDiffCallBack(Observable.fromIterable(usersAdapter.getDataList())
+                        .map(ItemInfo::<User>getData).toList().blockingGet(), searchList))
+                        .dispatchUpdatesTo(usersAdapter);
+            }
         } else if (Utils.isNotEmpty(users)) {
-            usersAdapter.animateTo(Observable.fromIterable(users)
-                    .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
-                    .toList(users.size()).blockingGet());
+            if (usersAdapter.getDataList().isEmpty()) {
+                usersAdapter.animateTo(Observable.fromIterable(users)
+                        .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
+                        .toList(users.size()).blockingGet());
+            } else {
+                DiffUtil.calculateDiff(new UserDiffCallBack(Observable.fromIterable(usersAdapter.getDataList())
+                        .map(ItemInfo::<User>getData).toList().blockingGet(), users))
+                        .dispatchUpdatesTo(usersAdapter);
+            }
         }
     }
 
@@ -221,15 +205,13 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
                     secondPair = Pair.create(textViewTitle, textViewTitle.getTransitionName());
                 }
                 if (twoPane) {
-                    List<Pair<View, String>> pairs = new ArrayList<>();
-                    pairs.add(pair);
-                    pairs.add(secondPair);
                     if (Utils.isNotEmpty(currentFragTag)) {
                         removeFragment(currentFragTag);
                     }
                     UserDetailFragment orderDetailFragment = UserDetailFragment.newInstance(userDetailState);
                     currentFragTag = orderDetailFragment.getClass().getSimpleName() + userModel.getId();
-                    addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag, pairs);
+                    addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
+                            pair, secondPair);
                 } else {
                     if (Utils.hasLollipop()) {
                         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
@@ -253,34 +235,24 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
                 .map(itemInfo -> new DeleteUsersEvent(Collections.singletonList(((User) itemInfo.getData()).getLogin())))
                 .doOnEach(notification -> Log.d("DeleteEvent", FIRED)));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        StickyLayoutManager stickyLayoutManager = new TopSnappedStickyLayoutManager(this, usersAdapter);
-        stickyLayoutManager.setStickyHeaderListener(new StickyHeaderListener() {
-            @Override
-            public void headerAttached(View headerView, int adapterPosition) {
-                Log.d("Listener", "Attached with position: " + adapterPosition);
-            }
-
-            @Override
-            public void headerDetached(View headerView, int adapterPosition) {
-                Log.d("Listener", "Detached with position: " + adapterPosition);
-            }
-        });
-        userRecycler.setLayoutManager(stickyLayoutManager);
+//        StickyLayoutManager stickyLayoutManager = new TopSnappedStickyLayoutManager(this, usersAdapter);
+        userRecycler.setLayoutManager(layoutManager);
         userRecycler.setAdapter(usersAdapter);
         usersAdapter.setAllowSelection(true);
         fastScroller.setRecyclerView(userRecycler);
-        events = events.mergeWith(RxRecyclerView.scrollStateChanges(userRecycler).map(integer -> {
-            if (integer == SCROLL_STATE_SETTLING) {
-                int totalItemCount = layoutManager.getItemCount();
-                int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                return (layoutManager.getChildCount() + firstVisibleItemPosition) >= totalItemCount
-                        && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE
-                        ? new GetPaginatedUsersEvent(viewState.getLastId())
-                        : new GetPaginatedUsersEvent(-1);
-            } else {
-                return new GetPaginatedUsersEvent(-1);
-            }
-        })
+        events = events.mergeWith(RxRecyclerView.scrollStateChanges(userRecycler)
+                .map(integer -> {
+                    if (integer == SCROLL_STATE_SETTLING) {
+                        int totalItemCount = layoutManager.getItemCount();
+                        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                        if ((layoutManager.getChildCount() + firstVisibleItemPosition) >= totalItemCount
+                                && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE)
+                            return new GetPaginatedUsersEvent(viewState.getLastId());
+                        else return new GetPaginatedUsersEvent(-1);
+                    } else {
+                        return new GetPaginatedUsersEvent(-1);
+                    }
+                })
                 .filter(usersNextPageEvent -> usersNextPageEvent.getLastId() != -1)
                 .throttleLast(200, TimeUnit.MILLISECONDS)
                 .debounce(300, TimeUnit.MILLISECONDS)
@@ -335,7 +307,8 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         mode.getMenuInflater().inflate(R.menu.selected_list_menu, menu);
         events = events.mergeWith(Observable.defer(() -> RxMenuItem.clicks(menu.findItem(R.id.delete_item))
                 .map(click -> new DeleteUsersEvent(Observable.fromIterable(usersAdapter.getSelectedItems())
-                        .map(itemInfo -> ((User) itemInfo.getData()).getLogin()).toList().blockingGet()))
+                        .map(itemInfo -> itemInfo.<User>getData().getLogin()).toList()
+                        .blockingGet()))
                 .doOnEach(notification -> {
                     actionMode.finish();
                     Log.d("DeleteEvent", FIRED);

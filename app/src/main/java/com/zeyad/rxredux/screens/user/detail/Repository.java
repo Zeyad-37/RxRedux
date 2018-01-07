@@ -1,9 +1,9 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import org.parceler.Parcel;
-
 import com.google.gson.annotations.SerializedName;
-import com.zeyad.rxredux.screens.user.list.User;
+import com.zeyad.rxredux.screens.user.User;
+
+import org.parceler.Parcel;
 
 import io.realm.RealmObject;
 

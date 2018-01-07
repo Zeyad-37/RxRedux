@@ -1,9 +1,9 @@
-package com.zeyad.rxredux.screens.user.list;
-
-import com.google.gson.annotations.SerializedName;
+package com.zeyad.rxredux.screens.user;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import com.google.gson.annotations.SerializedName;
 
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
@@ -25,7 +25,7 @@ public class User extends RealmObject implements Parcelable {
             return new User[size];
         }
     };
-    static final String LOGIN = "login";
+    public static final String LOGIN = "login";
     private static final String ID = "id", AVATAR_URL = "avatar_url";
     @PrimaryKey
     @SerializedName(LOGIN)
@@ -87,7 +87,7 @@ public class User extends RealmObject implements Parcelable {
         User user = (User) o;
         return id == user.id && (login != null ? login.equals(user.login)
                 : user.login == null
-                        && (avatarUrl != null ? avatarUrl.equals(user.avatarUrl) : user.avatarUrl == null));
+                && (avatarUrl != null ? avatarUrl.equals(user.avatarUrl) : user.avatarUrl == null));
     }
 
     @Override

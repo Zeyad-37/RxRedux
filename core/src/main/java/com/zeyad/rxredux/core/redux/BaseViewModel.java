@@ -1,6 +1,7 @@
 package com.zeyad.rxredux.core.redux;
 
 import android.arch.lifecycle.ViewModel;
+import android.support.v4.util.Pair;
 
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
@@ -21,18 +22,17 @@ import static com.zeyad.rxredux.core.redux.UIModel.successState;
 /*** @author Zeyad. */
 public abstract class BaseViewModel<S> extends ViewModel {
 
-    private SuccessStateAccumulator<S> successStateAccumulator;
-    private S initialState;
+    private S state;
 
     /**
      * A different way to initialize an instance without a constructor
      *
-     * @param successStateAccumulator a success State Accumulator.
-     * @param initialState            Initial state to start with.
+     * @param initialState Initial state to start with.
      */
     // TODO: 12/11/17 Use DI!
-    public abstract void init(@NonNull SuccessStateAccumulator<S> successStateAccumulator, @Nullable S initialState,
-            Object... otherDependencies);
+    public abstract void init(@Nullable S initialState, Object... otherDependencies);
+
+    public abstract StateReducer<S> stateReducer();
 
     /**
      * A Transformer, given events returns UIModels by applying the redux pattern.
@@ -41,44 +41,46 @@ public abstract class BaseViewModel<S> extends ViewModel {
      */
     @NonNull
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModels() {
-        return new FlowableTransformer<BaseEvent, UIModel<S>>() {
-            @Override
-            public Flowable<UIModel<S>> apply(@NonNull Flowable<BaseEvent> events) {
-                return events.observeOn(Schedulers.io())
-                        .flatMap(new Function<BaseEvent, Flowable<Result<?>>>() {
-                            @Override
-                            public Flowable<Result<?>> apply(@NonNull final BaseEvent event) throws Exception {
-                                return Flowable.just(event)
-                                        .flatMap(mapEventsToExecutables())
-                                        .map((Function<Object, Result<?>>) result -> successResult(
-                                                new ResultBundle<>(event, result)))
-                                        .onErrorReturn(Result::errorResult)
-                                        .startWith(loadingResult());
+        return events -> events.observeOn(Schedulers.io())
+                .flatMap(event -> Flowable.just(event)
+                        .flatMap(mapEventsToExecutables())
+                        .map((Function<Object, Result<?>>) result ->
+                                successResult(Pair.create(event.getClass().getSimpleName(), result)))
+                        .onErrorReturn(Result::throwableResult)
+                        .startWith(loadingResult()))
+
+//                .distinctUntilChanged((result1, result2) -> result1.getBundle().equals(result2.getBundle())
+//                        || (result1.isLoading() && result2.isLoading()))
+                .distinctUntilChanged(Result::equals)
+
+                .scan(idleState(Pair.create(IDLE, state)),
+                        (currentUIModel, result) -> {
+                            String event = result.getEvent();
+                            S bundle = currentUIModel.getBundle();
+                            if (result.isLoading()) {
+                                currentUIModel = loadingState(Pair.create(event, bundle));
+                            } else if (result.isSuccessful()) {
+                                currentUIModel = successState(Pair.create(event,
+                                        stateReducer().reduce(result.getBundle(), event, bundle)));
+                            } else {
+                                currentUIModel = errorState(result.getThrowable(), Pair.create(event, bundle));
                             }
+                            return currentUIModel;
                         })
-                        .distinctUntilChanged((objectResult,
-                                objectResult2) -> objectResult.getBundle().equals(objectResult2.getBundle())
-                                        || (objectResult.isLoading() && objectResult2.isLoading()))
-                        .scan(idleState(new ResultBundle<>(IDLE, initialState)),
-                                (currentUIModel, result) -> {
-                                    String event = result.getEvent();
-                                    S bundle = currentUIModel.getBundle();
-                                    if (result.isLoading()) {
-                                        currentUIModel = loadingState(new ResultBundle<>(event, bundle));
-                                    } else if (result.isSuccessful()) {
-                                        currentUIModel = successState(new ResultBundle<>(event,
-                                                successStateAccumulator.accumulateSuccessStates(result.getBundle(),
-                                                        event, bundle)));
-                                    } else {
-                                        currentUIModel = errorState(result.getError(),
-                                                new ResultBundle<>(event, bundle));
-                            }
-                                    return currentUIModel;
-                        })
-                        .doOnNext(suiModel -> initialState = suiModel.getBundle())
-                        .observeOn(AndroidSchedulers.mainThread());
-            }
-        };
+
+//                .distinctUntilChanged((suiModel1, suiModel2) -> {
+//                    suiModel1.equals(suiModel2);
+//                    if (suiModel1.getBundle() != null && suiModel2.getBundle() != null)
+//                        return suiModel1.getBundle().equals(suiModel2.getBundle());
+//                    else
+//                        return (suiModel1.isLoading() && suiModel2.isLoading()) ||
+//                                (suiModel1.getStateName().equals(suiModel2.getStateName())
+//                                        && suiModel1.getStateName().equals(IDLE));
+//                })
+                .distinctUntilChanged(UIModel::equals)
+
+                .doOnNext(suiModel -> state = suiModel.getBundle())
+                .observeOn(AndroidSchedulers.mainThread());
     }
 
     /**
@@ -89,19 +91,13 @@ public abstract class BaseViewModel<S> extends ViewModel {
     @NonNull
     public abstract Function<BaseEvent, Flowable<?>> mapEventsToExecutables();
 
-    public void setSuccessStateAccumulator(SuccessStateAccumulator<S> successStateAccumulator) {
-        if (this.successStateAccumulator == null) {
-            this.successStateAccumulator = successStateAccumulator;
-        }
+    public S getState() {
+        return state;
     }
 
-    public void setInitialState(S initialState) {
-        if (this.initialState == null || !this.initialState.equals(initialState)) {
-            this.initialState = initialState;
+    public void setState(S state) {
+        if (this.state == null || !this.state.equals(state)) {
+            this.state = state;
         }
-    }
-
-    public S getCurrentState() {
-        return initialState;
     }
 }

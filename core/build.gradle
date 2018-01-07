@@ -29,13 +29,6 @@ android {
     }
 }
 
-ext {
-    supportLibrary = '26.1.0'
-//    rxLifeCycle = '2.1.0'
-    espressoCore = '2.2.2'
-    archComp = '1.0.0'
-}
-
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
@@ -43,9 +36,9 @@ dependencies {
     compile "com.android.support:support-v4:$supportLibrary"
     compile "android.arch.lifecycle:extensions:$archComp"
     compile "android.arch.lifecycle:reactivestreams:$archComp"
-//    compile "com.trello.rxlifecycle2:rxlifecycle-components:$rxLifeCycle"
-    provided 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    provided 'io.reactivex.rxjava2:rxjava:2.1.7'
+
+    provided "io.reactivex.rxjava2:rxandroid:$rxAndroid"
+    provided "io.reactivex.rxjava2:rxjava:$rxJava"
 
     testCompile 'junit:junit:4.12'
     androidTestCompile("com.android.support.test.espresso:espresso-core:$espressoCore", {

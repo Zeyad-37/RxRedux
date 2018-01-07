@@ -1,15 +1,15 @@
 package com.zeyad.rxredux.screens.user.list.viewHolders;
 
-import com.bumptech.glide.Glide;
-import com.zeyad.gadapter.GenericRecyclerViewAdapter;
-import com.zeyad.rxredux.R;
-import com.zeyad.rxredux.screens.user.list.User;
-import com.zeyad.rxredux.utils.Utils;
-
 import android.graphics.Color;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.zeyad.gadapter.GenericRecyclerViewAdapter;
+import com.zeyad.rxredux.R;
+import com.zeyad.rxredux.screens.user.User;
+import com.zeyad.rxredux.utils.Utils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;

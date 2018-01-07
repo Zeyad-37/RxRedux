@@ -1,7 +1,6 @@
 package com.zeyad.rxredux.core.redux;
 
 import android.arch.lifecycle.Observer;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import io.reactivex.annotations.NonNull;
@@ -21,7 +20,7 @@ public class UIObserver<V extends LoadDataView<S>, S> implements Observer<UIMode
     }
 
     @Override
-    public void onChanged(@Nullable UIModel<S> uiModel) {
+    public void onChanged(@NonNull UIModel<S> uiModel) {
         Log.d("onNext", "UIModel: " + uiModel.toString());
         boolean loading = uiModel.isLoading();
         view.toggleViews(loading);
@@ -31,9 +30,9 @@ public class UIObserver<V extends LoadDataView<S>, S> implements Observer<UIMode
                 view.setState(bundle);
                 view.renderSuccessState(bundle);
             } else {
-                Throwable error = uiModel.getError();
+                Throwable error = uiModel.getThrowable();
                 if (error != null) {
-                    Log.e("UISubscriber", "onNext", error);
+                    Log.e("UIObserver", "onChanged", error);
                     view.showError(errorMessageFactory.getErrorMessage(error));
                 }
             }

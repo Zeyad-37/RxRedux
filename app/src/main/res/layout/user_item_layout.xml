@@ -1,22 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout android:id="@+id/rl_row_user"
-    style="@style/Widget.CardContent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/rl_row_user"
+    style="@style/Widget.CardContent"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:background="@drawable/selector_item"
-    android:padding="@dimen/sixteen_dp"
     tools:ignore="UseCompoundDrawables">
 
     <!--<com.facebook.drawee.view.SimpleDraweeView-->
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="@dimen/lv_row_icon_width"
-        android:layout_height="@dimen/lv_row_icon_width"
+        android:layout_height="@dimen/lv_row_icon_height"
         android:layout_alignParentStart="true"
         android:contentDescription="@string/string_content_description"
-        android:paddingLeft="@dimen/lv_row_icon_padding"
         android:paddingRight="@dimen/lv_row_icon_padding"
         android:transitionName="@string/transition_photo" />
 
@@ -26,12 +24,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/four_dp"
+        android:layout_marginLeft="@dimen/eight_dp"
         android:layout_marginStart="@dimen/four_dp"
         android:layout_toEndOf="@+id/avatar"
         android:ellipsize="end"
         android:gravity="center_vertical"
-        android:textSize="@dimen/font_large"
+        android:textSize="@dimen/font_larger"
         android:transitionName="@string/transition_text"
         tools:text="{user name}" />
 </RelativeLayout>

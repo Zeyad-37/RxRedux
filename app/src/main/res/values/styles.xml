@@ -26,10 +26,10 @@
     </style>
 
     <style name="Widget.CardContent" parent="android:Widget">
-        <item name="android:paddingLeft">@dimen/sixteen_dp</item>
-        <item name="android:paddingRight">@dimen/sixteen_dp</item>
-        <item name="android:paddingTop">@dimen/twenty_four_dp</item>
-        <item name="android:paddingBottom">@dimen/twenty_four_dp</item>
+        <!--<item name="android:paddingLeft">@dimen/sixteen_dp</item>-->
+        <!--<item name="android:paddingRight">@dimen/sixteen_dp</item>-->
+        <!--<item name="android:paddingTop">@dimen/twenty_four_dp</item>-->
+        <!--<item name="android:paddingBottom">@dimen/twenty_four_dp</item>-->
         <item name="android:orientation">vertical</item>
     </style>
 

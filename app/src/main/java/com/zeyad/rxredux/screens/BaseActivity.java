@@ -1,16 +1,14 @@
 package com.zeyad.rxredux.screens;
 
-import java.util.List;
-
-import com.zeyad.rxredux.core.redux.BaseViewModel;
-import com.zeyad.rxredux.snackbar.SnackBarFactory;
-
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.util.Pair;
 import android.view.View;
 import android.widget.Toast;
+
+import com.zeyad.rxredux.core.redux.BaseViewModel;
+import com.zeyad.rxredux.snackbar.SnackBarFactory;
 
 /**
  * @author by ZIaDo on 7/21/17.
@@ -25,7 +23,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
      * @param fragment        The fragment to be added.
      */
     public void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
-            List<Pair<View, String>> sharedElements) {
+                            Pair<View, String>... sharedElements) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (sharedElements != null) {
             for (Pair<View, String> pair : sharedElements) {

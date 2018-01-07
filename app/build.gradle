@@ -24,47 +24,36 @@ android {
     }
 }
 
-ext {
-    supportLibrary = '26.1.0'
-    butterKnife = '8.6.0'
-    rxbinding = '2.0.0'
-    rxLifeCycle = '2.0.1'
-    leakCanary = '1.5.1'
-    androidSupportTest = '0.5'
-    espressoCore = '2.2.2'
-    archComp = '1.0.0-alpha5'
-}
-
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile "com.android.support:appcompat-v7:$supportLibrary"
-    compile "com.android.support:support-v4:$supportLibrary"
-    compile "com.android.support:recyclerview-v7:$supportLibrary"
-    compile "com.android.support:design:$supportLibrary"
-    compile "com.android.support:cardview-v7:$supportLibrary"
-    compile "com.android.support:palette-v7:$supportLibrary"
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation "com.android.support:appcompat-v7:$supportLibrary"
+    implementation "com.android.support:support-v4:$supportLibrary"
+    implementation "com.android.support:recyclerview-v7:$supportLibrary"
+    implementation "com.android.support:design:$supportLibrary"
+    implementation "com.android.support:cardview-v7:$supportLibrary"
+    implementation "com.android.support:palette-v7:$supportLibrary"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    compile 'com.github.Zeyad-37:Usecases:1.0.0'
-    compile 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.7.1'
-    compile 'org.parceler:parceler-api:1.1.9'
-    annotationProcessor "org.parceler:parceler:1.1.9"
-//    compile "android.arch.lifecycle:extensions:$archComp"
-//    compile "android.arch.lifecycle:reactivestreams:$archComp"
+    implementation 'com.github.Zeyad-37:Usecases:1.0.0'
+    implementation 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.7.1'
+    implementation "org.parceler:parceler-api:$parceler"
+    annotationProcessor "org.parceler:parceler:$parceler"
+//    implementation "android.arch.lifecycle:extensions:$archComp"
+//    implementation "android.arch.lifecycle:reactivestreams:$archComp"
     // Network
-    compile 'com.github.bumptech.glide:glide:3.7.0'
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
     // Rx
 //    def withoutRx = { exclude group: "io.reactivex.rxjava2" }
-    compile "com.jakewharton.rxbinding2:rxbinding:$rxbinding"//, withoutRx
-    compile "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$rxbinding"
-    compile "com.jakewharton.rxbinding2:rxbinding-design:$rxbinding"
-    compile "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:$rxbinding"
+    implementation "com.jakewharton.rxbinding2:rxbinding:$rxbinding"//, withoutRx
+    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$rxbinding"
+    implementation "com.jakewharton.rxbinding2:rxbinding-design:$rxbinding"
+    implementation "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:$rxbinding"
 
     // Injection
-    compile "com.jakewharton:butterknife:$butterKnife"
+    implementation "com.jakewharton:butterknife:$butterKnife"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnife"
 
     testCompile 'junit:junit:4.12'
-    androidTestCompile 'com.android.support.test.espresso:espresso-core:3.0.0'
-    compile project(path: ':core')
+    androidTestCompile "com.android.support.test.espresso:espresso-core:$espressoCore"
+    implementation project(path: ':core')
 }

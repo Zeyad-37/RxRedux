@@ -1,7 +1,7 @@
 [![](https://jitpack.io/v/Zeyad-37/RxRedux.svg)](https://jitpack.io/#Zeyad-37/RxRedux)
 
 # RxRedux
-A library that manages state using RxJava 2. 
+A library that manages state using RxJava 2.
 
 Medium Post: https://goo.gl/7oH1B1
 
@@ -29,11 +29,9 @@ First, an
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
 @Override
-public void init(SuccessStateAccumulator<UserListState> successStateAccumulator, UserListState initialState, 
-Object... otherDependencies) {
+public void init(UserListState state, Object... otherDependencies) {
     dataUseCase = (IDataService) otherDependencies[0];
-    setSuccessStateAccumulator(successStateAccumulator);
-    setInitialState(initialState);
+    setInitialState(state);
 }
 ```
 Secondly, your EventsToExecutablesMapper.
@@ -54,13 +52,14 @@ public Function<BaseEvent, Flowable<?>> mapEventsToExecutables() {
 This is a simple mapping function that links everyEvent with its corresponding executable function. The rest of the class holds your executables which are methods that return observables.
 
 ## Step 2
-The SuccessStateAccumulator is an interface that you implement that handles how your view should transition from one success state to the other, 
+The StateReducer is an interface that you implement that handles how your view should transition
+from one success state to the other,
 given a new result, name of the event that triggered that result and the current UIState. Lives in your Activity or Fragment.
 ```
 SuccessStateAccumulator accumulator = 
-new SuccessStateAccumulator<UserListState>() {
+new StateReducer<UserListState>() {
     @Override
-    public UserListState accumulateSuccessStates(Object newResult, String event, UserListState currentStateBundle) {
+    public UserListState reduce(Object newResult, String event, UserListState currentStateBundle) {
         List<User> resultList = (List) newResult;
         List<User> users = currentStateBundle == null ? new ArrayList<>() : currentStateBundle.getUsers();
         List<User> searchList = new ArrayList<>();
