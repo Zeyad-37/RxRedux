@@ -44,7 +44,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance();
+        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         if (savedInstanceState != null && savedInstanceState.containsKey(BaseActivity.UI_MODEL)) {
             viewState = savedInstanceState.getParcelable(BaseActivity.UI_MODEL);
         }

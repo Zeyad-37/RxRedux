@@ -62,7 +62,6 @@ import butterknife.ButterKnife;
 import io.reactivex.Observable;
 import io.reactivex.Single;
 
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_SETTLING;
 import static com.zeyad.gadapter.ItemInfo.SECTION_HEADER;
 
 /**
@@ -71,9 +70,8 @@ import static com.zeyad.gadapter.ItemInfo.SECTION_HEADER;
  * lead to a {@link UserDetailActivity} representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-public class UserListActivity extends BaseActivity<UserListState, UserListVM>
-        implements OnStartDragListener, ActionMode.Callback {
-    public static final int PAGE_SIZE = 6;
+public class UserListActivity extends BaseActivity<UserListState, UserListVM> implements
+        OnStartDragListener, ActionMode.Callback {
     public static final String FIRED = "fired!";
 
     @BindView(R.id.imageView_avatar)
@@ -109,6 +107,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
 
     @Override
     public void initialize() {
+        ViewModelProviders.of(this, new ViewModelFactory()).get(UserListVM.class);
         viewModel = ViewModelProviders.of(this).get(UserListVM.class);
         viewModel = new ViewModelFactory().create(UserListVM.class);
         viewModel.init(viewState, DataServiceFactory.getInstance());
@@ -128,31 +127,24 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
         twoPane = findViewById(R.id.user_detail_container) != null;
     }
 
-    // TODO: 1/7/18 Optimize
     @Override
     public void renderSuccessState(UserListState state) {
         List<User> users = state.getUsers();
         List<User> searchList = state.getSearchList();
         if (Utils.isNotEmpty(searchList)) {
-            if (usersAdapter.getDataList().isEmpty()) {
-                usersAdapter.animateTo(Observable.fromIterable(searchList)
-                        .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
-                        .toList(searchList.size()).blockingGet());
-            } else {
-                DiffUtil.calculateDiff(new UserDiffCallBack(Observable.fromIterable(usersAdapter.getDataList())
-                        .map(ItemInfo::<User>getData).toList().blockingGet(), searchList))
-                        .dispatchUpdatesTo(usersAdapter);
-            }
+            usersAdapter.setDataList(Observable.fromIterable(users)
+                            .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
+                            .toList(users.size()).blockingGet(),
+                    DiffUtil.calculateDiff(new UserDiffCallBack(searchList, Observable
+                            .fromIterable(usersAdapter.getDataList())
+                            .map(ItemInfo::<User>getData).toList().blockingGet())));
         } else if (Utils.isNotEmpty(users)) {
-            if (usersAdapter.getDataList().isEmpty()) {
-                usersAdapter.animateTo(Observable.fromIterable(users)
-                        .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
-                        .toList(users.size()).blockingGet());
-            } else {
-                DiffUtil.calculateDiff(new UserDiffCallBack(Observable.fromIterable(usersAdapter.getDataList())
-                        .map(ItemInfo::<User>getData).toList().blockingGet(), users))
-                        .dispatchUpdatesTo(usersAdapter);
-            }
+            usersAdapter.setDataList(Observable.fromIterable(users)
+                            .map(user -> new ItemInfo(user, R.layout.user_item_layout).setId(user.getId()))
+                            .toList(users.size()).blockingGet(),
+                    DiffUtil.calculateDiff(new UserDiffCallBack(users, Observable
+                            .fromIterable(usersAdapter.getDataList())
+                            .map(ItemInfo::<User>getData).toList().blockingGet())));
         }
     }
 
@@ -235,25 +227,19 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM>
                 .map(itemInfo -> new DeleteUsersEvent(Collections.singletonList(((User) itemInfo.getData()).getLogin())))
                 .doOnEach(notification -> Log.d("DeleteEvent", FIRED)));
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-//        StickyLayoutManager stickyLayoutManager = new TopSnappedStickyLayoutManager(this, usersAdapter);
         userRecycler.setLayoutManager(layoutManager);
         userRecycler.setAdapter(usersAdapter);
         usersAdapter.setAllowSelection(true);
         fastScroller.setRecyclerView(userRecycler);
-        events = events.mergeWith(RxRecyclerView.scrollStateChanges(userRecycler)
-                .map(integer -> {
-                    if (integer == SCROLL_STATE_SETTLING) {
-                        int totalItemCount = layoutManager.getItemCount();
-                        int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                        if ((layoutManager.getChildCount() + firstVisibleItemPosition) >= totalItemCount
-                                && firstVisibleItemPosition >= 0 && totalItemCount >= PAGE_SIZE)
-                            return new GetPaginatedUsersEvent(viewState.getLastId());
-                        else return new GetPaginatedUsersEvent(-1);
+        events = events.mergeWith(RxRecyclerView.scrollEvents(userRecycler)
+                .map(recyclerViewScrollEvent -> {
+                    // Only handle 'is at end' of list scroll events
+                    if (new ScrollEventCalculator(recyclerViewScrollEvent).isAtScrollEnd()) {
+                        return new GetPaginatedUsersEvent(viewState.getLastId());
                     } else {
                         return new GetPaginatedUsersEvent(-1);
                     }
-                })
-                .filter(usersNextPageEvent -> usersNextPageEvent.getLastId() != -1)
+                }).filter(usersNextPageEvent -> usersNextPageEvent.getLastId() != -1)
                 .throttleLast(200, TimeUnit.MILLISECONDS)
                 .debounce(300, TimeUnit.MILLISECONDS)
                 .doOnNext(searchUsersEvent -> Log.d("NextPageEvent", FIRED)));

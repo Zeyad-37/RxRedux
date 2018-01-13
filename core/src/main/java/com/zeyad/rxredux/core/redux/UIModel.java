@@ -53,8 +53,7 @@ public final class UIModel<S> extends Result<S> {
         return String.format("State: %s, event: %s,Bundle type: %s, Error: %s, Key Selector: %s",
                 stateName, String.valueOf(eventBundlePair.first),
                 (getBundle() != null ? getBundle().getClass().getSimpleName() : "null"),
-                String.valueOf(throwable.getLocalizedMessage()),
-//                (throwable != null ? throwable.getMessage() : "null"),
+                (throwable != null ? throwable.getMessage() : "null"),
                 getKeySelector());
     }
 

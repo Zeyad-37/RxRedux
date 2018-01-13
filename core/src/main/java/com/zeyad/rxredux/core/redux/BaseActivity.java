@@ -41,7 +41,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
         mLifecycleRegistry = new LifecycleRegistry(this);
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance();
+        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
         events = Observable.empty();

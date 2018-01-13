@@ -40,7 +40,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance();
+        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
         events = Observable.empty();

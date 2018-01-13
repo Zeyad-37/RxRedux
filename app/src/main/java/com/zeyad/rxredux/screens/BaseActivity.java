@@ -22,8 +22,9 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
      * @param containerViewId The container view to where add the fragment.
      * @param fragment        The fragment to be added.
      */
-    public void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
-                            Pair<View, String>... sharedElements) {
+    @SafeVarargs
+    public final void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
+                                  Pair<View, String>... sharedElements) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (sharedElements != null) {
             for (Pair<View, String> pair : sharedElements) {

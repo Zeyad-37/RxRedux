@@ -41,18 +41,14 @@ public abstract class BaseViewModel<S> extends ViewModel {
      */
     @NonNull
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModels() {
-        return events -> events.observeOn(Schedulers.io())
+        return events -> events.observeOn(Schedulers.computation())
                 .flatMap(event -> Flowable.just(event)
-                        .flatMap(mapEventsToExecutables())
+                        .flatMap(mapEventsToActions())
                         .map((Function<Object, Result<?>>) result ->
                                 successResult(Pair.create(event.getClass().getSimpleName(), result)))
                         .onErrorReturn(Result::throwableResult)
                         .startWith(loadingResult()))
-
-//                .distinctUntilChanged((result1, result2) -> result1.getBundle().equals(result2.getBundle())
-//                        || (result1.isLoading() && result2.isLoading()))
                 .distinctUntilChanged(Result::equals)
-
                 .scan(idleState(Pair.create(IDLE, state)),
                         (currentUIModel, result) -> {
                             String event = result.getEvent();
@@ -67,18 +63,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
                             }
                             return currentUIModel;
                         })
-
-//                .distinctUntilChanged((suiModel1, suiModel2) -> {
-//                    suiModel1.equals(suiModel2);
-//                    if (suiModel1.getBundle() != null && suiModel2.getBundle() != null)
-//                        return suiModel1.getBundle().equals(suiModel2.getBundle());
-//                    else
-//                        return (suiModel1.isLoading() && suiModel2.isLoading()) ||
-//                                (suiModel1.getStateName().equals(suiModel2.getStateName())
-//                                        && suiModel1.getStateName().equals(IDLE));
-//                })
                 .distinctUntilChanged(UIModel::equals)
-
                 .doOnNext(suiModel -> state = suiModel.getBundle())
                 .observeOn(AndroidSchedulers.mainThread());
     }
@@ -89,7 +74,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @return a {@link Function} the mapping function.
      */
     @NonNull
-    public abstract Function<BaseEvent, Flowable<?>> mapEventsToExecutables();
+    public abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
 
     public S getState() {
         return state;

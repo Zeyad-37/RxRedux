@@ -44,7 +44,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance();
+        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         if (savedInstanceState != null
                 && savedInstanceState.containsKey(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL)) {
             viewState = savedInstanceState.getParcelable(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL);
@@ -87,4 +87,3 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
      */
     public abstract void initialize();
 }
-

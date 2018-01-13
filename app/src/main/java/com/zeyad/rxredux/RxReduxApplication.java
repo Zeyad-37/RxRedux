@@ -1,19 +1,17 @@
 package com.zeyad.rxredux;
 
-import static com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL;
-
-import java.util.Arrays;
-import java.util.concurrent.TimeUnit;
+import android.app.Application;
+import android.os.StrictMode;
+import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.usecases.api.DataServiceConfig;
 import com.zeyad.usecases.api.DataServiceFactory;
 import com.zeyad.usecases.network.ProgressInterceptor;
 
-import android.app.Application;
-import android.os.StrictMode;
-import android.support.annotation.NonNull;
-import android.util.Log;
+import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -23,6 +21,8 @@ import okhttp3.ConnectionSpec;
 import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
+
+import static com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL;
 
 
 /**
@@ -49,8 +49,12 @@ public class RxReduxApplication extends Application {
         //                   .subscribe(() -> {
         //                   }, Throwable::printStackTrace);
         initializeRealm();
-        DataServiceFactory.init(new DataServiceConfig.Builder(this).baseUrl(getApiBaseUrl())
-                .okHttpBuilder(getOkHttpBuilder()).withCache(3, TimeUnit.MINUTES).withRealm().build());
+        DataServiceFactory.init(new DataServiceConfig.Builder(this)
+                .baseUrl(getApiBaseUrl())
+                .okHttpBuilder(getOkHttpBuilder())
+                .withCache(3, TimeUnit.MINUTES)
+                .withRealm()
+                .build());
     }
 
     @NonNull

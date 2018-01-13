@@ -1,10 +1,5 @@
 package com.zeyad.rxredux.core.redux;
 
-import com.zeyad.rxredux.core.eventbus.IRxEventBus;
-import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
-import com.zeyad.rxredux.core.navigation.INavigator;
-import com.zeyad.rxredux.core.navigation.NavigatorFactory;
-
 import android.arch.lifecycle.LiveDataReactiveStreams;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -12,6 +7,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatDelegate;
+
+import com.zeyad.rxredux.core.eventbus.IRxEventBus;
+import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
+import com.zeyad.rxredux.core.navigation.INavigator;
+import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.FlowableTransformer;
@@ -21,11 +21,10 @@ import io.reactivex.Observable;
  * @author by Zeyad.
  */
 public abstract class BaseFragmentActivity<S extends Parcelable, VM extends BaseViewModel<S>>
-        extends FragmentActivity
-        implements LoadDataView<S> {
+        extends FragmentActivity implements LoadDataView<S> {
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
-    public IRxEventBus rxEventBus;
+    public IRxEventBus<Observable<BaseEvent>> rxEventBus;
     public Observable<BaseEvent> events;
     public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
@@ -35,11 +34,12 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance();
+        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
         events = Observable.empty();
         initialize();
+        uiModelsTransformer = viewModel.uiModels();
         setupUI(savedInstanceState == null);
     }
 
@@ -54,9 +54,12 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
     @Override
     protected void onStart() {
         super.onStart();
-        uiModelsTransformer = viewModel.uiModels();
-        LiveDataReactiveStreams
-                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+        LiveDataReactiveStreams.fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER)
+                .compose(uiModelsTransformer))
+                .observe(this, new UIObserver<>(this, errorMessageFactory()));
+        LiveDataReactiveStreams.fromPublisher(rxEventBus.toFlowable()
+                .flatMap(eventObservable -> events.mergeWith(eventObservable).toFlowable(BackpressureStrategy.BUFFER))
+                .compose(uiModelsTransformer))
                 .observe(this, new UIObserver<>(this, errorMessageFactory()));
     }
 

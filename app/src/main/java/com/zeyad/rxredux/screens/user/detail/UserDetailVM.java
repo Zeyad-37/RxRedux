@@ -38,7 +38,7 @@ public class UserDetailVM extends BaseViewModel<UserDetailState> {
     }
 
     @Override
-    public Function<BaseEvent, Flowable<?>> mapEventsToExecutables() {
+    public Function<BaseEvent, Flowable<?>> mapEventsToActions() {
         return event -> getRepositories(((GetReposEvent) event).getLogin());
     }
 

@@ -52,4 +52,26 @@ public class Repository extends RealmObject {
     public void setFullName(String fullName) {
         this.fullName = fullName;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Repository that = (Repository) o;
+
+        if (id != that.id) return false;
+        if (!name.equals(that.name)) return false;
+        if (!fullName.equals(that.fullName)) return false;
+        return owner.equals(that.owner);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id;
+        result = 31 * result + name.hashCode();
+        result = 31 * result + fullName.hashCode();
+        result = 31 * result + owner.hashCode();
+        return result;
+    }
 }

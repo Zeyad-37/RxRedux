@@ -31,7 +31,6 @@ import com.zeyad.gadapter.ItemInfo;
 import com.zeyad.rxredux.R;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.screens.BaseFragment;
-import com.zeyad.rxredux.screens.user.User;
 import com.zeyad.rxredux.screens.user.list.UserListActivity;
 import com.zeyad.rxredux.utils.Utils;
 import com.zeyad.usecases.api.DataServiceFactory;
@@ -39,7 +38,6 @@ import com.zeyad.usecases.api.DataServiceFactory;
 import org.parceler.Parcels;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,6 +58,21 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
     RecyclerView recyclerViewRepositories;
 
     private GenericRecyclerViewAdapter repositoriesAdapter;
+
+    private RequestListener<String, GlideDrawable> requestListener = new RequestListener<String,
+            GlideDrawable>() {
+        @Override
+        public boolean onException(Exception e, String model, Target<GlideDrawable> target,
+                                   boolean isFirstResource) {
+            return glideRequestListenerCore();
+        }
+
+        @Override
+        public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
+                                       boolean isFromMemoryCache, boolean isFirstResource) {
+            return glideRequestListenerCore();
+        }
+    };
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
@@ -127,31 +140,14 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
 
     @Override
     public void renderSuccessState(UserDetailState userDetailState) {
-        viewState = userDetailState;
-        User user = viewState.getUser();
-        List<Repository> repoModels = viewState.getRepos();
-        if (Utils.isNotEmpty(repoModels)) {
+        Utils.runIfNotNull(viewState.getRepos(), repoModels -> {
             repositoriesAdapter.animateTo(Observable.fromIterable(repoModels)
                     .map(repository -> new ItemInfo(repository, R.layout.repo_item_layout))
                     .toList(repoModels.size()).blockingGet());
-        }
-        if (user != null) {
-            RequestListener<String, GlideDrawable> requestListener = new RequestListener<String, GlideDrawable>() {
-                @Override
-                public boolean onException(Exception e, String model, Target<GlideDrawable> target,
-                        boolean isFirstResource) {
-                    return glideRequestListenerCore();
-                }
-
-                @Override
-                public boolean onResourceReady(GlideDrawable resource, String model, Target<GlideDrawable> target,
-                        boolean isFromMemoryCache, boolean isFirstResource) {
-                    return glideRequestListenerCore();
-                }
-            };
+        });
+        Utils.runIfNotNull(viewState.getUser(), user -> {
             if (userDetailState.isTwoPane()) {
-                UserListActivity activity = (UserListActivity) getActivity();
-                if (activity != null) {
+                Utils.runIfNotNull((UserListActivity) getActivity(), activity -> {
                     Toolbar appBarLayout = activity.findViewById(R.id.toolbar);
                     if (appBarLayout != null) {
                         appBarLayout.setTitle(user.getLogin());
@@ -160,19 +156,18 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
                         Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
                                 .into(activity.imageViewAvatar);
                     }
-                }
+                });
             } else {
-                UserDetailActivity activity = (UserDetailActivity) getActivity();
-                if (activity != null) {
+                Utils.runIfNotNull((UserDetailActivity) getActivity(), activity -> {
                     CollapsingToolbarLayout appBarLayout = activity.collapsingToolbarLayout;
                     appBarLayout.setTitle(user.getLogin());
                     if (Utils.isNotEmpty(user.getAvatarUrl())) {
                         Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
                                 .into(activity.imageViewAvatar);
                     }
-                }
+                });
             }
-        }
+        });
         //        applyPalette();
     }
 
