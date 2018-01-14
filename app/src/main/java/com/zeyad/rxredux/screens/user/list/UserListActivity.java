@@ -130,14 +130,14 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM> im
 
     @Override
     public Observable<BaseEvent> events() {
-        return Observable.merge(eventObservable, initialIntent()).mergeWith(postOnResumeEvents());
+        return Observable.merge(eventObservable, initialEvent()).mergeWith(postOnResumeEvents());
     }
 
     private Observable<BaseEvent> postOnResumeEvents() {
         return postOnResumeEvents;
     }
 
-    private Observable<BaseEvent> initialIntent() {
+    private Observable<BaseEvent> initialEvent() {
 //        if (viewState == null) {
         return Observable.<BaseEvent>just(new GetPaginatedUsersEvent(0))
                 .doOnNext(event -> Log.d("GetPaginatedUsersEvent", FIRED));

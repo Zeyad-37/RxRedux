@@ -42,9 +42,11 @@ public class UserListVM extends BaseViewModel<UserListState> {
     @Override
     public StateReducer<UserListState> stateReducer() {
         return (newResult, event, currentStateBundle) -> {
-            List<User> users = currentStateBundle == null ? new ArrayList<>() :
-                    Observable.fromIterable(currentStateBundle.getUsers())
-                            .map(ItemInfo::<User>getData).toList().blockingGet();
+            List<User> users;
+            if (currentStateBundle == null || currentStateBundle.getUsers() == null)
+                users = new ArrayList<>();
+            else users = Observable.fromIterable(currentStateBundle.getUsers())
+                    .map(ItemInfo::<User>getData).toList().blockingGet();
             List<User> searchList = new ArrayList<>();
             switch (event) {
                 case "GetPaginatedUsersEvent":

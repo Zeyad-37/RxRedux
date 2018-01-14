@@ -47,6 +47,11 @@ public abstract class BaseViewModel<S> extends ViewModel {
     @NonNull
     protected abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
 
+    /**
+     * Pass in the stream of events to start the dialog.
+     *
+     * @param events {@link Observable} stream of user events.
+     */
     public void processEvents(Observable<BaseEvent> events) {
         events.subscribe(eventsSubject);
     }
