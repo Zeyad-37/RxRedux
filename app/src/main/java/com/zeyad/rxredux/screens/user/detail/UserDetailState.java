@@ -3,11 +3,15 @@ package com.zeyad.rxredux.screens.user.detail;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.zeyad.gadapter.ItemInfo;
+import com.zeyad.rxredux.R;
 import com.zeyad.rxredux.screens.user.User;
 
 import org.parceler.Transient;
 
 import java.util.List;
+
+import io.reactivex.Observable;
 
 /**
  * @author zeyad on 1/25/17.
@@ -28,7 +32,7 @@ public class UserDetailState implements Parcelable {
     boolean isTwoPane;
     User user;
     @Transient
-    List<Repository> repos;
+    List<ItemInfo> repos;
 
     UserDetailState() {
         user = null;
@@ -59,7 +63,7 @@ public class UserDetailState implements Parcelable {
         return user;
     }
 
-    List<Repository> getRepos() {
+    List<ItemInfo> getRepos() {
         return repos;
     }
 
@@ -75,7 +79,7 @@ public class UserDetailState implements Parcelable {
     }
 
     public static class Builder {
-        List<Repository> repos;
+        List<ItemInfo> repos;
         User user;
         boolean isTwoPane;
 
@@ -83,7 +87,10 @@ public class UserDetailState implements Parcelable {
         }
 
         public Builder setRepos(List<Repository> value) {
-            repos = value;
+            repos = Observable.fromIterable(value)
+                    .map(repository -> new ItemInfo(repository, R.layout.repo_item_layout))
+                    .toList(value.size()).blockingGet();
+//            repos = value;
             return this;
         }
 

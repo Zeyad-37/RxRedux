@@ -1,11 +1,11 @@
 package com.zeyad.rxredux.screens.user.list.events;
 
-import java.util.List;
-
 import com.zeyad.rxredux.core.redux.BaseEvent;
 
+import java.util.List;
+
 /** @author by ZIaDo on 3/27/17. */
-public final class DeleteUsersEvent implements BaseEvent {
+public final class DeleteUsersEvent implements BaseEvent<List<String>> {
 
     private final List<String> selectedItemsIds;
 
@@ -13,7 +13,8 @@ public final class DeleteUsersEvent implements BaseEvent {
         this.selectedItemsIds = selectedItemsIds;
     }
 
-    public List<String> getSelectedItemsIds() {
+    @Override
+    public List<String> getPayLoad() {
         return selectedItemsIds;
     }
 }

@@ -22,9 +22,7 @@ public class UserDetailVM extends BaseViewModel<UserDetailState> {
     private IDataService dataUseCase;
 
     @Override
-    public void init(UserDetailState initialState,
-                     Object... otherDependencies) {
-        setState(initialState);
+    public void init(Object... otherDependencies) {
         if (dataUseCase == null) {
             dataUseCase = (IDataService) otherDependencies[0];
         }
@@ -39,17 +37,14 @@ public class UserDetailVM extends BaseViewModel<UserDetailState> {
 
     @Override
     public Function<BaseEvent, Flowable<?>> mapEventsToActions() {
-        return event -> getRepositories(((GetReposEvent) event).getLogin());
+        return event -> getRepositories(((GetReposEvent) event).getPayLoad());
     }
 
     public Flowable<List<Repository>> getRepositories(String userLogin) {
-        return Utils.isNotEmpty(userLogin)
-                ? dataUseCase
-                .<Repository>queryDisk(
-                        realm -> realm.where(Repository.class).equalTo("owner.login", userLogin))
+        return dataUseCase.<Repository>queryDisk(realm ->
+                realm.where(Repository.class).equalTo("owner.login", userLogin))
                 .flatMap(list -> Utils.isNotEmpty(list) ? Flowable.just(list)
                         : dataUseCase.<Repository>getList(new GetRequest.Builder(Repository.class, true)
-                        .url(String.format(REPOSITORIES, userLogin)).build()))
-                : Flowable.error(new IllegalArgumentException("User name can not be empty"));
+                        .url(String.format(REPOSITORIES, userLogin)).build()));
     }
 }

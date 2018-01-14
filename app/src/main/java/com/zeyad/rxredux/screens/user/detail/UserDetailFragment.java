@@ -27,10 +27,11 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.zeyad.gadapter.GenericRecyclerViewAdapter;
-import com.zeyad.gadapter.ItemInfo;
 import com.zeyad.rxredux.R;
+import com.zeyad.rxredux.core.redux.BaseEvent;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.screens.BaseFragment;
+import com.zeyad.rxredux.screens.user.User;
 import com.zeyad.rxredux.screens.user.list.UserListActivity;
 import com.zeyad.rxredux.utils.Utils;
 import com.zeyad.usecases.api.DataServiceFactory;
@@ -113,8 +114,12 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
             viewState = Parcels.unwrap(arguments.getParcelable(UI_MODEL));
         }
         viewModel = ViewModelProviders.of(this).get(UserDetailVM.class);
-        viewModel.init(viewState, DataServiceFactory.getInstance());
-        events = Observable.just(new GetReposEvent(viewState.getUser().getLogin()));
+        viewModel.init(DataServiceFactory.getInstance());
+    }
+
+    @Override
+    public Observable<BaseEvent> events() {
+        return Observable.just(new GetReposEvent(viewState.getUser().getLogin()));
     }
 
     @Override
@@ -140,34 +145,29 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
 
     @Override
     public void renderSuccessState(UserDetailState userDetailState) {
-        Utils.runIfNotNull(viewState.getRepos(), repoModels -> {
-            repositoriesAdapter.animateTo(Observable.fromIterable(repoModels)
-                    .map(repository -> new ItemInfo(repository, R.layout.repo_item_layout))
-                    .toList(repoModels.size()).blockingGet());
-        });
-        Utils.runIfNotNull(viewState.getUser(), user -> {
-            if (userDetailState.isTwoPane()) {
-                Utils.runIfNotNull((UserListActivity) getActivity(), activity -> {
-                    Toolbar appBarLayout = activity.findViewById(R.id.toolbar);
-                    if (appBarLayout != null) {
-                        appBarLayout.setTitle(user.getLogin());
-                    }
-                    if (Utils.isNotEmpty(user.getAvatarUrl())) {
-                        Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
-                                .into(activity.imageViewAvatar);
-                    }
-                });
-            } else {
-                Utils.runIfNotNull((UserDetailActivity) getActivity(), activity -> {
-                    CollapsingToolbarLayout appBarLayout = activity.collapsingToolbarLayout;
+        repositoriesAdapter.animateTo(userDetailState.getRepos());
+        User user = userDetailState.getUser();
+        if (userDetailState.isTwoPane()) {
+            Utils.runIfNotNull((UserListActivity) getActivity(), activity -> {
+                Toolbar appBarLayout = activity.findViewById(R.id.toolbar);
+                if (appBarLayout != null) {
                     appBarLayout.setTitle(user.getLogin());
-                    if (Utils.isNotEmpty(user.getAvatarUrl())) {
-                        Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
-                                .into(activity.imageViewAvatar);
-                    }
-                });
-            }
-        });
+                }
+                if (Utils.isNotEmpty(user.getAvatarUrl())) {
+                    Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
+                            .into(activity.imageViewAvatar);
+                }
+            });
+        } else {
+            Utils.runIfNotNull((UserDetailActivity) getActivity(), activity -> {
+                CollapsingToolbarLayout appBarLayout = activity.collapsingToolbarLayout;
+                appBarLayout.setTitle(user.getLogin());
+                if (Utils.isNotEmpty(user.getAvatarUrl())) {
+                    Glide.with(getContext()).load(user.getAvatarUrl()).dontAnimate().listener(requestListener)
+                            .into(activity.imageViewAvatar);
+                }
+            });
+        }
         //        applyPalette();
     }
 

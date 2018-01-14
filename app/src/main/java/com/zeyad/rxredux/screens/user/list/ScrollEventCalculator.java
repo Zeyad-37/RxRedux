@@ -9,10 +9,8 @@ import com.jakewharton.rxbinding2.support.v7.widget.RecyclerViewScrollEvent;
  * @author ZIaDo on 1/9/18.
  */
 class ScrollEventCalculator {
-    private RecyclerViewScrollEvent recyclerViewScrollEvent;
 
-    public ScrollEventCalculator(RecyclerViewScrollEvent recyclerViewScrollEvent) {
-        this.recyclerViewScrollEvent = recyclerViewScrollEvent;
+    private ScrollEventCalculator() {
     }
 
     /**
@@ -20,17 +18,12 @@ class ScrollEventCalculator {
      *
      * @return true if at end of linear list recycler view, false otherwise.
      */
-    public boolean isAtScrollEnd() {
+    static boolean isAtScrollEnd(RecyclerViewScrollEvent recyclerViewScrollEvent) {
         RecyclerView.LayoutManager layoutManager = recyclerViewScrollEvent.view().getLayoutManager();
         if (layoutManager instanceof LinearLayoutManager) {
             LinearLayoutManager linearLayoutManager = (LinearLayoutManager) layoutManager;
-
-            int totalItemCount = linearLayoutManager.getItemCount();
-            int lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-
-            return totalItemCount <= (lastVisibleItem + 2);
-        } else {
-            return false;
+            return linearLayoutManager.getItemCount() <= (linearLayoutManager.findLastVisibleItemPosition() + 2);
         }
+        return false;
     }
 }

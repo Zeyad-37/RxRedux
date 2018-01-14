@@ -11,7 +11,8 @@ public class SearchUsersEvent implements BaseEvent {
         query = s;
     }
 
-    public String getQuery() {
+    @Override
+    public String getPayLoad() {
         return query;
     }
 }

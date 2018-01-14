@@ -2,8 +2,10 @@ package com.zeyad.rxredux.screens.user.list.events;
 
 import com.zeyad.rxredux.core.redux.BaseEvent;
 
-/** @author by ZIaDo on 4/19/17. */
-public class GetPaginatedUsersEvent implements BaseEvent {
+/**
+ * @author by ZIaDo on 4/19/17.
+ */
+public class GetPaginatedUsersEvent implements BaseEvent<Long> {
 
     private final long lastId;
 
@@ -11,7 +13,8 @@ public class GetPaginatedUsersEvent implements BaseEvent {
         this.lastId = lastId;
     }
 
-    public long getLastId() {
+    @Override
+    public Long getPayLoad() {
         return lastId;
     }
 }

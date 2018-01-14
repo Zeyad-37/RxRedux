@@ -11,13 +11,9 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatDelegate;
 
-import com.zeyad.rxredux.core.eventbus.IRxEventBus;
-import com.zeyad.rxredux.core.eventbus.RxEventBusFactory;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
-import io.reactivex.BackpressureStrategy;
-import io.reactivex.FlowableTransformer;
 import io.reactivex.Observable;
 
 /**
@@ -28,9 +24,6 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
 
     public static final String UI_MODEL = "viewState";
     public INavigator navigator;
-    public IRxEventBus<Observable<BaseEvent>> rxEventBus;
-    public Observable<BaseEvent> events;
-    public FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer;
     public VM viewModel;
     public S viewState;
     private LifecycleRegistry mLifecycleRegistry;
@@ -41,12 +34,9 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
         mLifecycleRegistry = new LifecycleRegistry(this);
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         navigator = NavigatorFactory.getInstance();
-        rxEventBus = RxEventBusFactory.getInstance(BackpressureStrategy.BUFFER);
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
         restoreViewStateFromBundle(savedInstanceState);
-        events = Observable.empty();
         initialize();
-        uiModelsTransformer = viewModel.uiModels();
         setupUI(savedInstanceState == null);
     }
 
@@ -60,13 +50,9 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     protected void onStart() {
         super.onStart();
         mLifecycleRegistry.markState(Lifecycle.State.STARTED);
-        LiveDataReactiveStreams
-                .fromPublisher(events.toFlowable(BackpressureStrategy.BUFFER).compose(uiModelsTransformer))
+        LiveDataReactiveStreams.fromPublisher(viewModel.uiModels(viewState))
                 .observe(this, new UIObserver<>(this, errorMessageFactory()));
-        LiveDataReactiveStreams.fromPublisher(rxEventBus.toFlowable()
-                .flatMap(eventObservable -> events.mergeWith(eventObservable).toFlowable(BackpressureStrategy.BUFFER))
-                .compose(uiModelsTransformer))
-                .observe(this, new UIObserver<>(this, errorMessageFactory()));
+        viewModel.processEvents(events());
     }
 
     @Override
@@ -110,9 +96,17 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
 
     /**
      * Setup the UI.
+     *
      * @param isNew = savedInstanceState == null
      */
     public abstract void setupUI(boolean isNew);
+
+    /**
+     * Merge all events into one {@link Observable}.
+     *
+     * @return {@link Observable}.
+     */
+    public abstract Observable<BaseEvent> events();
 
     @NonNull
     @Override

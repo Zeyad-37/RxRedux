@@ -3,6 +3,8 @@ package com.zeyad.rxredux.screens.user;
 import android.support.annotation.Nullable;
 import android.support.v7.util.DiffUtil;
 
+import com.zeyad.gadapter.ItemInfo;
+
 import java.util.List;
 
 /**
@@ -11,10 +13,10 @@ import java.util.List;
 
 public class UserDiffCallBack extends DiffUtil.Callback {
 
-    List<User> oldUsers;
-    List<User> newUsers;
+    List<ItemInfo> oldUsers;
+    List<ItemInfo> newUsers;
 
-    public UserDiffCallBack(List<User> newUsers, List<User> oldUsers) {
+    public UserDiffCallBack(List<ItemInfo> newUsers, List<ItemInfo> oldUsers) {
         this.newUsers = newUsers;
         this.oldUsers = oldUsers;
     }
@@ -36,7 +38,8 @@ public class UserDiffCallBack extends DiffUtil.Callback {
 
     @Override
     public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-        return oldUsers.get(oldItemPosition).equals(newUsers.get(newItemPosition));
+        return oldUsers.get(oldItemPosition).<User>getData().equals(newUsers.get(newItemPosition)
+                .<User>getData());
     }
 
     @Nullable

@@ -1,5 +1,6 @@
 package com.zeyad.rxredux.screens.user.list;
 
+import com.zeyad.gadapter.ItemInfo;
 import com.zeyad.rxredux.core.redux.BaseEvent;
 import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.core.redux.StateReducer;
@@ -32,18 +33,18 @@ public class UserListVM extends BaseViewModel<UserListState> {
     private IDataService dataUseCase;
 
     @Override
-    public void init(UserListState initialState, Object... otherDependencies) {
+    public void init(Object... dependencies) {
         if (dataUseCase == null) {
-            dataUseCase = (IDataService) otherDependencies[0];
+            dataUseCase = (IDataService) dependencies[0];
         }
-        setState(initialState);
     }
 
     @Override
     public StateReducer<UserListState> stateReducer() {
         return (newResult, event, currentStateBundle) -> {
             List<User> users = currentStateBundle == null ? new ArrayList<>() :
-                    currentStateBundle.getUsers();
+                    Observable.fromIterable(currentStateBundle.getUsers())
+                            .map(ItemInfo::<User>getData).toList().blockingGet();
             List<User> searchList = new ArrayList<>();
             switch (event) {
                 case "GetPaginatedUsersEvent":
@@ -73,11 +74,11 @@ public class UserListVM extends BaseViewModel<UserListState> {
         return event -> {
             Flowable action = Flowable.empty();
             if (event instanceof GetPaginatedUsersEvent) {
-                action = getUsers(((GetPaginatedUsersEvent) event).getLastId());
+                action = getUsers(((GetPaginatedUsersEvent) event).getPayLoad());
             } else if (event instanceof DeleteUsersEvent) {
-                action = deleteCollection(((DeleteUsersEvent) event).getSelectedItemsIds());
+                action = deleteCollection(((DeleteUsersEvent) event).getPayLoad());
             } else if (event instanceof SearchUsersEvent) {
-                action = search(((SearchUsersEvent) event).getQuery());
+                action = search(((SearchUsersEvent) event).getPayLoad());
             }
             return action;
         };

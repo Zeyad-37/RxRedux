@@ -1,16 +1,19 @@
 package com.zeyad.rxredux.core.redux;
 
 import android.arch.lifecycle.ViewModel;
-import android.support.v4.util.Pair;
 
+import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableTransformer;
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.annotations.NonNull;
-import io.reactivex.annotations.Nullable;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import io.reactivex.subjects.PublishSubject;
 
+import static android.support.v4.util.Pair.create;
 import static com.zeyad.rxredux.core.redux.Result.loadingResult;
 import static com.zeyad.rxredux.core.redux.Result.successResult;
 import static com.zeyad.rxredux.core.redux.UIModel.IDLE;
@@ -22,51 +25,19 @@ import static com.zeyad.rxredux.core.redux.UIModel.successState;
 /*** @author Zeyad. */
 public abstract class BaseViewModel<S> extends ViewModel {
 
-    private S state;
+    private PublishSubject<BaseEvent> eventsSubject = PublishSubject.create();
 
     /**
      * A different way to initialize an instance without a constructor
-     *
-     * @param initialState Initial state to start with.
      */
-    // TODO: 12/11/17 Use DI!
-    public abstract void init(@Nullable S initialState, Object... otherDependencies);
-
-    public abstract StateReducer<S> stateReducer();
+    public abstract void init(Object... dependencies);
 
     /**
-     * A Transformer, given events returns UIModels by applying the redux pattern.
+     * Provide a success state reducer
      *
-     * @return {@link FlowableTransformer} the Redux pattern transformer.
+     * @return {@link StateReducer}
      */
-    @NonNull
-    public FlowableTransformer<BaseEvent, UIModel<S>> uiModels() {
-        return events -> events.observeOn(Schedulers.computation())
-                .flatMap(event -> Flowable.just(event)
-                        .flatMap(mapEventsToActions())
-                        .map((Function<Object, Result<?>>) result ->
-                                successResult(Pair.create(event.getClass().getSimpleName(), result)))
-                        .onErrorReturn(Result::throwableResult)
-                        .startWith(loadingResult()))
-                .distinctUntilChanged(Result::equals)
-                .scan(idleState(Pair.create(IDLE, state)),
-                        (currentUIModel, result) -> {
-                            String event = result.getEvent();
-                            S bundle = currentUIModel.getBundle();
-                            if (result.isLoading()) {
-                                currentUIModel = loadingState(Pair.create(event, bundle));
-                            } else if (result.isSuccessful()) {
-                                currentUIModel = successState(Pair.create(event,
-                                        stateReducer().reduce(result.getBundle(), event, bundle)));
-                            } else {
-                                currentUIModel = errorState(result.getThrowable(), Pair.create(event, bundle));
-                            }
-                            return currentUIModel;
-                        })
-                .distinctUntilChanged(UIModel::equals)
-                .doOnNext(suiModel -> state = suiModel.getBundle())
-                .observeOn(AndroidSchedulers.mainThread());
-    }
+    public abstract StateReducer<S> stateReducer();
 
     /**
      * A Function that given an event maps it to the correct executable logic.
@@ -74,15 +45,59 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @return a {@link Function} the mapping function.
      */
     @NonNull
-    public abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
+    protected abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
 
-    public S getState() {
-        return state;
+    public void processEvents(Observable<BaseEvent> events) {
+        events.subscribe(eventsSubject);
     }
 
-    public void setState(S state) {
-        if (this.state == null || !this.state.equals(state)) {
-            this.state = state;
-        }
+    /**
+     * A Transformer, given eventObservable returns UIModels by applying the redux pattern.
+     *
+     * @return {@link FlowableTransformer} the Redux pattern transformer.
+     */
+    @NonNull
+    public Flowable<UIModel<S>> uiModels(S initialState) {
+        return eventsSubject.toFlowable(BackpressureStrategy.BUFFER)
+                .compose(uiModelsTransformer(initialState));
+    }
+
+    @NonNull
+    private FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer(S initialState) {
+        return events -> events.observeOn(Schedulers.computation())
+                .flatMap(event -> Flowable.just(event)
+                        .flatMap(mapEventsToActions())
+                        .compose(mapActionsToResults(event.getClass().getSimpleName())))
+                .distinctUntilChanged(Result::equals)
+                .scan(idleState(create(IDLE, initialState)), reducer())
+                .replay(1)
+                .autoConnect(0)
+                .distinctUntilChanged(UIModel::equals)
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @NonNull
+    private BiFunction<UIModel<S>, Result<?>, UIModel<S>> reducer() {
+        return (currentUIModel, result) -> {
+            String event = result.getEvent();
+            S bundle = currentUIModel.getBundle();
+            if (result.isLoading()) {
+                currentUIModel = loadingState(create(event, bundle));
+            } else if (result.isSuccessful()) {
+                currentUIModel = successState(create(event,
+                        stateReducer().reduce(result.getBundle(), event, bundle)));
+            } else {
+                currentUIModel = errorState(result.getThrowable(), create(event, bundle));
+            }
+            return currentUIModel;
+        };
+    }
+
+    @NonNull
+    private FlowableTransformer<Object, Result<?>> mapActionsToResults(String eventName) {
+        return upstream -> upstream
+                .map((Function<Object, Result<?>>) result -> successResult(create(eventName, result)))
+                .onErrorReturn(Result::throwableResult)
+                .startWith(loadingResult());
     }
 }
