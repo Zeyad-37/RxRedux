@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-group = 'com.github.Zeyad-37'
+//apply plugin: 'com.github.dcendents.android-maven'
+//group = 'com.github.Zeyad-37'
 
 android {
     compileSdkVersion 26
@@ -35,21 +35,22 @@ android {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
 
-    compile "com.android.support:appcompat-v7:$supportLibrary"
-    compile "com.android.support:support-v4:$supportLibrary"
-    compile "android.arch.lifecycle:extensions:$archComp"
-    compile "android.arch.lifecycle:reactivestreams:$archComp"
+    api "com.android.support:appcompat-v7:$supportLibrary"
+    api "com.android.support:support-v4:$supportLibrary"
 
-    provided "io.reactivex.rxjava2:rxandroid:$rxAndroid"
-    provided "io.reactivex.rxjava2:rxjava:$rxJava"
+    api "android.arch.lifecycle:extensions:$archComp"
+    api "android.arch.lifecycle:reactivestreams:$archComp"
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'com.github.Zeyad-37:Usecases:1.0.0'
-    testCompile 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.8.0'
-    testCompile "org.mockito:mockito-core:$mockito"
-    androidTestCompile("com.android.support.test.espresso:espresso-core:$espressoCore", {
+    compileOnly "io.reactivex.rxjava2:rxandroid:$rxAndroid"
+    compileOnly "io.reactivex.rxjava2:rxjava:$rxJava"
+
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'com.github.Zeyad-37:Usecases:1.0.0'
+    testImplementation 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.8.0'
+    testImplementation "org.mockito:mockito-core:$mockito"
+    androidTestImplementation("com.android.support.test.espresso:espresso-core:$espressoCore", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
 }

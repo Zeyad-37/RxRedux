@@ -51,11 +51,13 @@ public class BaseViewModelTest {
         Flowable<List<User>> observableUserRealm = Flowable.just(userList);
 
         when(mockDataUseCase.<User>getListOffLineFirst(any())).thenReturn(observableUserRealm);
+        when(mockDataUseCase.<User>getList(any())).thenReturn(observableUserRealm);
 
         TestSubscriber<UIModel<UserListState>> testSubscriber =
                 viewModel.uiModels(UserListState.builder().lastId(0).build()).test();
 
-        viewModel.processEvents(Observable.just(new GetPaginatedUsersEvent(0)));
+        viewModel.processEvents(Observable.fromArray(new GetPaginatedUsersEvent(0),
+                new GetPaginatedUsersEvent(1)));
 
         testSubscriber.awaitTerminalEvent();
 
@@ -64,11 +66,20 @@ public class BaseViewModelTest {
 
         testSubscriber.assertValueAt(1, Result::isLoading);
         testSubscriber.assertNoErrors();
-        // Then progress indicator state is canceled and all tasks are emitted
+
         testSubscriber.assertValueAt(2, tasksViewState -> !tasksViewState.isLoading());
         testSubscriber.assertValueAt(2, Result::isSuccessful);
         testSubscriber.assertValueAt(2,
                 tasksViewState -> tasksViewState.getBundle().getUsers().size() == 1);
+
+        testSubscriber.assertValueAt(3, Result::isLoading);
+
+        testSubscriber.assertValueAt(4, tasksViewState -> !tasksViewState.isLoading());
+        testSubscriber.assertValueAt(4, Result::isSuccessful);
+        testSubscriber.assertValueAt(4,
+                tasksViewState -> tasksViewState.getBundle().getUsers().size() == 2);
+
         verify(mockDataUseCase, times(1)).getListOffLineFirst(any(GetRequest.class));
+        verify(mockDataUseCase, times(1)).getList(any(GetRequest.class));
     }
 }
