@@ -60,12 +60,12 @@ public class BaseViewModelTest {
                 new GetPaginatedUsersEvent(1)));
 
         testSubscriber.awaitTerminalEvent();
+        testSubscriber.assertNoErrors();
 
         testSubscriber.assertValueAt(0,
                 userListStateUIModel -> userListStateUIModel.getEvent().equals("idle"));
 
         testSubscriber.assertValueAt(1, Result::isLoading);
-        testSubscriber.assertNoErrors();
 
         testSubscriber.assertValueAt(2, tasksViewState -> !tasksViewState.isLoading());
         testSubscriber.assertValueAt(2, Result::isSuccessful);

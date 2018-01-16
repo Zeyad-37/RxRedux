@@ -45,7 +45,7 @@ public abstract class BaseViewModel<S> extends ViewModel {
      * @return a {@link Function} the mapping function.
      */
     @NonNull
-    protected abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
+    public abstract Function<BaseEvent, Flowable<?>> mapEventsToActions();
 
     /**
      * Pass in the stream of events to start the dialog.
@@ -67,9 +67,14 @@ public abstract class BaseViewModel<S> extends ViewModel {
                 .compose(uiModelsTransformer(initialState));
     }
 
+//    private FlowableTransformer<BaseEvent, BaseEvent> eventsFilter =
+//            intents -> intents.publish(shared -> Flowable.merge(shared.ofType(BaseEvent.class).take(1),
+//                    shared.filter(intent -> !(intent instanceof BaseEvent))));
+
     @NonNull
     private FlowableTransformer<BaseEvent, UIModel<S>> uiModelsTransformer(S initialState) {
         return events -> events.observeOn(Schedulers.computation())
+//                .compose(eventsFilter)
                 .flatMap(event -> Flowable.just(event)
                         .flatMap(mapEventsToActions())
                         .compose(mapActionsToResults(event.getClass().getSimpleName())))

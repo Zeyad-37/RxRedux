@@ -9,11 +9,12 @@ import io.reactivex.annotations.Nullable;
  * @author by Zeyad.
  */
 // TODO: 1/8/18 Make Sealed Classes in Kotlin!
-class Result<B> {
+public class Result<B> {
 
     final Throwable throwable;
     final Pair<String, B> eventBundlePair;
-    private final boolean isLoading, isSuccessful;
+    private final boolean isLoading;
+    private final boolean isSuccessful;
 
     Result(boolean isLoading, Throwable throwable, boolean isSuccessful, Pair<String, B> eventBundlePair) {
         this.isLoading = isLoading;
@@ -37,24 +38,24 @@ class Result<B> {
         return new Result<>(false, null, true, eventBundlePair);
     }
 
-    boolean isLoading() {
+    public boolean isLoading() {
         return isLoading;
     }
 
-    Throwable getThrowable() {
+    public Throwable getThrowable() {
         return throwable;
     }
 
-    boolean isSuccessful() {
+    public boolean isSuccessful() {
         return isSuccessful;
     }
 
-    B getBundle() {
+    public B getBundle() {
         return eventBundlePair.second;
     }
 
     @NonNull
-    String getEvent() {
+    public String getEvent() {
         return eventBundlePair.first;
     }
 
