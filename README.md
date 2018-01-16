@@ -29,37 +29,37 @@ First, an
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
 @Override
-public void init(UserListState state, Object... otherDependencies) {
+public void init(Object... dependencies) {
     dataUseCase = (IDataService) otherDependencies[0];
-    setInitialState(state);
 }
 ```
 Secondly, your EventsToExecutablesMapper.
 ```
 @Override
-public Function<BaseEvent, Flowable<?>> mapEventsToExecutables() {
+public Function<BaseEvent, Flowable<?>> mapEventsToActions() {
     return event -> {
-        Flowable executable = Flowable.empty();
+        Flowable action = Flowable.empty();
         if (event instanceof GetPaginatedUsersEvent) {
-            executable = getUsers(((GetPaginatedUsersEvent) event).getLastId());
+            action = getUsers(((GetPaginatedUsersEvent) event).getPayLoad());
         } else if (event instanceof DeleteUsersEvent) {
-            executable = deleteCollection(((DeleteUsersEvent) event).getSelectedItemsIds());
+            action = deleteCollection(((DeleteUsersEvent) event).getPayLoad());
         }
-        return executable;
+        return action;
     };
 }
 ```
-This is a simple mapping function that links everyEvent with its corresponding executable function. The rest of the class holds your executables which are methods that return observables.
+This is a simple mapping function that links every Event with its corresponding action
+function. The rest of the class holds your executables which are methods that return flowables.
 
 ## Step 2
-The StateReducer is an interface that you implement that handles how your view should transition
+The StateReducer is an abstract method that you need to implement that handles how your view should
+transition
 from one success state to the other,
-given a new result, name of the event that triggered that result and the current UIState. Lives in your Activity or Fragment.
+given a new result, name of the event that triggered that result and the current UIState.
 ```
-SuccessStateAccumulator accumulator = 
-new StateReducer<UserListState>() {
-    @Override
-    public UserListState reduce(Object newResult, String event, UserListState currentStateBundle) {
+@Override
+public StateReducer<UserListState> stateReducer() {
+    return (newResult, event, currentStateBundle) -> {
         List<User> resultList = (List) newResult;
         List<User> users = currentStateBundle == null ? new ArrayList<>() : currentStateBundle.getUsers();
         List<User> searchList = new ArrayList<>();
@@ -81,17 +81,17 @@ new StateReducer<UserListState>() {
 ```
 ## Step 3
 Your Activities or Fragments need to extend BaseActivity<UIState, ViewModel> or BaseFragment<UIState, ViewModel>. These base classes handle life cycle events. You will need to implement 6 methods and initialize your Events stream, more on that in a bit.
-First method: initialize(). You should insatiate all your dependencies here, including your ViewModels and Events stream.
+First method: initialize(). You should instantiate all your dependencies here, including your ViewModels and Events stream.
 Second method: setupUI(). Here you setContentView() and all other ui related stuff.
 Third method: errorMessageFactory(). Its a method that returns an interface that when given a Throwable it should return a String error message.
 Fourth method: showError(String message). Given the error message, provide an implementation to display it on the screen. Could be SnackBars, Toast messages, error dialogs or whatever.
 Fifth method: toggleViews(boolean isLoading). Given a boolean value indicating if the current state is a loading state, you should enable/disable buttons, hide/show progress bars and so on.
-Sixth method: renderState(S successState). Given a state, provide an implementation to display that success state.
+Sixth method: renderSuccessState(S state). Given a state, provide an implementation to display that
+success state.
 Finally initializing your Event stream.
 ```
 @Override
 public void renderState(UserListState successState) {
-    viewState = successState;
     usersAdapter.setDataList(viewState.getUsers()));
 }
 @Override
@@ -110,19 +110,21 @@ public void showError(String message) {
 The events stream is an Observable<BaseEvent>. BaseEvent is an empty interface that all your events will need to implement, just for type safety. You initialize your event observable by merging all the events in your view. Like your GetUsersEvent event, DeleteUserEvent, SearchUserEvent, etc. RxBinding2 is a great lib that provides event observables from ui components.
 ```
 @Override
-public void initialize() {
-    //...
-    events = Single.<BaseEvent>just(new GetPaginatedUsersEvent(0))
-        .toObservable();
+public Observable<BaseEvent> events() {
+    return Observable.merge(eventObservable, initialEvent()).mergeWith(postOnResumeEvents());
 }
+
+// An example on how to merge post OnResume generated events
 @Override
-public boolean onCreateOptionsMenu(Menu menu) {
-    // ...    
-    events = events.mergeWith(RxSearchView.queryTextChanges(searchView)
-        .filter(charSequence -> !charSequence.toString().isEmpty())
-        .map(query -> new SearchUsersEvent(query.toString()))
-        .throttleLast(100, TimeUnit.MILLISECONDS)
-        .debounce(200, TimeUnit.MILLISECONDS));
+public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+    mode.getMenuInflater().inflate(R.menu.selected_list_menu, menu);
+    menu.findItem(R.id.delete_item).setOnMenuItemClickListener(menuItem -> {
+        postOnResumeEvents.onNext(new DeleteUsersEvent(Observable.fromIterable(usersAdapter.getSelectedItems())
+                .map(itemInfo -> itemInfo.<User>getData().getLogin()).toList()
+                .blockingGet()));
+        return true;
+    });
+    return true;
 }
 ```
 Your events should collect the needed input and encapsulate it in an object that implements the BaseEvent interface.
@@ -132,11 +134,12 @@ And your done. So lets recap
 
 Applying this pattern, we ensure:
 That all our events(inputs) pass through 1 stream, which is a nice way to clarify and organize what are the possible actions allowed on the view.
-Single source of truth to the current UIState, which is automatically persisted in instanceState, needs to be annotated with @Parcel from Parceler.
+Single source of truth to the current UIState, which is automatically persisted in instanceState,
+ needs to implement Parcelable.
 Error handling is an ease since we can map Throwables to messages and display them as we see fit.
 Loading States are also an ease, through the toggle(boolean isLoading) callback that signals whenever the load state starts or ends.
 Transition between success states is more clear through the SuccessStateAccumulator and the renderSuccessState() call back
-We crash the app if something outside the states and events we have declared causes an unexpected behavior.
+We crash the app if something outside the states and events we have declared causes any unexpected behavior.
 
 # License
 

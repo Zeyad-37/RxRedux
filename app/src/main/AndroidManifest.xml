@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest package="com.zeyad.rxredux"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.zeyad.rxredux">
 
     <application
         android:name=".RxReduxApplication"
@@ -14,7 +14,6 @@
             android:name=".screens.user.list.UserListActivity"
             android:label="@string/title_user_list"
             android:theme="@style/AppTheme.NoActionBar">
-            android:theme="@style/SplashTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
