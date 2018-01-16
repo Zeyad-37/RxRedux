@@ -21,11 +21,8 @@ public class UserDetailVM extends BaseViewModel<UserDetailState> {
 
     private IDataService dataUseCase;
 
-    @Override
-    public void init(Object... otherDependencies) {
-        if (dataUseCase == null) {
-            dataUseCase = (IDataService) otherDependencies[0];
-        }
+    public UserDetailVM(IDataService dataService) {
+        dataUseCase = dataService;
     }
 
     @Override

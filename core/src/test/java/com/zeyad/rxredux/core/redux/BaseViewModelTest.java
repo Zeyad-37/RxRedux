@@ -35,8 +35,7 @@ public class BaseViewModelTest {
     @Before
     public void setUp() throws Exception {
         mockDataUseCase = mock(IDataService.class);
-        viewModel = new UserListVM();
-        viewModel.init(mockDataUseCase);
+        viewModel = new UserListVM(mockDataUseCase);
     }
 
     @Test

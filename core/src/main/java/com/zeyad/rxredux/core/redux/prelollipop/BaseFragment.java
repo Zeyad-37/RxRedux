@@ -17,6 +17,8 @@ import com.zeyad.rxredux.core.redux.UIObserver;
 
 import io.reactivex.Observable;
 
+import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
+
 /**
  * @author Zeyad.
  */
@@ -36,9 +38,8 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
-        if (savedInstanceState != null
-                && savedInstanceState.containsKey(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL);
+        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
+            viewState = savedInstanceState.getParcelable(UI_MODEL);
         }
         initialize();
     }

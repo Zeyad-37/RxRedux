@@ -16,13 +16,10 @@ import io.reactivex.functions.Function;
  */
 public class UserListVM extends BaseViewModel<UserListState> {
 
-    private IDataService dataUseCase;
+    private final IDataService dataUseCase;
 
-    @Override
-    public void init(Object... dependencies) {
-        if (dataUseCase == null) {
-            dataUseCase = (IDataService) dependencies[0];
-        }
+    public UserListVM(IDataService dataUseCase) {
+        this.dataUseCase = dataUseCase;
     }
 
     @Override

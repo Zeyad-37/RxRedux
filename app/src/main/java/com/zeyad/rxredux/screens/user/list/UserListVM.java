@@ -32,11 +32,8 @@ public class UserListVM extends BaseViewModel<UserListState> {
 
     private IDataService dataUseCase;
 
-    @Override
-    public void init(Object... dependencies) {
-        if (dataUseCase == null) {
-            dataUseCase = (IDataService) dependencies[0];
-        }
+    public UserListVM(IDataService dataService) {
+        this.dataUseCase = dataService;
     }
 
     @Override

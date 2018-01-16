@@ -32,6 +32,7 @@ import com.zeyad.rxredux.core.redux.BaseEvent;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.screens.BaseFragment;
 import com.zeyad.rxredux.screens.user.User;
+import com.zeyad.rxredux.screens.user.ViewModelFactory;
 import com.zeyad.rxredux.screens.user.list.UserListActivity;
 import com.zeyad.rxredux.utils.Utils;
 import com.zeyad.usecases.api.DataServiceFactory;
@@ -109,12 +110,8 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
 
     @Override
     public void initialize() {
-        Bundle arguments = getArguments();
-        if (arguments != null) {
-            viewState = Parcels.unwrap(arguments.getParcelable(UI_MODEL));
-        }
-        viewModel = ViewModelProviders.of(this).get(UserDetailVM.class);
-        viewModel.init(DataServiceFactory.getInstance());
+        viewModel = ViewModelProviders.of(this,
+                new ViewModelFactory(DataServiceFactory.getInstance())).get(UserDetailVM.class);
     }
 
     @Override

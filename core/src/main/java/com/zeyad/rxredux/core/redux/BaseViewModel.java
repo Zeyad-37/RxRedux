@@ -1,6 +1,7 @@
 package com.zeyad.rxredux.core.redux;
 
 import android.arch.lifecycle.ViewModel;
+import android.arch.lifecycle.ViewModelProvider;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
@@ -28,9 +29,13 @@ public abstract class BaseViewModel<S> extends ViewModel {
     private PublishSubject<BaseEvent> eventsSubject = PublishSubject.create();
 
     /**
-     * A different way to initialize an instance without a constructor
+     * A different way to initialize an instance without a constructor.
+     * Its better to override a {@link ViewModelProvider.NewInstanceFactory} and dependencies from
+     * it.
      */
-    public abstract void init(Object... dependencies);
+    public void init(Object... dependencies) {
+
+    }
 
     /**
      * Provide a success state reducer
