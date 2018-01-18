@@ -34,7 +34,7 @@ dependencies {
     implementation "com.android.support:palette-v7:$supportLibrary"
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
-    implementation 'com.github.Zeyad-37:Usecases:1.0.0'
+    implementation 'com.github.Zeyad-37:Usecases:1.1.0'
     implementation 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.8.0'
     implementation "org.parceler:parceler-api:$parceler"
     annotationProcessor "org.parceler:parceler:$parceler"

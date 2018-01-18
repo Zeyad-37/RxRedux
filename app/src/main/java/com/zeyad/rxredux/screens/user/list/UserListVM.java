@@ -54,7 +54,7 @@ public class UserListVM extends BaseViewModel<UserListState> {
                     break;
                 case "DeleteUsersEvent":
                     users = Observable.fromIterable(users)
-                            .filter(user -> !((List) newResult).contains((long) user.getId()))
+                            .filter(user -> !((List) newResult).contains(user.getLogin()))
                             .distinct().toList().blockingGet();
                     break;
                 default:

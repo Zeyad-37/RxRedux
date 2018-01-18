@@ -9,6 +9,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import io.reactivex.Flowable;
@@ -40,23 +41,39 @@ public class BaseViewModelTest {
 
     @Test
     public void uiModels() throws Exception {
-        List<User> userList;
+        List<User> userList1;
         User user = new User();
-        user.setLogin("testUser");
+        user.setLogin("testUser1");
         user.setId(1);
-        userList = new ArrayList<>();
-        userList.add(user);
+        userList1 = new ArrayList<>();
+        userList1.add(user);
 
-        Flowable<List<User>> observableUserRealm = Flowable.just(userList);
+        Flowable<List<User>> observableUser1 = Flowable.just(userList1);
+        List<User> userList2;
+        User user2 = new User();
+        user.setLogin("testUser2");
+        user.setId(2);
+        userList2 = new ArrayList<>();
+        userList2.add(user2);
+        Flowable<List<User>> observableUser2 = Flowable.just(userList2);
 
-        when(mockDataUseCase.<User>getListOffLineFirst(any())).thenReturn(observableUserRealm);
-        when(mockDataUseCase.<User>getList(any())).thenReturn(observableUserRealm);
+
+        Flowable<List<String>> ids = Flowable.just(Flowable.fromArray("testUser1", "testUser2").toList
+                ().blockingGet());
+
+        when(mockDataUseCase.<User>getListOffLineFirst(any())).thenReturn(observableUser1);
+        when(mockDataUseCase.<User>getList(any())).thenReturn(observableUser2);
+        when(mockDataUseCase.<User>queryDisk(any())).thenReturn(observableUser1);
+        when(mockDataUseCase.<User>getObject(any())).thenReturn(Flowable.just(user));
+        when(mockDataUseCase.<List<String>>deleteCollectionByIds(any())).thenReturn(ids);
 
         TestSubscriber<UIModel<UserListState>> testSubscriber =
                 viewModel.uiModels(UserListState.builder().lastId(0).build()).test();
 
         viewModel.processEvents(Observable.fromArray(new GetPaginatedUsersEvent(0),
-                new GetPaginatedUsersEvent(1)));
+                new GetPaginatedUsersEvent(1),
+                new DeleteUsersEvent(Collections.singletonList("1")),
+                new SearchUsersEvent("1")));
 
         testSubscriber.awaitTerminalEvent();
         testSubscriber.assertNoErrors();
