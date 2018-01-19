@@ -1,14 +1,5 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
-
-import java.util.List;
-
-import org.parceler.Parcels;
-
-import com.zeyad.rxredux.R;
-import com.zeyad.rxredux.screens.user.list.UserListActivity;
-
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -24,9 +15,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.zeyad.rxredux.R;
+import com.zeyad.rxredux.screens.user.list.UserListActivity;
+
+import java.util.List;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
 
 /**
  * An activity representing a single Repository detail screen. This activity is only used narrow
@@ -47,7 +45,7 @@ public class UserDetailActivity extends AppCompatActivity {
 
     public static Intent getCallingIntent(Context context, UserDetailState userDetailModel) {
         return new Intent(context, UserDetailActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                .putExtra(UI_MODEL, Parcels.wrap(userDetailModel));
+                .putExtra(UI_MODEL, userDetailModel);
     }
 
     @Override
@@ -63,13 +61,13 @@ public class UserDetailActivity extends AppCompatActivity {
         }
         if (savedInstanceState == null) {
             addFragment(R.id.user_detail_container,
-                    UserDetailFragment.newInstance(Parcels.unwrap(getIntent().getParcelableExtra(UI_MODEL))), "",
-                    null);
+                    UserDetailFragment.newInstance(getIntent().getParcelableExtra(UI_MODEL)),
+                    "", null);
         }
     }
 
     private void addFragment(int containerViewId, Fragment fragment, String currentFragTag,
-            List<Pair<View, String>> sharedElements) {
+                             List<Pair<View, String>> sharedElements) {
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         if (sharedElements != null) {
             for (Pair<View, String> pair : sharedElements) {

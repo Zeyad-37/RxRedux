@@ -10,6 +10,7 @@ import android.support.v4.app.Fragment;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 import com.zeyad.rxredux.core.redux.BaseEvent;
+import com.zeyad.rxredux.core.redux.BaseView;
 import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.core.redux.LoadDataView;
@@ -17,7 +18,7 @@ import com.zeyad.rxredux.core.redux.UIObserver;
 
 import io.reactivex.Observable;
 
-import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
 
 /**
  * @author Zeyad.
@@ -38,9 +39,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         navigator = NavigatorFactory.getInstance();
-        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(UI_MODEL);
-        }
+        viewState = BaseView.getViewStateFrom(savedInstanceState, getArguments());
         initialize();
     }
 
@@ -55,7 +54,7 @@ public abstract class BaseFragment<S extends Parcelable, VM extends BaseViewMode
     @Override
     public void onSaveInstanceState(@Nullable Bundle outState) {
         if (outState != null && viewState != null) {
-            outState.putParcelable(com.zeyad.rxredux.core.redux.BaseActivity.UI_MODEL, viewState);
+            outState.putParcelable(UI_MODEL, viewState);
         }
         super.onSaveInstanceState(outState);
     }

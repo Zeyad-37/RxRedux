@@ -130,19 +130,11 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM> im
 
     @Override
     public Observable<BaseEvent> events() {
-        return Observable.merge(eventObservable, initialEvent()).mergeWith(postOnResumeEvents());
+        return eventObservable.mergeWith(postOnResumeEvents());
     }
 
     private Observable<BaseEvent> postOnResumeEvents() {
         return postOnResumeEvents;
-    }
-
-    private Observable<BaseEvent> initialEvent() {
-//        if (viewState == null) {
-        return Observable.<BaseEvent>just(new GetPaginatedUsersEvent(0))
-                .doOnNext(event -> Log.d("GetPaginatedUsersEvent", FIRED));
-//        }
-//        return Observable.just(viewState);
     }
 
     @Override
@@ -268,6 +260,7 @@ public class UserListActivity extends BaseActivity<UserListState, UserListVM> im
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
                 .filter(charSequence -> !charSequence.toString().isEmpty())
                 .map(query -> new SearchUsersEvent(query.toString()))
+                .distinctUntilChanged()
                 .throttleLast(100, TimeUnit.MILLISECONDS)
                 .debounce(200, TimeUnit.MILLISECONDS)
                 .doOnEach(searchUsersEvent -> Log.d("SearchEvent", FIRED)));

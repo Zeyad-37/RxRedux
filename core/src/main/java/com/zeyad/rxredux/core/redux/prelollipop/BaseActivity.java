@@ -11,6 +11,7 @@ import android.support.v7.app.AppCompatDelegate;
 import com.zeyad.rxredux.core.navigation.INavigator;
 import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 import com.zeyad.rxredux.core.redux.BaseEvent;
+import com.zeyad.rxredux.core.redux.BaseView;
 import com.zeyad.rxredux.core.redux.BaseViewModel;
 import com.zeyad.rxredux.core.redux.ErrorMessageFactory;
 import com.zeyad.rxredux.core.redux.LoadDataView;
@@ -18,12 +19,14 @@ import com.zeyad.rxredux.core.redux.UIObserver;
 
 import io.reactivex.Observable;
 
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
+
 /**
  * @author Zeyad.
  */
 public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>> extends AppCompatActivity
         implements LoadDataView<S> {
-    public static final String UI_MODEL = "viewState";
+
     public INavigator navigator;
     public VM viewModel;
     public S viewState;
@@ -33,7 +36,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
         super.onCreate(savedInstanceState);
         navigator = NavigatorFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        restoreViewStateFromBundle(savedInstanceState);
+        viewState = BaseView.getViewStateFrom(savedInstanceState, getIntent());
         initialize();
         setupUI(savedInstanceState == null);
     }
@@ -62,13 +65,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        restoreViewStateFromBundle(savedInstanceState);
-    }
-
-    private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(UI_MODEL);
-        }
+        viewState = BaseView.getViewStateFrom(savedInstanceState, Bundle.EMPTY);
     }
 
     @NonNull

@@ -48,24 +48,24 @@ public class BaseViewModelTest {
         userList1 = new ArrayList<>();
         userList1.add(user);
 
-        Flowable<List<User>> observableUser1 = Flowable.just(userList1);
+        Flowable<List<User>> getListOfflineFirstResult = Flowable.just(userList1);
         List<User> userList2;
         User user2 = new User();
         user.setLogin("testUser2");
         user.setId(2);
         userList2 = new ArrayList<>();
         userList2.add(user2);
-        Flowable<List<User>> observableUser2 = Flowable.just(userList2);
+        Flowable<List<User>> getListResult = Flowable.just(userList2);
 
-
-        Flowable<List<String>> ids = Flowable.just(Flowable.fromArray("testUser1", "testUser2").toList
+        Flowable<List<String>> deleteResult = Flowable.just(Flowable.fromArray("testUser1", "testUser2").toList
                 ().blockingGet());
 
-        when(mockDataUseCase.<User>getListOffLineFirst(any())).thenReturn(observableUser1);
-        when(mockDataUseCase.<User>getList(any())).thenReturn(observableUser2);
-        when(mockDataUseCase.<User>queryDisk(any())).thenReturn(observableUser1);
+        when(mockDataUseCase.<User>getListOffLineFirst(any())).thenReturn(getListOfflineFirstResult);
+        when(mockDataUseCase.<User>getList(any())).thenReturn(getListResult);
+        when(mockDataUseCase.<User>queryDisk(any())).thenReturn(getListOfflineFirstResult);
         when(mockDataUseCase.<User>getObject(any())).thenReturn(Flowable.just(user));
-        when(mockDataUseCase.<List<String>>deleteCollectionByIds(any())).thenReturn(ids);
+
+        when(mockDataUseCase.<List<String>>deleteCollectionByIds(any())).thenReturn(deleteResult);
 
         TestSubscriber<UIModel<UserListState>> testSubscriber =
                 viewModel.uiModels(UserListState.builder().lastId(0).build()).test();

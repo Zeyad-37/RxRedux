@@ -37,15 +37,13 @@ import com.zeyad.rxredux.screens.user.list.UserListActivity;
 import com.zeyad.rxredux.utils.Utils;
 import com.zeyad.usecases.api.DataServiceFactory;
 
-import org.parceler.Parcels;
-
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
 
-import static com.zeyad.rxredux.core.redux.prelollipop.BaseActivity.UI_MODEL;
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
@@ -86,7 +84,7 @@ public class UserDetailFragment extends BaseFragment<UserDetailState, UserDetail
     public static UserDetailFragment newInstance(UserDetailState userDetailState) {
         UserDetailFragment userDetailFragment = new UserDetailFragment();
         Bundle bundle = new Bundle();
-        bundle.putParcelable(UI_MODEL, Parcels.wrap(userDetailState));
+        bundle.putParcelable(UI_MODEL, userDetailState);
         userDetailFragment.setArguments(bundle);
         return userDetailFragment;
     }

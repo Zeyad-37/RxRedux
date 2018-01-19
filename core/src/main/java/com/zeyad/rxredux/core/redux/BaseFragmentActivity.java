@@ -13,12 +13,14 @@ import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import io.reactivex.Observable;
 
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
+
 /**
  * @author by Zeyad.
  */
 public abstract class BaseFragmentActivity<S extends Parcelable, VM extends BaseViewModel<S>>
         extends FragmentActivity implements LoadDataView<S> {
-    public static final String UI_MODEL = "viewState";
+
     public INavigator navigator;
     public VM viewModel;
     public S viewState;
@@ -28,7 +30,7 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
         super.onCreate(savedInstanceState);
         navigator = NavigatorFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        restoreViewStateFromBundle(savedInstanceState);
+        viewState = BaseView.getViewStateFrom(savedInstanceState, getIntent());
         initialize();
         setupUI(savedInstanceState == null);
     }
@@ -57,13 +59,7 @@ public abstract class BaseFragmentActivity<S extends Parcelable, VM extends Base
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        restoreViewStateFromBundle(savedInstanceState);
-    }
-
-    private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(UI_MODEL);
-        }
+        viewState = BaseView.getViewStateFrom(savedInstanceState, getIntent());
     }
 
     @NonNull

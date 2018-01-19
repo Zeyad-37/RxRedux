@@ -113,6 +113,8 @@ public abstract class BaseViewModel<S> extends ViewModel {
         return upstream -> upstream
                 .map((Function<Object, Result<?>>) result -> successResult(create(eventName, result)))
                 .onErrorReturn(Result::throwableResult)
-                .startWith(loadingResult());
+                .observeOn(AndroidSchedulers.mainThread())
+                .startWith(loadingResult())
+                .observeOn(Schedulers.computation());
     }
 }

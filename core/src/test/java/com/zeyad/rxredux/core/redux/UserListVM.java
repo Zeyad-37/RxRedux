@@ -76,7 +76,7 @@ public class UserListVM extends BaseViewModel<UserListState> {
     private Flowable<List<User>> getUsers(long lastId) {
         return lastId == 0 ?
                 dataUseCase.getListOffLineFirst(new GetRequest.Builder(User.class, true)
-                        .url(String.format("", lastId))
+                        .url(String.format("user/%s", lastId))
                         .cache(User.LOGIN)
                         .build())
                 : dataUseCase.getList(new GetRequest.Builder(User.class, true)
@@ -86,7 +86,7 @@ public class UserListVM extends BaseViewModel<UserListState> {
     private Flowable<List<User>> search(String query) {
         return dataUseCase.<User>queryDisk(realm -> realm.where(User.class).beginsWith(User.LOGIN, query))
                 .zipWith(dataUseCase.<User>getObject(new GetRequest.Builder(User.class, false)
-                                .url(String.format("", query)).build())
+                                .url(String.format("user/%s", query)).build())
                                 .onErrorReturnItem(new User()).filter(user -> user.getId() != 0)
                                 .map(user -> user != null ? Collections.singletonList(user)
                                         : Collections.emptyList()),

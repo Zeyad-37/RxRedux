@@ -16,13 +16,14 @@ import com.zeyad.rxredux.core.navigation.NavigatorFactory;
 
 import io.reactivex.Observable;
 
+import static com.zeyad.rxredux.core.redux.BaseView.UI_MODEL;
+
 /**
  * @author Zeyad.
  */
 public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewModel<S>> extends Activity
         implements LoadDataView<S>, LifecycleOwner {
 
-    public static final String UI_MODEL = "viewState";
     public INavigator navigator;
     public VM viewModel;
     public S viewState;
@@ -35,7 +36,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
         mLifecycleRegistry.markState(Lifecycle.State.CREATED);
         navigator = NavigatorFactory.getInstance();
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true);
-        restoreViewStateFromBundle(savedInstanceState);
+        viewState = BaseView.getViewStateFrom(savedInstanceState, getIntent());
         initialize();
         setupUI(savedInstanceState == null);
     }
@@ -43,7 +44,7 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        restoreViewStateFromBundle(savedInstanceState);
+        viewState = BaseView.getViewStateFrom(savedInstanceState, Bundle.EMPTY);
     }
 
     @Override
@@ -78,12 +79,6 @@ public abstract class BaseActivity<S extends Parcelable, VM extends BaseViewMode
     @Override
     public void setState(S bundle) {
         viewState = bundle;
-    }
-
-    private void restoreViewStateFromBundle(@Nullable Bundle savedInstanceState) {
-        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL)) {
-            viewState = savedInstanceState.getParcelable(UI_MODEL);
-        }
     }
 
     @NonNull

@@ -35,11 +35,10 @@ dependencies {
     implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
     implementation 'com.github.Zeyad-37:Usecases:1.1.0'
-    implementation 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.8.0'
+    implementation "com.github.Zeyad-37:GenericRecyclerViewAdapter:$genericRecyclerViewAdapter"
     implementation "org.parceler:parceler-api:$parceler"
     annotationProcessor "org.parceler:parceler:$parceler"
-//    implementation "android.arch.lifecycle:extensions:$archComp"
-//    implementation "android.arch.lifecycle:reactivestreams:$archComp"
+
     // Network
     implementation 'com.github.bumptech.glide:glide:3.7.0'
     // Rx
@@ -53,7 +52,7 @@ dependencies {
     implementation "com.jakewharton:butterknife:$butterKnife"
     annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnife"
 
-    testCompile 'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
     androidTestCompile "com.android.support.test.espresso:espresso-core:$espressoCore"
     implementation project(path: ':core')
 }
