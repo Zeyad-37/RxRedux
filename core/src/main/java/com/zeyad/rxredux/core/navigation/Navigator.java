@@ -1,5 +1,6 @@
 package com.zeyad.rxredux.core.navigation;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Context;
@@ -42,8 +43,7 @@ final class Navigator implements INavigator {
     @Override
     public void startForResult(@NonNull Activity activity, @NonNull Intent intent, int requestCode,
             @NonNull ActivityOptions activityOptions) {
-        navigateOnMainThread(
-                () -> activity.startActivityForResult(intent, requestCode, activityOptions.toBundle()));
+        navigateOnMainThread(() -> activity.startActivityForResult(intent, requestCode, activityOptions.toBundle()));
     }
 
     @Override
@@ -51,8 +51,13 @@ final class Navigator implements INavigator {
         context.startService(intent);
     }
 
+    @SuppressLint({"RxSubscribeOnError", "RxLeakedSubscription"})
     private void navigateOnMainThread(final Navigate navigate) {
-        CompletableFromAction.fromAction(navigate::run).subscribeOn(AndroidSchedulers.mainThread()).subscribe();
+        CompletableFromAction.fromRunnable(navigate::run)
+                .subscribeOn(AndroidSchedulers.mainThread())
+                .onTerminateDetach()
+                .subscribe()
+                .dispose();
     }
 
     private interface Navigate {
