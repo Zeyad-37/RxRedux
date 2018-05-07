@@ -1,9 +1,9 @@
 package com.zeyad.rxredux.screens.user.list;
 
 import com.zeyad.gadapter.ItemInfo;
-import com.zeyad.rxredux.core.redux.BaseEvent;
-import com.zeyad.rxredux.core.redux.BaseViewModel;
-import com.zeyad.rxredux.core.redux.StateReducer;
+import com.zeyad.rxredux.core.BaseEvent;
+import com.zeyad.rxredux.core.BaseViewModel;
+import com.zeyad.rxredux.core.StateReducer;
 import com.zeyad.rxredux.screens.user.User;
 import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent;
 import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent;
@@ -60,7 +60,7 @@ public class UserListVM extends BaseViewModel<UserListState> {
                 default:
                     break;
             }
-            return UserListState.builder()
+            return UserListState.Companion.builder()
                     .users(users)
                     .searchList(searchList)
                     .lastId(users.get(users.size() - 1).getId())
@@ -69,7 +69,7 @@ public class UserListVM extends BaseViewModel<UserListState> {
     }
 
     @Override
-    public Function<BaseEvent, Flowable<?>> mapEventsToActions() {
+    public Function<BaseEvent<?>, Flowable<?>> mapEventsToActions() {
         return event -> {
             Flowable action = Flowable.empty();
             if (event instanceof GetPaginatedUsersEvent) {
