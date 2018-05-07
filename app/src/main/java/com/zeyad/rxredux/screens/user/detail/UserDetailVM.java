@@ -1,9 +1,8 @@
 package com.zeyad.rxredux.screens.user.detail;
 
-import com.zeyad.rxredux.core.redux.BaseEvent;
-import com.zeyad.rxredux.core.redux.BaseViewModel;
-import com.zeyad.rxredux.core.redux.StateReducer;
-import com.zeyad.rxredux.utils.Utils;
+import com.zeyad.rxredux.core.BaseEvent;
+import com.zeyad.rxredux.core.BaseViewModel;
+import com.zeyad.rxredux.core.StateReducer;
 import com.zeyad.usecases.api.IDataService;
 import com.zeyad.usecases.requests.GetRequest;
 
@@ -27,20 +26,20 @@ public class UserDetailVM extends BaseViewModel<UserDetailState> {
 
     @Override
     public StateReducer<UserDetailState> stateReducer() {
-        return (newResult, event, currentStateBundle) -> UserDetailState.builder()
+        return (newResult, event, currentStateBundle) -> UserDetailState.CREATOR.builder()
                 .setRepos((List<Repository>) newResult).setUser(currentStateBundle.getUser())
                 .setIsTwoPane(currentStateBundle.isTwoPane()).build();
     }
 
     @Override
-    public Function<BaseEvent, Flowable<?>> mapEventsToActions() {
+    public Function<BaseEvent<?>, Flowable<?>> mapEventsToActions() {
         return event -> getRepositories(((GetReposEvent) event).getPayLoad());
     }
 
     public Flowable<List<Repository>> getRepositories(String userLogin) {
         return dataUseCase.<Repository>queryDisk(realm ->
                 realm.where(Repository.class).equalTo("owner.login", userLogin))
-                .flatMap(list -> Utils.isNotEmpty(list) ? Flowable.just(list)
+                .flatMap(list -> !list.isEmpty() ? Flowable.just(list)
                         : dataUseCase.<Repository>getList(new GetRequest.Builder(Repository.class, true)
                         .url(String.format(REPOSITORIES, userLogin)).build()));
     }

@@ -1,14 +1,16 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 //apply plugin: 'com.github.dcendents.android-maven'
 //group = 'com.github.Zeyad-37'
 
 android {
-    compileSdkVersion 26
-    buildToolsVersion "26.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.3"
 
     defaultConfig {
         minSdkVersion 17
-        targetSdkVersion 26
+        targetSdkVersion 27
         versionCode 1
         versionName "1.0"
 
@@ -47,10 +49,13 @@ dependencies {
     compileOnly "io.reactivex.rxjava2:rxjava:$rxJava"
 
     testImplementation 'junit:junit:4.12'
-    testImplementation 'com.github.Zeyad-37:Usecases:1.0.0'
-    testImplementation 'com.github.Zeyad-37:GenericRecyclerViewAdapter:1.8.0'
+    testImplementation 'com.github.Zeyad-37:Usecases:1.1.0'
     testImplementation "org.mockito:mockito-core:$mockito"
     androidTestImplementation("com.android.support.test.espresso:espresso-core:$espressoCore", {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }

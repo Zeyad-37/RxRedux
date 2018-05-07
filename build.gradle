@@ -1,12 +1,12 @@
 project.ext {
-    supportLibrary = '26.1.0'
+    supportLibrary = '27.1.1'
     butterKnife = '8.8.1'
-    rxbinding = '2.0.0'
+    rxbinding = '2.1.1'
     okhttpVersion = '3.9.1'
-    archComp = '1.0.0'
-    rxJava = '2.1.7'
+    archComp = '1.1.1'
+    rxJava = '2.1.9'
     rxAndroid = '2.0.1'
-    genericRecyclerViewAdapter = '1.8.0'
+    genericRecyclerViewAdapter = '1.9.0'
     rxredux = '2.0.0'
     glide = '4.0.0'
     lottie = '2.2.0'
@@ -27,13 +27,15 @@ project.ext {
 }
 
 buildscript {
+    ext.kotlin_version = '1.2.41'
     repositories {
         jcenter()
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
+        classpath 'com.android.tools.build:gradle:3.1.2'
         classpath 'io.realm:realm-gradle-plugin:4.2.0'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
 //        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
