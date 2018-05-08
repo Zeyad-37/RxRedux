@@ -10,7 +10,7 @@ import kotlinx.android.parcel.Parcelize
  * @author zeyad on 1/10/17.
  */
 @Parcelize
-data class User(@PrimaryKey
+open class User(@PrimaryKey
                 @SerializedName(LOGIN)
                 var login: String? = null,
                 @SerializedName(ID)

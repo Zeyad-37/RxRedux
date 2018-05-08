@@ -8,3 +8,5 @@
 /captures
 .externalNativeBuild
 /.idea/sonarlint
+/buildSrc/build
+*.tab

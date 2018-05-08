@@ -1,21 +1,19 @@
-apply plugin: 'com.android.library'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
-//apply plugin: 'com.github.dcendents.android-maven'
-//group = 'com.github.Zeyad-37'
+apply plugin: Plugins.library
+apply plugin: Plugins.kt_and
+apply plugin: Plugins.kt_and_x
+apply plugin: Plugins.kotlinter
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion Versions.compile_sdk
     buildToolsVersion "27.0.3"
 
     defaultConfig {
-        minSdkVersion 17
-        targetSdkVersion 27
+        minSdkVersion Versions.min_sdk
+        targetSdkVersion Versions.target_sdk
         versionCode 1
         versionName "1.0"
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
     }
 
     buildTypes {
@@ -25,37 +23,40 @@ android {
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
-        incremental false
-    }
+
 
     testOptions {
         unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
     }
+
+    androidExtensions {
+        experimental = true
+    }
+
+//    allOpen {
+//        annotation('com.Mockable')
+//    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation Deps.kotlin_stdlib
 
-    api "com.android.support:appcompat-v7:$supportLibrary"
-    api "com.android.support:support-v4:$supportLibrary"
+    api Deps.appcompat_v7
+    api Deps.support_v4
 
-    api "android.arch.lifecycle:extensions:$archComp"
-    api "android.arch.lifecycle:reactivestreams:$archComp"
+    api Deps.arch_life_cycle
+    api Deps.arch_reactive_stream
 
-    compileOnly "io.reactivex.rxjava2:rxandroid:$rxAndroid"
-    compileOnly "io.reactivex.rxjava2:rxjava:$rxJava"
+    compileOnly Deps.rx_android
+    compileOnly Deps.rx_java
 
-    testImplementation 'junit:junit:4.12'
-    testImplementation 'com.github.Zeyad-37:Usecases:1.1.0'
-    testImplementation "org.mockito:mockito-core:$mockito"
-    androidTestImplementation("com.android.support.test.espresso:espresso-core:$espressoCore", {
+    testImplementation Deps.junit
+    testImplementation Deps.kotlin_all_open
+    testImplementation Deps.use_cases
+    testImplementation Deps.mockito
+    androidTestImplementation(Deps.esspresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
 }

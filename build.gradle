@@ -1,44 +1,21 @@
-project.ext {
-    supportLibrary = '27.1.1'
-    butterKnife = '8.8.1'
-    rxbinding = '2.1.1'
-    okhttpVersion = '3.9.1'
-    archComp = '1.1.1'
-    rxJava = '2.1.9'
-    rxAndroid = '2.0.1'
-    genericRecyclerViewAdapter = '1.9.0'
-    rxredux = '2.0.0'
-    glide = '4.0.0'
-    lottie = '2.2.0'
-    parceler = '1.1.9'
-
-    rxlint = '1.6'
-    leakCanary = '1.5.4'
-    androidSupportTest = '1.0.1'
-    espressoCore = '3.0.1'
-    powerMock = '1.7.3'
-    robolectric = '3.5.1'
-    okhttpIdelingResource = '1.0.0'
-    mockito = '1.10.19'
-//    mockito = '2.10.0'
-    mockitoKotlin = '1.5.0'
-    restMock = '0.2.2'
-    junit = '4.12'
-}
-
 buildscript {
     ext.kotlin_version = '1.2.41'
     repositories {
-        jcenter()
         google()
+        jcenter()
+        mavenCentral()
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.1.2'
-        classpath 'io.realm:realm-gradle-plugin:4.2.0'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-//        classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
+        classpath Deps.realm
+        classpath Deps.kotlinter
+        classpath Deps.detekt
+        classpath Deps.dokka
+//        classpath Deps.kotlin_all_open
     }
 }
 

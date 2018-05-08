@@ -10,7 +10,7 @@ import kotlinx.android.parcel.Parcelize
  * @author zeyad on 1/25/17.
  */
 @Parcelize
-data class Repository(@SerializedName("id")
+open class Repository(@SerializedName("id")
                       var id: Int = 0,
                       @SerializedName("name")
                       var name: String? = null,

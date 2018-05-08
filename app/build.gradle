@@ -1,16 +1,18 @@
-apply plugin: 'com.android.application'
-apply plugin: 'realm-android'
-apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-kapt'
-apply plugin: 'kotlin-android-extensions'
+apply plugin: Plugins.app
+apply plugin: Plugins.kt_and
+apply plugin: Plugins.kt_and_x
+apply plugin: Plugins.kotlinter
+apply plugin: Plugins.kapt
+apply plugin: Plugins.realm
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion Versions.compile_sdk
     buildToolsVersion "27.0.3"
+
     defaultConfig {
         applicationId "com.zeyad.rxredux"
-        minSdkVersion 17
-        targetSdkVersion 27
+        minSdkVersion Versions.min_sdk
+        targetSdkVersion Versions.target_sdk
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -21,49 +23,52 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    compileOptions {
-        targetCompatibility 1.8
-        sourceCompatibility 1.8
-    }
 
     androidExtensions {
         experimental = true
     }
+
+    testOptions {
+        unitTests.returnDefaultValues = true
+        unitTests.includeAndroidResources = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+//    allOpen {
+//        annotation('com.Mockable')
+//    }
 }
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation "com.android.support:appcompat-v7:$supportLibrary"
-    implementation "com.android.support:support-v4:$supportLibrary"
-    implementation "com.android.support:recyclerview-v7:$supportLibrary"
-    implementation "com.android.support:design:$supportLibrary"
-    implementation "com.android.support:cardview-v7:$supportLibrary"
-    implementation "com.android.support:palette-v7:$supportLibrary"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation project(path: ':core')
+    implementation Deps.kotlin_stdlib
+    implementation Deps.kotlin_all_open
 
-    implementation 'com.github.Zeyad-37:Usecases:1.1.0'
-    implementation "com.github.Zeyad-37:GenericRecyclerViewAdapter:$genericRecyclerViewAdapter"
-    implementation "org.parceler:parceler-api:$parceler"
-    annotationProcessor "org.parceler:parceler:$parceler"
+    implementation Deps.design_support
+    implementation Deps.appcompat_v7
+    implementation Deps.support_v4
+    implementation Deps.recycler_view
+    implementation Deps.card_view
+    implementation Deps.palette
+    implementation Deps.constraint_layout
+
+
+    implementation Deps.use_cases
+    implementation Deps.generic_recycler_review
 
     // Network
-    implementation 'com.github.bumptech.glide:glide:3.8.0'
+    implementation Deps.glide
     // Rx
-//    def withoutRx = { exclude group: "io.reactivex.rxjava2" }
-    implementation "com.jakewharton.rxbinding2:rxbinding:$rxbinding"//, withoutRx
-    implementation "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:$rxbinding"
-    implementation "com.jakewharton.rxbinding2:rxbinding-design:$rxbinding"
-    implementation "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:$rxbinding"
+    implementation Deps.rx_binding_core
+    implementation Deps.rx_binding_app_compat
+    implementation Deps.rx_binding_design
+    implementation Deps.rx_binding_recycler_view
 
-    // Injection
-    implementation "com.jakewharton:butterknife:$butterKnife"
-    annotationProcessor "com.jakewharton:butterknife-compiler:$butterKnife"
-
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoCore"
-    implementation project(path: ':core')
-    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-}
-repositories {
-    mavenCentral()
+    testImplementation Deps.junit
+    androidTestImplementation Deps.esspresso_core
 }

@@ -15,7 +15,6 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import butterknife.ButterKnife
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
@@ -89,7 +88,6 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val rootView = inflater.inflate(R.layout.user_detail, container, false)
-        ButterKnife.bind(this, rootView)
         setupRecyclerView()
         return rootView
     }

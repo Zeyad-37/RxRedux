@@ -8,9 +8,6 @@
     <option name="pathToConfigFileJava" value="$PROJECT_DIR$/../Globant/mmm-native-android/app/src/main/standars/ide/disney_eclipse_java_formatter.xml" />
     <option name="selectedJavaProfile" value="Disney" />
   </component>
-  <component name="EntryPointsManager">
-    <entry_points version="2.0" />
-  </component>
   <component name="MarkdownProjectSettings">
     <PreviewSettings splitEditorLayout="SPLIT" splitEditorPreview="PREVIEW" useGrayscaleRendering="false" zoomFactor="1.0" maxImageWidth="0" showGitHubPageIfSynced="false" allowBrowsingInPreview="false" synchronizePreviewPosition="true" highlightPreviewType="NONE" highlightFadeOut="5" highlightOnTyping="true" synchronizeSourcePosition="true">
       <PanelProvider>

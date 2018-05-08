@@ -16,7 +16,6 @@ import android.util.Log
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
-import butterknife.ButterKnife
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
@@ -91,9 +90,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     override fun setupUI(isNew: Boolean) {
         setContentView(R.layout.activity_user_list)
-        ButterKnife.bind(this)
         setSupportActionBar(toolbar)
-        toolbar!!.title = title
+        toolbar.title = title
         setupRecyclerView()
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
@@ -110,12 +108,11 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         val users = successState.users
         val searchList = successState.searchList
         if (searchList.isNotEmpty()) {
-            usersAdapter.setDataList(searchList,
-                    DiffUtil.calculateDiff(UserDiffCallBack(searchList,
-                            usersAdapter.adapterData)))
+            usersAdapter.setDataList(searchList, DiffUtil.calculateDiff(UserDiffCallBack(searchList,
+                    usersAdapter.adapterData)))
         } else if (users.isNotEmpty()) {
-            usersAdapter.setDataList(users,
-                    DiffUtil.calculateDiff(UserDiffCallBack(users, usersAdapter.dataList)))
+            usersAdapter.setDataList(users, DiffUtil.calculateDiff(UserDiffCallBack(users,
+                    usersAdapter.dataList)))
         }
     }
 
