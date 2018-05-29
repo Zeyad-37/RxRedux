@@ -19,11 +19,9 @@ open class Result<B>(val throwable: Throwable?, val eventBundlePair: Pair<String
     }
 
     companion object {
-        fun <B> loadingResult(): Result<B> =
-                Result<B>(null, Pair.create("", null), true, false)
+        fun loadingResult() = Result(null, Pair("", Any()), true, false)
 
-        fun <B> throwableResult(error: Throwable): Result<B> =
-                Result<B>(error, Pair.create("", null), false, false)
+        fun throwableResult(error: Throwable) = Result(error, Pair("", Any()), false, false)
 
         fun <B> successResult(eventBundlePair: Pair<String, B>): Result<B> =
                 Result(null, eventBundlePair, false, true)

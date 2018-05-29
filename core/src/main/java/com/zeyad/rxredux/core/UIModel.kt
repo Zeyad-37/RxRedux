@@ -11,10 +11,9 @@ class UIModel<S>(val stateName: String, throwable: Throwable?, eventBundlePair: 
         Result<S>(throwable, eventBundlePair, isLoading, isSuccessful) {
 
     private fun getKeySelector(): String =
-            if (stateName.equals(LOADING, true)) {
-                stateName
-            } else {
-                stateName + eventBundlePair.toString()
+            when {
+                stateName.equals(LOADING, true) -> stateName
+                else -> stateName + eventBundlePair.toString()
             }
 
     override fun toString(): String = String.format("State: %s, event: %s,Bundle type: %s, Error: %s, Key Selector: %s",

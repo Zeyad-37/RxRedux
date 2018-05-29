@@ -2,6 +2,7 @@ package com.zeyad.rxredux.core
 
 import android.arch.lifecycle.ViewModel
 import android.os.Parcelable
+import android.support.v4.util.Pair
 import com.zeyad.rxredux.core.Result.Companion.loadingResult
 import com.zeyad.rxredux.core.Result.Companion.successResult
 import com.zeyad.rxredux.core.UIModel.Companion.IDLE
@@ -42,7 +43,7 @@ abstract class BaseViewModel<S : Parcelable>(private val eventsSubject: PublishS
                                     .compose<Result<*>>(mapActionsToResults(event.javaClass.simpleName))
                         }
                         .distinctUntilChanged { t1: Result<*>, t2: Result<*> -> t1 == t2 }
-                        .scan(UIModel.idleState(android.support.v4.util.Pair(IDLE, initialState!!)), reducer())
+                        .scan(UIModel.idleState(Pair(IDLE, initialState)), reducer())
                         .replay(1)
                         .autoConnect()
                         .distinctUntilChanged { t1: UIModel<S>, t2: UIModel<S> -> t1 == t2 }
@@ -51,10 +52,9 @@ abstract class BaseViewModel<S : Parcelable>(private val eventsSubject: PublishS
 
     @NonNull
     private fun mapActionsToResults(eventName: String): FlowableTransformer<Any, Result<Any>> =
-            FlowableTransformer { upstream ->
-                upstream.map { result ->
-                    successResult(android.support.v4.util.Pair(eventName, result))
-                }.onErrorReturn { throwable -> Result.throwableResult(throwable) }
+            FlowableTransformer {
+                it.map { successResult(Pair(eventName, it)) }
+                        .onErrorReturn { throwable -> Result.throwableResult(throwable) }
                         .observeOn(AndroidSchedulers.mainThread())
                         .startWith(loadingResult())
                         .observeOn(Schedulers.computation())
@@ -64,12 +64,13 @@ abstract class BaseViewModel<S : Parcelable>(private val eventsSubject: PublishS
     private fun reducer(): BiFunction<UIModel<S>, Result<*>, UIModel<S>> =
             BiFunction { currentUIModel, result ->
                 when {
-                    result.isLoading -> loadingState(android.support.v4.util.Pair.create<String, S>
-                    (result.getEvent(), currentUIModel.getBundle()))
-                    result.isSuccessful -> successState(android.support.v4.util.Pair.create(result.getEvent()!!,
-                            stateReducer().reduce(result.getBundle(), result.getEvent(), currentUIModel.getBundle())))
-                    else -> errorState(result.throwable, android.support.v4.util.Pair
-                            .create<String, S>(result.getEvent(), currentUIModel.getBundle()))
+                    result.isLoading -> loadingState(Pair(result.getEvent()!!,
+                            currentUIModel.getBundle()))
+                    result.isSuccessful -> successState(Pair(result.getEvent()!!,
+                            stateReducer().reduce(result.getBundle(), result.getEvent(),
+                                    currentUIModel.getBundle())))
+                    else -> errorState(result.throwable, Pair(result.getEvent()!!,
+                            currentUIModel.getBundle()))
                 }
             }
 }

@@ -49,6 +49,8 @@ data class UserListState(val users: List<ItemInfo> = emptyList(),
         }
     }
 
+    fun isEmpty() = users.isEmpty() && searchList.isEmpty() && lastId < 1
+
     companion object {
         val CREATOR: Parcelable.Creator<UserListState> = object : Parcelable.Creator<UserListState> {
             override fun createFromParcel(source: Parcel) = UserListState(source)

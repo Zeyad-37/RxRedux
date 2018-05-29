@@ -33,8 +33,8 @@ object Versions {
     val okhttpVersion = "3.9.1"
 
     // - Reactive
-    val rxjava = "2.1.9"
-    val rxAndroid = "2.0.1"
+    val rxjava = "2.1.14"
+    val rxAndroid = "2.0.2"
     val rxbinding = "2.1.1"
     val rxredux = "2.1.2"
 

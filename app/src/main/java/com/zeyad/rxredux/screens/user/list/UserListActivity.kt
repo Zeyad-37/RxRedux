@@ -79,10 +79,11 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     }
 
     override fun initialize() {
+        viewState = UserListState()
         eventObservable = Observable.empty()
         viewModel = ViewModelProviders.of(this,
                 ViewModelFactory(DataServiceFactory.getInstance()!!)).get(UserListVM::class.java)
-        if (viewState == null) {
+        if (viewState!!.isEmpty()) {
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
