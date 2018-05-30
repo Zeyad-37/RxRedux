@@ -27,4 +27,3 @@ class BaseView {
                 } else null
     }
 }
-

@@ -58,9 +58,7 @@ data class UserListState(val users: List<ItemInfo> = emptyList(),
             override fun newArray(size: Int) = arrayOfNulls<UserListState>(size)
         }
 
-        fun builder(): Builder {
-            return Builder()
-        }
+        fun builder() = Builder()
     }
 
     override fun writeToParcel(parcel: Parcel, flags: Int) = parcel.writeLong(lastId)

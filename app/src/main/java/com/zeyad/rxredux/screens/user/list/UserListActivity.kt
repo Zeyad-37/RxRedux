@@ -58,9 +58,6 @@ import java.util.concurrent.TimeUnit
  */
 class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragListener, ActionMode.Callback {
 
-    //    @BindView(R.id.fastscroll)
-    //    FastScroller fastScroller;
-
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -190,13 +187,13 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler);
-        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list!!)
+        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
                 .map { recyclerViewScrollEvent ->
-                    GetPaginatedUsersEvent(if (ScrollEventCalculator
-                                    .isAtScrollEnd(recyclerViewScrollEvent))
-                        viewState!!.lastId
-                    else
-                        -1)
+                    GetPaginatedUsersEvent(
+                            if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
+                                viewState!!.lastId
+                            else
+                                -1)
                 }
                 .filter { !it.getPayLoad().equals(-1) }
                 .throttleLast(200, TimeUnit.MILLISECONDS)
