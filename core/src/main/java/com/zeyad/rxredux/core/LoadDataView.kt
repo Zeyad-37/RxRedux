@@ -12,14 +12,14 @@ interface LoadDataView<S> {
      *
      * @param successState the model to be rendered.
      */
-    fun renderSuccessState(@NonNull successState: S)
+    fun renderSuccessState(@NonNull successState: S, event: String)
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.
      *
      * @param isLoading whether to show or hide the loading view.
      */
-    fun toggleViews(isLoading: Boolean)
+    fun toggleViews(isLoading: Boolean, event: String)
 
     /**
      * Show an errorResult message

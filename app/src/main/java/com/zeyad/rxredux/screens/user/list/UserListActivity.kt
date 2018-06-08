@@ -43,6 +43,7 @@ import com.zeyad.rxredux.utils.Utils
 import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import io.reactivex.Single
+import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
@@ -102,7 +103,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         return postOnResumeEvents
     }
 
-    override fun renderSuccessState(successState: UserListState) {
+    override fun renderSuccessState(successState: UserListState, event: String) {
         val users = successState.users
         val searchList = successState.searchList
         if (searchList.isNotEmpty()) {
@@ -114,7 +115,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         }
     }
 
-    override fun toggleViews(isLoading: Boolean) {
+    override fun toggleViews(isLoading: Boolean, event: String) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
@@ -213,11 +214,11 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
-                .filter { charSequence -> !charSequence.toString().isEmpty() }
+                .filter { charSequence -> charSequence.toString().isNotEmpty() }
+                .throttleLast(100, TimeUnit.MILLISECONDS, Schedulers.computation())
+                .debounce(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .map { query -> SearchUsersEvent(query.toString()) }
                 .distinctUntilChanged()
-                .throttleLast(100, TimeUnit.MILLISECONDS)
-                .debounce(200, TimeUnit.MILLISECONDS)
                 .doOnEach { Log.d("SearchEvent", FIRED) })
         return super.onCreateOptionsMenu(menu)
     }

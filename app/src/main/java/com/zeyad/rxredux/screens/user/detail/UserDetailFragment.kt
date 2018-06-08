@@ -104,7 +104,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         recyclerView_repositories.adapter = repositoriesAdapter
     }
 
-    override fun renderSuccessState(successState: UserDetailState) {
+    override fun renderSuccessState(successState: UserDetailState, event: String) {
         repositoriesAdapter!!.animateTo(successState.repos)
         val user = successState.user
         if (successState.isTwoPane) {
@@ -136,7 +136,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean) {
+    override fun toggleViews(isLoading: Boolean, event: String) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }

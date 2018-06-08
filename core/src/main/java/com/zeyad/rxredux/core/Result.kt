@@ -1,7 +1,6 @@
 package com.zeyad.rxredux.core
 
 import android.support.v4.util.Pair
-import io.reactivex.annotations.NonNull
 
 /**
  * @author ZIaDo on 2/27/18.
@@ -13,7 +12,6 @@ open class Result<B>(val throwable: Throwable?, val eventBundlePair: Pair<String
         return eventBundlePair.second!!
     }
 
-    @NonNull
     fun getEvent(): String? {
         return eventBundlePair.first
     }
