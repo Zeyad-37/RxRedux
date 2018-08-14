@@ -1,51 +1,46 @@
-package com.zeyad.rxredux.core
+package com.zeyad.rxredux.core.view
 
-import android.arch.lifecycle.LiveDataReactiveStreams
 import android.os.Bundle
 import android.os.Parcelable
-import android.support.v4.app.FragmentActivity
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
-import com.zeyad.rxredux.core.BaseView.Companion.UI_MODEL
+import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import io.reactivex.Observable
 
 /**
- * @author ZIaDo on 2/27/18.
+ * @author Zeyad Gasser.
  */
-abstract class BaseFragmentActivity<S : Parcelable, VM : BaseViewModel<S>> : FragmentActivity(),
-        LoadDataView<S> {
-
+abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatActivity(), LoadDataView<S> {
     lateinit var viewModel: VM
     var viewState: S? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        viewState = BaseView.getViewStateFrom(savedInstanceState, intent)
+        savedInstanceState?.getViewStateFrom<S>()?.let { viewState = it }
         initialize()
         setupUI(savedInstanceState == null)
     }
 
-    override fun onSaveInstanceState(bundle: Bundle?) {
-        if (bundle != null && viewState != null) {
-            bundle.putParcelable(UI_MODEL, viewState)
-        }
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        savedInstanceState.getViewStateFrom<S>()?.let { viewState = it }
+    }
+
+    override fun onSaveInstanceState(bundle: Bundle) {
+        bundle.putParcelable(UI_MODEL, viewState)
         super.onSaveInstanceState(bundle)
     }
 
     override fun onStart() {
         super.onStart()
-        LiveDataReactiveStreams.fromPublisher(viewModel.uiModels(viewState))
-                .observe(this, UIObserver(this, errorMessageFactory()))
-        viewModel.processEvents(events())
+        viewModel.processEvents(events(), viewState).toLiveData()
+                .observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
     override fun setState(bundle: S) {
         viewState = bundle
-    }
-
-    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
-        super.onRestoreInstanceState(savedInstanceState)
-        viewState = BaseView.getViewStateFrom(savedInstanceState, intent)
     }
 
     abstract fun errorMessageFactory(): ErrorMessageFactory
@@ -57,6 +52,7 @@ abstract class BaseFragmentActivity<S : Parcelable, VM : BaseViewModel<S>> : Fra
 
     /**
      * Setup the UI.
+     *
      * @param isNew = savedInstanceState == null
      */
     abstract fun setupUI(isNew: Boolean)

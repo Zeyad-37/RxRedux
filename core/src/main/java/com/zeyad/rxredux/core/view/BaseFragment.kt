@@ -1,39 +1,35 @@
-package com.zeyad.rxredux.core.prelollipop
+package com.zeyad.rxredux.core.view
 
-import android.arch.lifecycle.LiveDataReactiveStreams
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
-import com.zeyad.rxredux.core.*
-import com.zeyad.rxredux.core.BaseView.Companion.UI_MODEL
+import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import io.reactivex.Observable
 
 /**
- * @author ZIaDo on 2/27/18.
+ * @author Zeyad Gasser.
  */
 abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), LoadDataView<S> {
 
     lateinit var viewModel: VM
-    var viewState: S? = null
+    lateinit var viewState: S
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         retainInstance = true
-        viewState = BaseView.getViewStateFrom(savedInstanceState, arguments)
+        savedInstanceState?.getViewStateFrom<S>()?.let { viewState = it }
         initialize()
     }
 
     override fun onStart() {
         super.onStart()
-        LiveDataReactiveStreams.fromPublisher(viewModel.uiModels(viewState))
+        viewModel.processEvents(events(), viewState).toLiveData()
                 .observe(this, UIObserver(this, errorMessageFactory()))
-        viewModel.processEvents(events())
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        if (viewState != null) {
-            outState.putParcelable(UI_MODEL, viewState)
-        }
+        outState.putParcelable(UI_MODEL, viewState)
         super.onSaveInstanceState(outState)
     }
 

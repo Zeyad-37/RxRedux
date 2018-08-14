@@ -1,9 +1,8 @@
 package com.zeyad.rxredux.core
 
 /**
- * @author ZIaDo on 2/27/18.
+ * @author Zeyad Gasser.
  */
 interface BaseEvent<T> {
-
     fun getPayLoad(): T
 }

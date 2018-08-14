@@ -23,8 +23,6 @@ android {
         }
     }
 
-
-
     testOptions {
         unitTests.returnDefaultValues = true
         unitTests.includeAndroidResources = true
@@ -44,14 +42,15 @@ dependencies {
     implementation Deps.kotlin_stdlib
 
     api Deps.appcompat_v7
-    api Deps.support_v4
 
-    api Deps.arch_life_cycle
     api Deps.arch_reactive_stream
 
-    compileOnly Deps.rx_android
-    compileOnly Deps.rx_java
+    api Deps.rx_android
+    api Deps.rx_java
 
+    implementation 'com.jakewharton.rx2:replaying-share-kotlin:2.0.1'
+
+    testImplementation Deps.generic_recycler_review
     testImplementation Deps.junit
     testImplementation Deps.kotlin_all_open
     testImplementation Deps.use_cases

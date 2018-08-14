@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.2.41'
+    ext.kotlin_version = '1.2.60'
     repositories {
         google()
         jcenter()
@@ -9,7 +9,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.android.tools.build:gradle:3.1.4'
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         classpath Deps.realm
         classpath Deps.kotlinter
@@ -24,6 +24,17 @@ allprojects {
         jcenter()
         google()
         maven { url 'https://jitpack.io' }
+    }
+
+    // Force all of the primary support libraries to use the same version.
+    configurations.all {
+        resolutionStrategy {
+            eachDependency { details ->
+                if (details.requested.group == 'com.android.support') {
+                    details.useVersion '27.1.1'
+                }
+            }
+        }
     }
 }
 

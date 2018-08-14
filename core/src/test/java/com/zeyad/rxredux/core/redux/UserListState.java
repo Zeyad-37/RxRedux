@@ -8,8 +8,6 @@ import com.zeyad.gadapter.ItemInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.reactivex.Observable;
-
 /**
  * @author by ZIaDo on 1/28/17.
  */
@@ -101,16 +99,16 @@ public class UserListState implements Parcelable {
         }
 
         Builder users(List<User> value) {
-            users = Observable.fromIterable(value)
-                    .map(user -> new ItemInfo(user, 1).setId(user.getId()))
-                    .toList(value.size()).blockingGet();
+//            users = Observable.fromIterable(value)
+//                    .map(user -> new ItemInfo(user, 1).setId(user.getId()))
+//                    .toList(value.size()).blockingGet();
             return this;
         }
 
         Builder searchList(List<User> value) {
-            searchList = Observable.fromIterable(value)
-                    .map(user -> new ItemInfo(user, 1).setId(user.getId()))
-                    .toList().blockingGet();
+//            searchList = Observable.fromIterable(value)
+//                    .map(user -> new ItemInfo(user, 1).setId(user.getId()))
+//                    .toList().blockingGet();
             return this;
         }
 

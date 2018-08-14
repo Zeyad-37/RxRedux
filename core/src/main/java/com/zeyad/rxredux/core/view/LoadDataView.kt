@@ -1,18 +1,17 @@
-package com.zeyad.rxredux.core
-
-import io.reactivex.annotations.NonNull
+package com.zeyad.rxredux.core.view
 
 /**
- * @author ZIaDo on 2/27/18.
+ * Interface representing a View that will use to load data.
+ *
+ * @author Zeyad Gasser.
  */
-/** Interface representing a View that will use to load data.  */
 interface LoadDataView<S> {
     /**
      * Renders the model of the view
      *
      * @param successState the model to be rendered.
      */
-    fun renderSuccessState(@NonNull successState: S, event: String)
+    fun renderSuccessState(successState: S, event: String)
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.
@@ -26,7 +25,7 @@ interface LoadDataView<S> {
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun showError(@NonNull errorMessage: String)
+    fun showError(errorMessage: String, event: String)
 
     /**
      * Sets the viewState on the implementing View.

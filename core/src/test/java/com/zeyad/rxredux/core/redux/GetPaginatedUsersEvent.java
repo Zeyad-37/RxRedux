@@ -1,7 +1,9 @@
 package com.zeyad.rxredux.core.redux;
 
+import com.zeyad.rxredux.core.BaseEvent;
+
 /**
- * @author by ZIaDo on 4/19/17.
+ * @author by Zeyad Gasser on 4/19/17.
  */
 public class GetPaginatedUsersEvent implements BaseEvent<Long> {
 
