@@ -3,14 +3,15 @@ package com.zeyad.rxredux.screens
 import android.os.Parcelable
 import android.view.View
 import android.widget.Toast
-import com.zeyad.rxredux.core.BaseViewModel
+import com.zeyad.rxredux.core.view.BaseFragment
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
 /**
  * @author by ZIaDo on 7/21/17.
  */
 
-abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : com.zeyad.rxredux.core.prelollipop.BaseFragment<S, VM>() {
+abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragment<S, VM>() {
 
     @JvmOverloads
     fun showToastMessage(message: String, duration: Int = Toast.LENGTH_LONG) {

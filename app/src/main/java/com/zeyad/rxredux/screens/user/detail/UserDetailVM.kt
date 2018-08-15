@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.screens.user.detail
 
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.BaseViewModel
-import com.zeyad.rxredux.core.StateReducer
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.StateReducer
 import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.db.RealmQueryProvider
@@ -17,7 +17,7 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
 
     override fun stateReducer(): StateReducer<UserDetailState> {
         return object : StateReducer<UserDetailState> {
-            override fun reduce(newResult: Any?, event: String?, currentStateBundle: UserDetailState?): UserDetailState {
+            override fun reduce(newResult: Any, event: String, currentStateBundle: UserDetailState?): UserDetailState {
                 return UserDetailState.builder()
                         .setRepos(newResult as List<Repository>).setUser(currentStateBundle?.user!!)
                         .setIsTwoPane(currentStateBundle.isTwoPane).build()

@@ -5,13 +5,14 @@ import android.support.v4.app.Fragment
 import android.util.Pair
 import android.view.View
 import android.widget.Toast
-import com.zeyad.rxredux.core.BaseViewModel
+import com.zeyad.rxredux.core.view.BaseActivity
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
 /**
  * @author by ZIaDo on 7/21/17.
  */
-abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : com.zeyad.rxredux.core.prelollipop.BaseActivity<S, VM>() {
+abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivity<S, VM>() {
 
     /**
      * Adds a [Fragment] to this activity's layout.
@@ -23,10 +24,8 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : com.zeyad.r
     fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
                     vararg sharedElements: Pair<View, String>) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
-        if (sharedElements != null) {
-            for (pair in sharedElements) {
-                fragmentTransaction.addSharedElement(pair.first, pair.second)
-            }
+        for (pair in sharedElements) {
+            fragmentTransaction.addSharedElement(pair.first, pair.second)
         }
         if (currentFragTag == null || currentFragTag.isEmpty()) {
             fragmentTransaction.addToBackStack(fragment.tag)

@@ -4,9 +4,8 @@ import android.app.Application
 import android.os.StrictMode
 import android.util.Log
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory
+import com.zeyad.rxredux.di.myModule
 import com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL
-import com.zeyad.usecases.api.DataServiceConfig
-import com.zeyad.usecases.api.DataServiceFactory
 import com.zeyad.usecases.network.ProgressInterceptor
 import io.reactivex.BackpressureStrategy
 import io.realm.Realm
@@ -17,6 +16,7 @@ import okhttp3.ConnectionSpec
 import okhttp3.OkHttpClient
 import okhttp3.Response
 import okhttp3.logging.HttpLoggingInterceptor
+import org.koin.android.ext.android.startKoin
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -50,6 +50,8 @@ class RxReduxApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        initializeRealm()
+        startKoin(listOf(myModule))
         //        if (LeakCanary.isInAnalyzerProcess(this)) {
         //            return;
         //        }
@@ -64,13 +66,13 @@ class RxReduxApplication : Application() {
         //        }).subscribeOn(Schedulers.io())
         //                   .subscribe(() -> {
         //                   }, Throwable::printStackTrace);
-        initializeRealm()
-        DataServiceFactory.init(DataServiceConfig.Builder(this)
-                .baseUrl(apiBaseUrl)
-                .okHttpBuilder(okHttpBuilder)
-                .withCache(3, TimeUnit.MINUTES)
-                .withRealm()
-                .build())
+
+//        DataServiceFactory.init(DataServiceConfig.Builder(this)
+//                .baseUrl(apiBaseUrl)
+//                .okHttpBuilder(okHttpBuilder)
+//                .withCache(3, TimeUnit.MINUTES)
+//                .withRealm()
+//                .build())
     }
 
     private fun initializeRealm() {

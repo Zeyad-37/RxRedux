@@ -48,6 +48,8 @@ dependencies {
     implementation project(path: ':core')
     implementation Deps.kotlin_stdlib
     implementation Deps.kotlin_all_open
+    implementation "androidx.core:core-ktx:0.3"
+    implementation "org.koin:koin-android-architecture:0.9.3"
 
     implementation Deps.design_support
     implementation Deps.appcompat_v7
@@ -57,12 +59,14 @@ dependencies {
     implementation Deps.palette
     implementation Deps.constraint_layout
 
-
     implementation Deps.use_cases
     implementation Deps.generic_recycler_review
 
     // Network
     implementation Deps.glide
+    implementation "com.airbnb.android:lottie:2.5.1"
+    implementation "com.andrognito.flashbar:flashbar:1.0.2"
+
     // Rx
     implementation Deps.rx_binding_core
     implementation Deps.rx_binding_app_compat

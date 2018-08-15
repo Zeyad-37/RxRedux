@@ -2,7 +2,6 @@ package com.zeyad.rxredux.screens.user.list
 
 import android.app.ActivityOptions
 import android.app.SearchManager
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.content.Intent
 import android.support.design.widget.Snackbar
@@ -16,7 +15,6 @@ import android.util.Log
 import android.util.Pair
 import android.view.*
 import android.widget.ImageView
-import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.ItemInfo.SECTION_HEADER
@@ -24,10 +22,8 @@ import com.zeyad.gadapter.OnStartDragListener
 import com.zeyad.gadapter.SimpleItemTouchHelperCallback
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.ErrorMessageFactory
-import com.zeyad.rxredux.core.navigator.navigate
+import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.screens.BaseActivity
-import com.zeyad.rxredux.screens.ViewModelFactory
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
@@ -40,7 +36,6 @@ import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.Utils
-import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -48,6 +43,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
+import org.koin.android.architecture.ext.getViewModel
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -66,22 +62,20 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     private var twoPane: Boolean = false
 
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
-    private lateinit var eventObservable: Observable<BaseEvent<*>>
+    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
 
     override fun errorMessageFactory(): ErrorMessageFactory {
         return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable): String {
+            override fun getErrorMessage(throwable: Throwable, event: String): String {
                 return throwable.localizedMessage
             }
         }
     }
 
     override fun initialize() {
-        viewState = UserListState()
-        eventObservable = Observable.empty()
-        viewModel = ViewModelProviders.of(this,
-                ViewModelFactory(DataServiceFactory.getInstance()!!)).get(UserListVM::class.java)
-        if (viewState!!.isEmpty()) {
+        viewModel = getViewModel()
+        if (viewState == null) {
+            viewState = UserListState()
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
@@ -120,7 +114,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String) {
+    override fun showError(errorMessage: String, event: String) {
         showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
@@ -167,9 +161,10 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                     if (Utils.hasLollipop()) {
                         val options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
                                 secondPair)
-                        navigate(UserDetailActivity.getCallingIntent(this, userDetailState), options)
+                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState),
+                                options.toBundle())
                     } else {
-                        navigate(UserDetailActivity.getCallingIntent(this, userDetailState))
+                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState))
                     }
                 }
             }
@@ -188,18 +183,18 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler);
-        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
-                .map { recyclerViewScrollEvent ->
-                    GetPaginatedUsersEvent(
-                            if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
-                                viewState!!.lastId
-                            else
-                                -1)
-                }
-                .filter { !it.getPayLoad().equals(-1) }
-                .throttleLast(200, TimeUnit.MILLISECONDS)
-                .debounce(300, TimeUnit.MILLISECONDS)
-                .doOnNext { Log.d("NextPageEvent", FIRED) })
+//        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
+//                .map { recyclerViewScrollEvent ->
+//                    GetPaginatedUsersEvent(
+//                            if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
+//                                viewState!!.lastId
+//                            else
+//                                -1)
+//                }
+//                .filter { !it.getPayLoad().equals(-1) }
+//                .throttleLast(200, TimeUnit.MILLISECONDS)
+//                .debounce(300, TimeUnit.MILLISECONDS)
+//                .doOnNext { Log.d("NextPageEvent", FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
     }
@@ -210,7 +205,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(if (viewState == null) -1 else viewState!!.lastId))
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)

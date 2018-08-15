@@ -23,8 +23,8 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.BaseView.Companion.UI_MODEL
-import com.zeyad.rxredux.core.ErrorMessageFactory
+import com.zeyad.rxredux.core.view.ErrorMessageFactory
+import com.zeyad.rxredux.core.view.UI_MODEL
 import com.zeyad.rxredux.screens.BaseFragment
 import com.zeyad.rxredux.screens.ViewModelFactory
 import com.zeyad.rxredux.screens.user.list.UserListActivity
@@ -71,7 +71,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun errorMessageFactory(): ErrorMessageFactory {
         return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable): String {
+            override fun getErrorMessage(throwable: Throwable, event: String): String {
                 return throwable.localizedMessage
             }
         }
@@ -83,7 +83,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     }
 
     override fun events(): Observable<BaseEvent<*>> {
-        return Observable.just(GetReposEvent(viewState!!.user!!.login!!))
+        return Observable.just(GetReposEvent(viewState.user!!.login!!))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -108,7 +108,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         repositoriesAdapter!!.animateTo(successState.repos)
         val user = successState.user
         if (successState.isTwoPane) {
-            Utils.runIfNotNull(activity as UserListActivity) { activity ->
+            (activity as UserListActivity).let { activity ->
                 val appBarLayout = activity.findViewById<Toolbar>(R.id.toolbar)
                 if (appBarLayout != null) {
                     appBarLayout.title = user!!.login
@@ -119,7 +119,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
                 }
             }
         } else {
-            Utils.runIfNotNull(activity as UserDetailActivity) { activity ->
+            (activity as UserDetailActivity).let { activity ->
                 val appBarLayout = activity.getCollapsingToolbarLayout()
                 appBarLayout.title = user!!.login
                 if (user.avatarUrl!!.isNotBlank()) {
@@ -132,7 +132,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     }
 
     internal fun glideRequestListenerCore(): Boolean {
-        Utils.runIfNotNull(activity!!, { it.supportStartPostponedEnterTransition() })
+        activity?.supportStartPostponedEnterTransition()
         return false
     }
 
@@ -141,7 +141,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String) {
+    override fun showError(errorMessage: String, event: String) {
         showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

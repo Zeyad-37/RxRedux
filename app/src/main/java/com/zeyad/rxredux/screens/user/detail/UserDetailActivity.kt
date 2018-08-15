@@ -12,7 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseView.Companion.UI_MODEL
+import com.zeyad.rxredux.core.view.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import kotlinx.android.synthetic.main.activity_user_detail.*
 

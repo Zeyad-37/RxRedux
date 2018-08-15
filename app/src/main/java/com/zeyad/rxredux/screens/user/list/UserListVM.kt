@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.screens.user.list
 
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.BaseViewModel
-import com.zeyad.rxredux.core.StateReducer
+import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.StateReducer
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
 import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
@@ -37,7 +37,7 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
 
     override fun stateReducer(): StateReducer<UserListState> {
         return object : StateReducer<UserListState> {
-            override fun reduce(newResult: Any?, event: String?, currentStateBundle: UserListState?): UserListState {
+            override fun reduce(newResult: Any, event: String, currentStateBundle: UserListState?): UserListState {
                 var users: MutableList<User>
                 users = if (currentStateBundle?.users == null)
                     ArrayList()
@@ -68,7 +68,6 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
         return if (lastId == 0L)
             dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
                     .url(String.format(USERS, lastId))
-                    .cache(User.LOGIN)
                     .build())
         else
             dataUseCase.getList(GetRequest.Builder(User::class.java, true)

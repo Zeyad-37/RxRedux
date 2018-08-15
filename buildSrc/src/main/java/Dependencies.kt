@@ -3,13 +3,13 @@
  */
 object Versions {
     // Gradle
-    val android_gradle_plugin = "3.0.1"
+    const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
     val kotlin = "1.2.41"
 
     // Realm
-    val realm = "4.2.0"
+    val realm = "5.2.0"
 
     // SDK
     val min_sdk = 21
@@ -23,7 +23,7 @@ object Versions {
 
     // Libs
     // - Support
-    val support_lib = "27.0.2"
+    val support_lib = "27.1.1"
     val contraint_layout = "1.1.0"
     val archComp = "1.0.0"
 
@@ -85,7 +85,7 @@ object Deps {
     // Libs
     val realm = "io.realm:realm-gradle-plugin:${Versions.realm}"
 
-    val use_cases = "com.github.Zeyad-37:Usecases:1.1.0"
+    val use_cases = "com.github.Zeyad-37:Usecases:1.2.2"
 
     // - Support
     val design_support = "com.android.support:design:${Versions.support_lib}"
