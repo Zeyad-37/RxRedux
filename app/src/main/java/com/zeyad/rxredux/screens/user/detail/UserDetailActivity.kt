@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.view.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import kotlinx.android.synthetic.main.activity_user_detail.*
 
@@ -33,9 +32,8 @@ class UserDetailActivity : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            addFragment(R.id.user_detail_container,
-                    UserDetailFragment.newInstance(intent.getParcelableExtra(UI_MODEL)),
-                    "", null)
+            val fragment = UserDetailFragment.newInstance(intent.getParcelableExtra(UI_MODEL))
+            addFragment(R.id.user_detail_container, fragment, fragment.tag, null)
         }
     }
 
@@ -74,7 +72,7 @@ class UserDetailActivity : AppCompatActivity() {
     fun getCollapsingToolbarLayout(): CollapsingToolbarLayout = toolbar_layout
 
     companion object {
-
+        const val UI_MODEL = "uiModel"
         fun getCallingIntent(context: Context, userDetailModel: UserDetailState): Intent {
             return Intent(context, UserDetailActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(UI_MODEL, userDetailModel)

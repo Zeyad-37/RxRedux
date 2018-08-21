@@ -37,7 +37,7 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
 
     override fun stateReducer(): StateReducer<UserListState> {
         return object : StateReducer<UserListState> {
-            override fun reduce(newResult: Any, event: String, currentStateBundle: UserListState?): UserListState {
+            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?): UserListState {
                 var users: MutableList<User>
                 users = if (currentStateBundle?.users == null)
                     ArrayList()
@@ -47,9 +47,9 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
                             .toList().blockingGet()
                 val searchList = ArrayList<User>()
                 when (event) {
-                    "GetPaginatedUsersEvent" -> users.addAll(newResult as List<User>)
-                    "SearchUsersEvent" -> searchList.addAll(newResult as List<User>)
-                    "DeleteUsersEvent" -> users = Observable.fromIterable(users)
+                    is GetPaginatedUsersEvent -> users.addAll(newResult as List<User>)
+                    is SearchUsersEvent -> searchList.addAll(newResult as List<User>)
+                    is DeleteUsersEvent -> users = Observable.fromIterable(users)
                             .filter { user -> !(newResult as List<*>).contains(user.login) }
                             .distinct().toList().blockingGet()
                     else -> {

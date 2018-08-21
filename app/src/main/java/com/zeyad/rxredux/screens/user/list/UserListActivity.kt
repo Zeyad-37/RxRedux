@@ -66,7 +66,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     override fun errorMessageFactory(): ErrorMessageFactory {
         return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: String): String {
+            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
                 return throwable.localizedMessage
             }
         }
@@ -97,7 +97,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         return postOnResumeEvents
     }
 
-    override fun renderSuccessState(successState: UserListState, event: String) {
+    override fun renderSuccessState(successState: UserListState) {
         val users = successState.users
         val searchList = successState.searchList
         if (searchList.isNotEmpty()) {
@@ -109,12 +109,12 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         }
     }
 
-    override fun toggleViews(isLoading: Boolean, event: String) {
+    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String, event: String) {
+    override fun showError(errorMessage: String, event: BaseEvent<*>) {
         showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 

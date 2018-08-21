@@ -17,7 +17,7 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
 
     override fun stateReducer(): StateReducer<UserDetailState> {
         return object : StateReducer<UserDetailState> {
-            override fun reduce(newResult: Any, event: String, currentStateBundle: UserDetailState?): UserDetailState {
+            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState?): UserDetailState {
                 return UserDetailState.builder()
                         .setRepos(newResult as List<Repository>).setUser(currentStateBundle?.user!!)
                         .setIsTwoPane(currentStateBundle.isTwoPane).build()

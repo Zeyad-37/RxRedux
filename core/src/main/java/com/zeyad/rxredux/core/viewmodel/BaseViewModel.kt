@@ -1,7 +1,6 @@
 package com.zeyad.rxredux.core.viewmodel
 
 import android.arch.lifecycle.ViewModel
-import android.os.Parcelable
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
 import io.reactivex.BackpressureStrategy
@@ -17,7 +16,7 @@ import io.reactivex.schedulers.Schedulers
 /**
  * @author Zeyad Gasser.
  */
-abstract class BaseViewModel<S : Parcelable> : ViewModel() {
+abstract class BaseViewModel<S> : ViewModel() {
     abstract fun stateReducer(): StateReducer<S>
 
     abstract fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>>
@@ -33,7 +32,7 @@ abstract class BaseViewModel<S : Parcelable> : ViewModel() {
                         .flatMap { event ->
                             Flowable.just(event)
                                     .flatMap(mapEventsToActions())
-                                    .compose(mapActionsToResults(event.javaClass.simpleName))
+                                    .compose(mapActionsToResults(event))
                         }
                         .distinctUntilChanged { t1: Result<*>, t2: Result<*> -> t1 == t2 }
                         .scan<UIModel<S>>(resolveInitialState(initialState), reducer())
@@ -42,12 +41,13 @@ abstract class BaseViewModel<S : Parcelable> : ViewModel() {
             }
 
     private fun resolveInitialState(initialState: S?): UIModel<S> =
-            if (initialState == null)
-                EmptyState()
-            else SuccessState(initialState)
+            when (initialState) {
+                null -> EmptyState()
+                else -> SuccessState(initialState)
+            }
 
     @NonNull
-    private fun mapActionsToResults(eventName: String): FlowableTransformer<Any, Result<*>> =
+    private fun mapActionsToResults(eventName: BaseEvent<*>): FlowableTransformer<Any, Result<*>> =
             FlowableTransformer { it ->
                 it.map<Result<*>> { SuccessResult(it, eventName) }
                         .onErrorReturn { ErrorResult(it, eventName) }
@@ -69,8 +69,8 @@ abstract class BaseViewModel<S : Parcelable> : ViewModel() {
                     is SuccessResult<*> -> when (currentUIModel) {
                         is SuccessState -> SuccessState(stateReducer().reduce(result.bundle!!,
                                 result.event, currentUIModel.bundle), result.event)
-                        is LoadingState -> SuccessState(stateReducer().reduce(result.bundle!!, result.event,
-                                currentUIModel.bundle), result.event)
+                        is LoadingState -> SuccessState(stateReducer().reduce(result.bundle!!,
+                                result.event, currentUIModel.bundle), result.event)
                         else -> throw IllegalStateException("Can not reduce from $currentUIModel to SuccessState")
                     }
                 }
