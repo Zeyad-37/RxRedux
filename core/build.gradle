@@ -2,6 +2,8 @@ apply plugin: Plugins.library
 apply plugin: Plugins.kt_and
 apply plugin: Plugins.kt_and_x
 apply plugin: Plugins.kotlinter
+apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.Zeyad-37'
 
 android {
     compileSdkVersion Versions.compile_sdk
