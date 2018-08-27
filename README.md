@@ -31,38 +31,38 @@ First, an
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
 override fun stateReducer(): StateReducer<UserListState> {
-        return object : StateReducer<UserListState> {
-            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?): UserListState {
-                 val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
-                 return when (currentStateBundle) {
-                    is EmptyState -> when (newResult) {
-                        is List<*> -> getListState(newResult, currentItemInfo)
-                        else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
-                    }
-                    is ListState -> when (newResult) {
-                        is List<*> -> getListState(newResult, currentItemInfo)
-                        else -> throw IllegalStateException("Can not reduce ListState with this result: $newResult!")
-                    }
-                    else -> throw IllegalStateException("Can not reduce $currentStateBundle")
-                 }
+    return object : StateReducer<UserListState> {
+        override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?): UserListState {
+            val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
+            return when (currentStateBundle) {
+                is EmptyState -> when (newResult) {
+                    is List<*> -> getListState(newResult, currentItemInfo)
+                    else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
+                }
+                is ListState -> when (newResult) {
+                    is List<*> -> getListState(newResult, currentItemInfo)
+                    else -> throw IllegalStateException("Can not reduce ListState with this result: $newResult!")
+                }
+                else -> throw IllegalStateException("Can not reduce $currentStateBundle")
             }
         }
     }
+}
 ```
 Its a good practice to have a type for every state for your view.
 
 Secondly, mapEventsToActions.
 ```
 override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
-        return Function { event ->
-            when (event) {
-                is GetPaginatedUsersEvent -> getUsers(event.getPayLoad())
-                is DeleteUsersEvent -> deleteCollection(event.getPayLoad())
-                is SearchUsersEvent -> search(event.getPayLoad())
-                else -> throw IllegalStateException("Can not map $event to an action")
-            }
+    return Function { event ->
+        when (event) {
+            is GetPaginatedUsersEvent -> getUsers(event.getPayLoad())
+            is DeleteUsersEvent -> deleteCollection(event.getPayLoad())
+            is SearchUsersEvent -> search(event.getPayLoad())
+            else -> throw IllegalStateException("Can not map $event to an action")
         }
     }
+}
 ```
 This is a simple mapping function that links every Event with its corresponding action
 function. The rest of the class holds your executables which are methods that return flowables.
@@ -147,7 +147,8 @@ on the Computation Scheduler.
 
 Un/Subscribing from the streams are handled automatically with LiveData and happen on Start/Stop
 
-Since the library is written in Kotlin there are no nullable objects used or allowed
+Since the library is written in Kotlin there are no nullable objects used or allowed, only the
+viewState is null until you provide the initialization.
 
 # Benefits
 
