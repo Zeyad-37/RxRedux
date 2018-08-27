@@ -18,14 +18,14 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
-        savedInstanceState?.getViewStateFrom<S>()?.let { viewState = it }
+        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
         setupUI(savedInstanceState == null)
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
-        savedInstanceState.getViewStateFrom<S>()?.let { viewState = it }
+        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
@@ -35,7 +35,8 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
 
     override fun onStart() {
         super.onStart()
-        viewModel.processEvents(events(), viewState).toLiveData()
+        viewState = initialState()
+        viewModel.processEvents(events(), initialState()).toLiveData()
                 .observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
@@ -63,4 +64,9 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
      * @return [Observable].
      */
     abstract fun events(): Observable<BaseEvent<*>>
+
+    /**
+     * @return initial state of view
+     */
+    abstract fun initialState(): S
 }

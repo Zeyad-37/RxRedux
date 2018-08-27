@@ -12,23 +12,21 @@ import com.zeyad.rxredux.core.UIModel
 class UIObserver<V : LoadDataView<S>, S>(private val view: V, private val errorMessageFactory: ErrorMessageFactory) :
         Observer<UIModel<S>> {
     override fun onChanged(uiModel: UIModel<S>?) {
-        Log.d("onNext", "UIModel: " + uiModel.toString())
-        val loading = uiModel?.isLoading!!
-        val event = uiModel.event
-        view.toggleViews(loading, event)
-        if (!loading) {
-            when (uiModel) {
-                is ErrorState -> {
-                    val error = uiModel.error
-                    Log.e("UIObserver", "onChanged", error)
-                    view.showError(errorMessageFactory.getErrorMessage(error, event), event)
+        uiModel?.apply {
+            view.toggleViews(isLoading, event)
+            if (!isLoading) {
+                when (this) {
+                    is ErrorState -> {
+                        Log.e("UIObserver", "onChanged", error)
+                        view.showError(errorMessageFactory.getErrorMessage(error, event), event)
+                    }
+                    is SuccessState -> {
+                        Log.d("onNext", "UIModel: " + toString())
+                        view.setState(bundle)
+                        view.renderSuccessState(bundle)
+                    }
                 }
-                is SuccessState -> {
-                    val bundle = uiModel.bundle
-                    view.setState(bundle)
-                    view.renderSuccessState(bundle, event)
-                }
-            }
+            } else Log.d("onNext", "UIModel: " + toString())
         }
     }
 }

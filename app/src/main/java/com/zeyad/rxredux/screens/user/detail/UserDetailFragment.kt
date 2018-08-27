@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.screens.user.detail
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -24,25 +23,20 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
-import com.zeyad.rxredux.core.view.UI_MODEL
 import com.zeyad.rxredux.screens.BaseFragment
-import com.zeyad.rxredux.screens.ViewModelFactory
+import com.zeyad.rxredux.screens.user.detail.UserDetailActivity.Companion.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.utils.Utils
-import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
+import org.koin.android.architecture.ext.getViewModel
 import java.util.*
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
- */
-/**
- * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
- * screen orientation changes).
  */
 class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
@@ -71,25 +65,29 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun errorMessageFactory(): ErrorMessageFactory {
         return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: String): String {
+            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
                 return throwable.localizedMessage
             }
         }
     }
 
     override fun initialize() {
-        viewModel = ViewModelProviders.of(this,
-                ViewModelFactory(DataServiceFactory.getInstance()!!)).get(UserDetailVM::class.java)
+        viewModel = getViewModel()
     }
 
+    override fun initialState(): UserDetailState = arguments?.getParcelable(UI_MODEL)!!
+
     override fun events(): Observable<BaseEvent<*>> {
-        return Observable.just(GetReposEvent(viewState.user!!.login!!))
+        return Observable.just(GetReposEvent(viewState?.user!!.login!!))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val rootView = inflater.inflate(R.layout.user_detail, container, false)
+        return inflater.inflate(R.layout.user_detail, container, false)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupRecyclerView()
-        return rootView
     }
 
     private fun setupRecyclerView() {
@@ -104,7 +102,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         recyclerView_repositories.adapter = repositoriesAdapter
     }
 
-    override fun renderSuccessState(successState: UserDetailState, event: String) {
+    override fun renderSuccessState(successState: UserDetailState) {
         repositoriesAdapter!!.animateTo(successState.repos)
         val user = successState.user
         if (successState.isTwoPane) {
@@ -136,12 +134,12 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: String) {
+    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String, event: String) {
+    override fun showError(errorMessage: String, event: BaseEvent<*>) {
         showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

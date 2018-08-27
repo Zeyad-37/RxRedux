@@ -11,9 +11,9 @@ import org.reactivestreams.Publisher
  */
 const val UI_MODEL = "viewState"
 
-fun <S : Parcelable> Bundle.getViewStateFrom(): S? =
-        if (containsKey(UI_MODEL)) {
-            getParcelable(UI_MODEL)
-        } else null
+fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
+        if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL))
+            savedInstanceState.getParcelable(UI_MODEL)
+        else null
 
 fun <T> Publisher<T>.toLiveData() = LiveDataReactiveStreams.fromPublisher(this) as LiveData<T>
