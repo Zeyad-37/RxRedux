@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.screens.user.detail
 
-import android.arch.lifecycle.ViewModelProviders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
@@ -25,24 +24,19 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.screens.BaseFragment
-import com.zeyad.rxredux.screens.ViewModelFactory
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity.Companion.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.utils.Utils
-import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
+import org.koin.android.architecture.ext.getViewModel
 import java.util.*
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
- */
-/**
- * Mandatory empty constructor for the fragment manager to instantiate the fragment (e.g. upon
- * screen orientation changes).
  */
 class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
@@ -78,10 +72,10 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     }
 
     override fun initialize() {
-        viewModel = ViewModelProviders.of(this,
-                ViewModelFactory(DataServiceFactory.getInstance()!!)).get(UserDetailVM::class.java)
-        viewState = arguments?.getParcelable(UI_MODEL)
+        viewModel = getViewModel()
     }
+
+    override fun initialState(): UserDetailState = arguments?.getParcelable(UI_MODEL)!!
 
     override fun events(): Observable<BaseEvent<*>> {
         return Observable.just(GetReposEvent(viewState?.user!!.login!!))

@@ -1,6 +1,7 @@
 package com.zeyad.rxredux
 
 import android.app.Application
+import android.os.Looper
 import android.os.StrictMode
 import android.util.Log
 import com.zeyad.rxredux.core.eventbus.RxEventBusFactory
@@ -8,6 +9,8 @@ import com.zeyad.rxredux.di.myModule
 import com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL
 import com.zeyad.usecases.network.ProgressInterceptor
 import io.reactivex.BackpressureStrategy
+import io.reactivex.android.plugins.RxAndroidPlugins
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.realm.Realm
 import io.realm.RealmConfiguration
 import io.realm.rx.RealmObservableFactory
@@ -52,6 +55,7 @@ class RxReduxApplication : Application() {
         super.onCreate()
         initializeRealm()
         startKoin(listOf(myModule))
+        RxAndroidPlugins.setMainThreadSchedulerHandler { AndroidSchedulers.from(Looper.getMainLooper(), true) }
         //        if (LeakCanary.isInAnalyzerProcess(this)) {
         //            return;
         //        }

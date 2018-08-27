@@ -13,7 +13,6 @@ class UIObserver<V : LoadDataView<S>, S>(private val view: V, private val errorM
         Observer<UIModel<S>> {
     override fun onChanged(uiModel: UIModel<S>?) {
         uiModel?.apply {
-            Log.d("onNext", "UIModel: " + toString())
             view.toggleViews(isLoading, event)
             if (!isLoading) {
                 when (this) {
@@ -22,11 +21,12 @@ class UIObserver<V : LoadDataView<S>, S>(private val view: V, private val errorM
                         view.showError(errorMessageFactory.getErrorMessage(error, event), event)
                     }
                     is SuccessState -> {
-                        view.setStateWithEvent(bundle, event)
+                        Log.d("onNext", "UIModel: " + toString())
+                        view.setState(bundle)
                         view.renderSuccessState(bundle)
                     }
                 }
-            }
+            } else Log.d("onNext", "UIModel: " + toString())
         }
     }
 }

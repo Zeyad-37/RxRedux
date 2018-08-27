@@ -75,7 +75,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     override fun initialize() {
         viewModel = getViewModel()
         if (viewState == null) {
-            viewState = UserListState()
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
@@ -88,6 +87,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         setupRecyclerView()
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
+
+    override fun initialState(): UserListState = UserListState()
 
     override fun events(): Observable<BaseEvent<*>> {
         return eventObservable.mergeWith(postOnResumeEvents())

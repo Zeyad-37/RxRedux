@@ -3,6 +3,7 @@ package com.zeyad.rxredux.di
 import android.content.Context
 import android.util.Log
 import com.zeyad.rxredux.BuildConfig
+import com.zeyad.rxredux.screens.user.detail.UserDetailVM
 import com.zeyad.rxredux.screens.user.list.UserListVM
 import com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL
 import com.zeyad.usecases.api.DataServiceConfig
@@ -17,6 +18,7 @@ import java.util.concurrent.TimeUnit
 
 val myModule: Module = applicationContext {
     viewModel { UserListVM(get()) }
+    viewModel { UserDetailVM(get()) }
 
     bean { createDataService(get()) }
 }

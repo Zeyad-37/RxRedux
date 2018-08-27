@@ -33,5 +33,5 @@ interface LoadDataView<S> {
      * Sets the viewState and the firing event on the implementing View.
      * @param bundle state to be saved.
      */
-    fun setStateWithEvent(bundle: S, event: BaseEvent<*>)
+    fun setState(bundle: S)
 }
