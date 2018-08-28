@@ -1,12 +1,13 @@
 package com.zeyad.rxredux.screens.user.detail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.BitmapDrawable
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.support.v4.app.Fragment
 import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
@@ -23,8 +24,8 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
-import com.zeyad.rxredux.screens.BaseFragment
-import com.zeyad.rxredux.screens.user.detail.UserDetailActivity.Companion.UI_MODEL
+import com.zeyad.rxredux.core.view.IBaseFragment
+import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2.Companion.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
 import com.zeyad.rxredux.utils.Utils
 import io.reactivex.Observable
@@ -35,10 +36,14 @@ import java.util.*
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
- * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
+ * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity2] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
+@SuppressLint("ValidFragment")
+class UserDetailFragment2(override var viewModel: UserDetailVM?,
+                          override var viewState: UserDetailState?) : Fragment(), IBaseFragment<UserDetailState, UserDetailVM> {
+
+    constructor() : this(null, null)
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -56,11 +61,22 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onCreateImpl(savedInstanceState)
         postponeEnterTransition()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
         }
         //        setSharedElementReturnTransition(null); // supply the correct element for return transition
+    }
+
+    override fun onStart() {
+        super.onStart()
+        onStartImpl()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState)
+        super.onSaveInstanceState(outState)
     }
 
     override fun errorMessageFactory(): ErrorMessageFactory {
@@ -117,7 +133,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
                 }
             }
         } else {
-            (activity as UserDetailActivity).let { activity ->
+            (activity as UserDetailActivity2).let { activity ->
                 val appBarLayout = activity.getCollapsingToolbarLayout()
                 appBarLayout.title = user!!.login
                 if (user.avatarUrl!!.isNotBlank()) {
@@ -140,12 +156,12 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     }
 
     override fun showError(errorMessage: String, event: BaseEvent<*>) {
-        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
+//        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
     private fun applyPalette() {
         if (Utils.hasM()) {
-            val activity = activity as UserDetailActivity?
+            val activity = activity as UserDetailActivity2?
             val drawable = activity!!.getImageViewAvatar().drawable as BitmapDrawable
             val bitmap = drawable.bitmap
             Palette.from(bitmap).generate { palette ->
@@ -165,8 +181,8 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     companion object {
 
-        fun newInstance(userDetailState: UserDetailState): UserDetailFragment {
-            val userDetailFragment = UserDetailFragment()
+        fun newInstance(userDetailState: UserDetailState): UserDetailFragment2 {
+            val userDetailFragment = UserDetailFragment2()
             val bundle = Bundle()
             bundle.putParcelable(UI_MODEL, userDetailState)
             userDetailFragment.arguments = bundle

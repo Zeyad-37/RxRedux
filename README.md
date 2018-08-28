@@ -21,7 +21,7 @@ dependencies {
     compile 'com.github.Zeyad-37:RxRedux:2.x.x'
 } 
 ```
-## Step1
+# Step1
 
 ViewModels must extend BaseViewModel\<S\>. S is your UIModel. There are two abstract methods that
 you will need to implement.
@@ -67,7 +67,8 @@ override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
 This is a simple mapping function that links every Event with its corresponding action
 function. The rest of the class holds your executables which are methods that return flowables.
 
-## Step 2
+# Step 2
+### Option A: Activities/Fragments extend abstract classes
 Your Activities or Fragments need to extend BaseActivity<UIModel, ViewModel> or
 BaseFragment<UIModel, ViewModel>. These base classes handle life cycle events. You will need to
 implement 8 methods and initialize your Events stream, more on that in a bit.
@@ -80,61 +81,92 @@ Sixth method: renderSuccessState(S state). Given a state, provide an implementat
 success state.
 Seventh method: initialState(). Provide the initial state of the view.
 Eighth method: events(). Provide an Observable of the events.
+### Option B: Activities/Fragments implement BaseActivity/Fragment interfaces
+Activities/Fragments will override the viewModel and viewState from the interface 
+IBaseActivity/Fragment
 ```
-override fun initialize() {
-    viewModel = getViewModel()
-    if (viewState == null) {
-        eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
-            .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
+class UserListActivity() : BaseActivity<UserListState, UserListVM>() {}
+
+class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM> {
+    
+    constructor() : this(null, null)
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        onCreateImpl(savedInstanceState)
     }
-}
 
-override fun setupUI(isNew: Boolean) {
-    setContentView(R.layout.activity_user_list)
-    // etc..
-}
+    override fun onStart() {
+        super.onStart()
+        onStartImpl()
+    }
 
-override fun initialState(): UserListState = UserListState()
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState)
+        super.onSaveInstanceState(outState)
+    }
 
-override fun renderSuccessState(successState: UserListState) {
-    when (successState) {
-        is EmptyState -> // Your Implementation here
-        is ListState -> // Your Implementation here
-        else -> throw IllegalStateException("Can not render $successState")
-   }
-}
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        onRestoreInstanceStateImpl(savedInstanceState)
+    }
 
-override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
-    // Your Implementation here
-}
-
-override fun showError(errorMessage: String, event: BaseEvent<*>) {
-    showErrorSnackBar(message, anyView, LENGTH_LONG);
-}
-
-override fun errorMessageFactory(): ErrorMessageFactory {
-    return object : ErrorMessageFactory {
-        override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
-            return throwable.localizedMessage
+    override fun initialize() {
+        viewModel = getViewModel()
+        if (viewState == null) {
+            eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
+                .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
     }
-}
-
-override fun events(): Observable<BaseEvent<*>> {
-    return eventObservable.mergeWith(postOnResumeEvents())
-}
-
-// An example on how to merge post OnResume generated events
-@Override
-public boolean onCreateActionMode(ActionMode mode, Menu menu) {
-    mode.getMenuInflater().inflate(R.menu.selected_list_menu, menu);
-    menu.findItem(R.id.delete_item).setOnMenuItemClickListener(menuItem -> {
-        postOnResumeEvents.onNext(new DeleteUsersEvent(Observable.fromIterable(usersAdapter.getSelectedItems())
-                .map(itemInfo -> itemInfo.<User>getData().getLogin()).toList()
-                .blockingGet()));
-        return true;
-    });
-    return true;
+    
+    override fun setupUI(isNew: Boolean) {
+        setContentView(R.layout.activity_user_list)
+        // etc..
+    }
+    
+    override fun initialState(): UserListState = UserListState()
+    
+    override fun renderSuccessState(successState: UserListState) {
+        when (successState) {
+            is EmptyState -> // Your Implementation here
+            is ListState -> // Your Implementation here
+            else -> throw IllegalStateException("Can not render $successState")
+       }
+    }
+    
+    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+        // Your Implementation here
+    }
+    
+    override fun showError(errorMessage: String, event: BaseEvent<*>) {
+        showErrorSnackBar(message, anyView, LENGTH_LONG);
+    }
+    
+    override fun errorMessageFactory(): ErrorMessageFactory {
+        return object : ErrorMessageFactory {
+            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
+                return throwable.localizedMessage
+            }
+        }
+    }
+    
+    override fun events(): Observable<BaseEvent<*>> {
+        return eventObservable.mergeWith(postOnResumeEvents())
+    }
+    
+    // An example on how to merge post OnResume generated events
+    override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+        mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
+        menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
+            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+                .map<String> { itemInfo -> itemInfo.getData<User>().login }.toList()
+                .blockingGet()))
+                true
+        }
+        return true
+    }
 }
 ```
 Your events should collect the needed input and encapsulate it in an object that implements the BaseEvent interface.

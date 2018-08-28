@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_user_detail.*
  * width devices. On tablet-size devices, item details are presented side-by-side with a list of
  * items in a [UserListActivity].
  */
-class UserDetailActivity : AppCompatActivity() {
+class UserDetailActivity2 : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,7 +31,7 @@ class UserDetailActivity : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            val fragment = UserDetailFragment.newInstance(intent.getParcelableExtra(UI_MODEL))
+            val fragment = UserDetailFragment2.newInstance(intent.getParcelableExtra(UI_MODEL))
             addFragment(R.id.user_detail_container, fragment, fragment.tag, null)
         }
     }
@@ -73,7 +73,7 @@ class UserDetailActivity : AppCompatActivity() {
     companion object {
         const val UI_MODEL = "uiModel"
         fun getCallingIntent(context: Context, userDetailModel: UserDetailState): Intent {
-            return Intent(context, UserDetailActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            return Intent(context, UserDetailActivity2::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(UI_MODEL, userDetailModel)
         }
     }

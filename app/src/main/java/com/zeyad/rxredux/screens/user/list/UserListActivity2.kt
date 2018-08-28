@@ -4,7 +4,10 @@ import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
 import android.content.Intent
-import android.support.design.widget.Snackbar
+import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.app.AppCompatDelegate
 import android.support.v7.util.DiffUtil
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
@@ -12,6 +15,7 @@ import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
+import android.util.Pair
 import android.view.*
 import android.widget.ImageView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
@@ -22,11 +26,12 @@ import com.zeyad.gadapter.SimpleItemTouchHelperCallback
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
-import com.zeyad.rxredux.screens.BaseActivity
+import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
-import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
+import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2
+import com.zeyad.rxredux.screens.user.detail.UserDetailFragment2
 import com.zeyad.rxredux.screens.user.detail.UserDetailState
 import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
 import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
@@ -52,7 +57,9 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragListener, ActionMode.Callback {
+class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
+    constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
@@ -62,6 +69,51 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        onCreateImpl(savedInstanceState)
+    }
+
+    override fun onStart() {
+        super.onStart()
+        onStartImpl()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    /**
+     * This method is called after [.onStart] when the activity is
+     * being re-initialized from a previously saved state, given here in
+     * <var>savedInstanceState</var>.  Most implementations will simply use [.onCreate]
+     * to restore their state, but it is sometimes convenient to do it here
+     * after all of the initialization has been done or to allow subclasses to
+     * decide whether to use your default implementation.  The default
+     * implementation of this method performs a restore of any view state that
+     * had previously been frozen by [.onSaveInstanceState].
+     *
+     *
+     * This method is called between [.onStart] and
+     * [.onPostCreate].
+     *
+     * @param savedInstanceState the data most recently supplied in [.onSaveInstanceState].
+     *
+     * @see .onCreate
+     *
+     * @see .onPostCreate
+     *
+     * @see .onResume
+     *
+     * @see .onSaveInstanceState
+     */
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        onRestoreInstanceStateImpl(savedInstanceState)
+    }
 
     override fun errorMessageFactory(): ErrorMessageFactory {
         return object : ErrorMessageFactory {
@@ -115,7 +167,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     }
 
     override fun showError(errorMessage: String, event: BaseEvent<*>) {
-        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
+//        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
     private fun setupRecyclerView() {
@@ -140,20 +192,20 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                 val userModel = itemInfo.getData<User>()
                 val userDetailState = UserDetailState.builder().setUser(userModel).setIsTwoPane(twoPane)
                         .build()
-                var pair: android.util.Pair<View, String>? = null
-                var secondPair: android.util.Pair<View, String>? = null
+                var pair: Pair<View, String>? = null
+                var secondPair: Pair<View, String>? = null
                 if (Utils.hasLollipop()) {
                     val userViewHolder = holder as UserViewHolder
                     val avatar = userViewHolder.getAvatar()
-                    pair = android.util.Pair.create(avatar, avatar.transitionName)
+                    pair = Pair.create(avatar, avatar.transitionName)
                     val textViewTitle = userViewHolder.getTextViewTitle()
-                    secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+                    secondPair = Pair.create(textViewTitle, textViewTitle.transitionName)
                 }
                 if (twoPane) {
                     if (currentFragTag.isNotBlank()) {
                         removeFragment(currentFragTag)
                     }
-                    val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
+                    val orderDetailFragment = UserDetailFragment2.newInstance(userDetailState)
                     currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
                     addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
                             pair!!, secondPair!!)
@@ -161,17 +213,17 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                     if (Utils.hasLollipop()) {
                         val options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
                                 secondPair)
-                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState),
+                        startActivity(UserDetailActivity2.getCallingIntent(this, userDetailState),
                                 options.toBundle())
                     } else {
-                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState))
+                        startActivity(UserDetailActivity2.getCallingIntent(this, userDetailState))
                     }
                 }
             }
         }
         usersAdapter.setOnItemLongClickListener { position, _, _ ->
             if (usersAdapter.isSelectionAllowed) {
-                actionMode = startSupportActionMode(this@UserListActivity)!!
+                actionMode = startSupportActionMode(this@UserListActivity2)!!
                 toggleSelection(position)
             }
             true
@@ -220,8 +272,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     /**
      * Toggle the selection viewState of an item.
-     *
-     *
      *
      * If the item was the last one in the selection and is unselected, the selection is stopped.
      * Note that the selection must already be started (actionMode must not be null).
@@ -277,11 +327,37 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     fun getImageViewAvatar(): ImageView = imageView_avatar
 
+    /**
+     * Adds a [Fragment] to this activity's layout.
+     *
+     * @param containerViewId The container view to where add the fragment.
+     * @param fragment        The fragment to be added.
+     */
+    @SafeVarargs
+    fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
+                    vararg sharedElements: Pair<View, String>) {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        for (pair in sharedElements) {
+            fragmentTransaction.addSharedElement(pair.first, pair.second)
+        }
+        if (currentFragTag == null || currentFragTag.isEmpty()) {
+            fragmentTransaction.addToBackStack(fragment.tag)
+        } else {
+            fragmentTransaction.addToBackStack(currentFragTag)
+        }
+        fragmentTransaction.add(containerViewId, fragment, fragment.tag).commit()
+    }
+
+    fun removeFragment(tag: String) {
+        supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentByTag(tag))
+                .commit()
+    }
+
     companion object {
         const val FIRED = "fired!"
 
         fun getCallingIntent(context: Context): Intent {
-            return Intent(context, UserListActivity::class.java)
+            return Intent(context, UserListActivity2::class.java)
         }
     }
 }
