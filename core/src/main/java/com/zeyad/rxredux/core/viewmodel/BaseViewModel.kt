@@ -69,7 +69,8 @@ abstract class BaseViewModel<S> : ViewModel() {
                     }
                     is SuccessResult<*> -> when (currentUIModel) {
                         is SuccessState ->
-                            throw IllegalStateException(getErrorMessage(currentUIModel, result, SUCCESS_STATE))
+                            SuccessState(stateReducer().reduce(result.bundle!!, result.event,
+                                    currentUIModel.bundle), result.event)
                         is LoadingState -> SuccessState(stateReducer().reduce(result.bundle!!,
                                 result.event, currentUIModel.bundle), result.event)
                         is ErrorState ->
