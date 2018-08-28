@@ -6,7 +6,7 @@ object Versions {
     const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
-    val kotlin = "1.2.41"
+    val kotlin = "1.2.61"
 
     // Realm
     val realm = "5.2.0"
@@ -25,7 +25,7 @@ object Versions {
     // - Support
     val support_lib = "27.1.1"
     val contraint_layout = "1.1.0"
-    val archComp = "1.0.0"
+    val archComp = "1.1.1"
 
     // - Network
     val retrofit = "2.3.0"
@@ -117,6 +117,7 @@ object Deps {
             .rxbinding}"
     val rx_redux = "com.github.Zeyad-37:RxRedux:${Versions.rxredux}"
     val kotlinx_coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
+    val rx_replay_share = "com.jakewharton.rx2:replaying-share-kotlin:2.0.1"
 
     // - Injection
     val koin_core = "org.koin:koin-core:${Versions.koin_version}"
