@@ -18,7 +18,7 @@ allprojects {
 Module build.gradle
 ```
 dependencies {
-    compile 'com.github.Zeyad-37:RxRedux:2.x.x'
+    implementation 'com.github.Zeyad-37:RxRedux:2.x.x'
 } 
 ```
 # Step1
