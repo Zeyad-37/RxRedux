@@ -2,9 +2,9 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
-import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 
-interface IBaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseView<S, VM> {
+interface IBaseActivity<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S, VM> {
 
     fun onCreateImpl(savedInstanceState: Bundle?) {
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }

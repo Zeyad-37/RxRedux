@@ -23,7 +23,7 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
         super.onStart()
         viewState = initialState()
         viewModel.processEvents(events(), initialState()).toLiveData()
-                .observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+                .observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

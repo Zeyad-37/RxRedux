@@ -1,13 +1,13 @@
 apply plugin: Plugins.library
 apply plugin: Plugins.kt_and
 apply plugin: Plugins.kt_and_x
-apply plugin: Plugins.kotlinter
+//apply plugin: "io.gitlab.arturbosch.detekt"
 apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.Zeyad-37'
 
 android {
     compileSdkVersion Versions.compile_sdk
-    buildToolsVersion '28.0.3'
+    buildToolsVersion "28.0.3"
 
     defaultConfig {
         minSdkVersion Versions.min_sdk
@@ -33,6 +33,18 @@ android {
     androidExtensions {
         experimental = true
     }
+
+//    detekt {
+//        def reportsDir = "${project.buildDir}/reports"
+//        xml {
+//            enabled = true
+//            destination = file("$reportsDir/detekt/dktreport.xml")
+//        }
+//        html {
+//            enabled = true
+//            destination = file("$reportsDir/detekt/dktreport.xml")
+//        }
+//    }
 
 //    allOpen {
 //        annotation('com.Mockable')

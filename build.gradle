@@ -14,8 +14,9 @@ buildscript {
         classpath 'com.github.dcendents:android-maven-gradle-plugin:1.5'
         classpath Deps.realm
         classpath Deps.kotlinter
-        classpath Deps.detekt
-        classpath Deps.dokka
+//        classpath Deps.detekt
+//        classpath Deps.dokksa
+//        classpath "se.bjurr.violations:violation-comments-to-github-gradle-plugin:1.42"
 //        classpath Deps.kotlin_all_open
     }
 }
@@ -42,3 +43,31 @@ allprojects {
 task clean(type: Delete) {
     delete rootProject.buildDir
 }
+
+//apply plugin: "se.bjurr.violations.violation-comments-to-github-gradle-plugin"
+//
+//task violationCommentsToGitHub(type: ViolationCommentsToGitHubTask) {
+//    repositoryOwner = "owner_name"
+//    repositoryName = "repo_name"
+//    pullRequestId = System.properties['GITHUB_PULLREQUESTID']
+//    oAuth2Token = System.properties['GITHUB_OAUTH2TOKEN']
+//    gitHubUrl = "https://api.github.com/"
+//    createCommentWithAllSingleFileComments = false
+//    createSingleFileComments = true
+//    commentOnlyChangedContent = true
+//    minSeverity = SEVERITY.INFO
+//    commentTemplate = """
+//**Reporter**: {{violation.reporter}}{{#violation.rule}}
+//
+//**Rule**: {{violation.rule}}{{/violation.rule}}
+//**Severity**: {{violation.severity}}
+//**File**: {{violation.file}} L{{violation.startLine}}{{#violation.source}}
+//
+//**Source**: {{violation.source}}{{/violation.source}}
+//
+//{{violation.message}}
+//"""
+//    violations = [
+//            ["CHECKSTYLE", ".", ".*/detekt/.*\\.xml\$", "Detekt"]
+//    ]
+//}

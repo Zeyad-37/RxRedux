@@ -34,7 +34,7 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
         super.onStart()
         viewState = initialState()
         viewModel.processEvents(events(), initialState()).toLiveData()
-                .observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+                .observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
     override fun setState(bundle: S) {

@@ -2,7 +2,7 @@ package com.zeyad.rxredux.core.redux;
 
 import com.zeyad.rxredux.core.BaseEvent;
 import com.zeyad.rxredux.core.ImmediateSchedulersRule;
-import com.zeyad.rxredux.core.UIModel;
+import com.zeyad.rxredux.core.PModel;
 import com.zeyad.usecases.api.IDataService;
 import com.zeyad.usecases.db.RealmQueryProvider;
 import com.zeyad.usecases.requests.GetRequest;
@@ -67,7 +67,7 @@ public class BaseViewModelTest {
 
         when(mockDataUseCase.<List<String>>deleteCollectionByIds((PostRequest) any())).thenReturn(deleteResult);
 
-        TestSubscriber<UIModel<UserListState>> testSubscriber =
+        TestSubscriber<PModel<UserListState>> testSubscriber =
                 viewModel.processEvents(Observable.<BaseEvent<?>>just(new GetPaginatedUsersEvent(1)),
                         UserListState.builder()
                                 .lastId(0)

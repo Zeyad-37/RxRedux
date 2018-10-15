@@ -9,13 +9,13 @@ object Versions {
     val kotlin = "1.3.11"
 
     // Realm
-    val realm = "5.2.0"
+    val realm = "4.4.0"
 
     // SDK
     val min_sdk = 21
-    val target_sdk = 27
-    val compile_sdk = 27
-    val buildTool = "27.0.1"
+    val target_sdk = 28
+    val compile_sdk = 28
+    val buildTool = "28.0.3"
 
     // App Version
     val version_code = 1
@@ -23,8 +23,8 @@ object Versions {
 
     // Libs
     // - Support
-    val support_lib = "27.1.1"
-    val contraint_layout = "1.1.0"
+    val support_lib = "28.0.0"
+    val contraint_layout = "1.1.3"
     val archComp = "1.1.1"
 
     // - Network
@@ -40,13 +40,11 @@ object Versions {
 
     // - Injection
     val koin_version = "0.8.2"
-    val butterKnife = "8.8.1"
 
     // - Tools
     val lottie = "2.2.0"
     val rxlint = "1.6"
     val leakCanary = "1.5.4"
-    val parceler = "1.1.9"
 
     // - Testing
     val androidSupportTest = "1.0.1"
@@ -71,7 +69,7 @@ object Deps {
     val pitest = "pl.droidsonroids.gradle:gradle-pitest-plugin:0.1.4"
     val jacoco = "com.dicedmelon.gradle:jacoco-android:0.1.2"
     val kotlinter = "gradle.plugin.org.jmailen.gradle:kotlinter-gradle:1.5.1"
-    val detekt = "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.0.0.RC6-3"
+    val detekt = "gradle.plugin.io.gitlab.arturbosch.detekt:detekt-gradle-plugin:1.0.0-rework-beta5"
     val dokka = "org.jetbrains.dokka:dokka-android-gradle-plugin:0.9.15"
 
     val google_play_services = "com.google.android.gms:play-services-location:15.0.0"
@@ -109,11 +107,11 @@ object Deps {
     // - Reactive
     val rx_android = "io.reactivex.rxjava2:rxandroid:${Versions.rxAndroid}"
     val rx_java = "io.reactivex.rxjava2:rxjava:${Versions.rxjava}"
-    val rx_binding_core = "com.jakewharton.rxbinding2:rxbinding:${Versions.rxbinding}"
-    val rx_binding_app_compat = "com.jakewharton.rxbinding2:rxbinding-appcompat-v7:${Versions
+    val rx_binding_core = "com.jakewharton.rxbinding2:rxbinding-kotlin:${Versions.rxbinding}"
+    val rx_binding_app_compat = "com.jakewharton.rxbinding2:rxbinding-appcompat-v7-kotlin:${Versions
             .rxbinding}"
-    val rx_binding_design = "com.jakewharton.rxbinding2:rxbinding-design:${Versions.rxbinding}"
-    val rx_binding_recycler_view = "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7:${Versions
+    val rx_binding_design = "com.jakewharton.rxbinding2:rxbinding-design-kotlin:${Versions.rxbinding}"
+    val rx_binding_recycler_view = "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:${Versions
             .rxbinding}"
     val rx_redux = "com.github.Zeyad-37:RxRedux:${Versions.rxredux}"
     val kotlinx_coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"

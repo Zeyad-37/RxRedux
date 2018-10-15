@@ -6,7 +6,7 @@ import android.arch.lifecycle.LiveDataReactiveStreams
 import android.os.Bundle
 import android.os.Parcelable
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import org.reactivestreams.Publisher
 
@@ -21,7 +21,7 @@ fun <T> Publisher<T>.toLiveData() = LiveDataReactiveStreams.fromPublisher(this) 
 
 typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
 
-interface BaseView<S : Parcelable, VM : BaseViewModel<S>> : LoadDataView<S>, LifecycleOwner {
+interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LoadDataView<S>, LifecycleOwner {
     var viewModel: VM?
     var viewState: S?
 
@@ -29,8 +29,9 @@ interface BaseView<S : Parcelable, VM : BaseViewModel<S>> : LoadDataView<S>, Lif
 
     fun onStartImpl() {
         viewState = initialState()
-        viewModel?.processEvents(events(), initialState())?.toLiveData()
-                ?.observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+        viewModel?.processEvents(events(), initialState())
+                ?.toLiveData()
+                ?.observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
     override fun setState(bundle: S) {
