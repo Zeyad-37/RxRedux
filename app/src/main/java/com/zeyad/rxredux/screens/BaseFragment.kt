@@ -27,7 +27,10 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragmen
         }
     }
 
-    fun showSnackBarWithAction(typeSnackBar: String, view: View?, message: String, actionText: String,
+    fun showSnackBarWithAction(typeSnackBar: String,
+                               view: View?,
+                               message: String,
+                               actionText: String,
                                onClickListener: View.OnClickListener) {
         if (view != null) {
             SnackBarFactory.getSnackBarWithAction(typeSnackBar, view, message, actionText, onClickListener).show()
@@ -36,7 +39,10 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragmen
         }
     }
 
-    fun showSnackBarWithAction(typeSnackBar: String, view: View, message: String, actionText: Int,
+    fun showSnackBarWithAction(typeSnackBar: String,
+                               view: View,
+                               message: String,
+                               actionText: Int,
                                onClickListener: View.OnClickListener) {
         showSnackBarWithAction(typeSnackBar, view, message, getString(actionText), onClickListener)
     }

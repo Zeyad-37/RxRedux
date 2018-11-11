@@ -15,10 +15,12 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
      * Adds a [Fragment] to this activity's layout.
      *
      * @param containerViewId The container view to where add the fragment.
-     * @param fragment        The fragment to be added.
+     * @param fragment The fragment to be added.
      */
     @SafeVarargs
-    fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
+    fun addFragment(containerViewId: Int,
+                    fragment: Fragment,
+                    currentFragTag: String?,
                     vararg sharedElements: Pair<View, String>) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         for (pair in sharedElements) {
@@ -33,8 +35,10 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
     }
 
     fun removeFragment(tag: String) {
-        supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentByTag(tag))
-                .commit()
+        supportFragmentManager.findFragmentByTag(tag)?.let {
+            supportFragmentManager.beginTransaction().remove(it)
+                    .commit()
+        }
     }
 
     @JvmOverloads
@@ -55,7 +59,10 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
         }
     }
 
-    fun showSnackBarWithAction(typeSnackBar: String, view: View?, message: String, actionText: String,
+    fun showSnackBarWithAction(typeSnackBar: String,
+                               view: View?,
+                               message: String,
+                               actionText: String,
                                onClickListener: View.OnClickListener) {
         if (view != null) {
             SnackBarFactory.getSnackBarWithAction(typeSnackBar, view, message, actionText, onClickListener).show()
@@ -64,7 +71,10 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
         }
     }
 
-    fun showSnackBarWithAction(typeSnackBar: String, view: View, message: String, actionText: Int,
+    fun showSnackBarWithAction(typeSnackBar: String,
+                               view: View,
+                               message: String,
+                               actionText: Int,
                                onClickListener: View.OnClickListener) {
         showSnackBarWithAction(typeSnackBar, view, message, getString(actionText), onClickListener)
     }

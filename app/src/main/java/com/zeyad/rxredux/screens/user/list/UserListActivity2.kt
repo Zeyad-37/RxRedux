@@ -51,8 +51,8 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
-    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
+class UserListActivity2(override var viewModel: UserListVM2?, override var viewState: UserListState?)
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM2>, OnStartDragListener, ActionMode.Callback {
     constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -90,7 +90,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     }
 
     override fun initialize() {
-        viewModel = getViewModel()
+        viewModel = UserListVM2(DataServiceFactory.dataService!!)
         if (viewState == null) {
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()

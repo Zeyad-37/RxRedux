@@ -49,4 +49,8 @@ class RxReduxApplication : Application() {
             StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build())
         }
     }
+
+    companion object {
+        private const val TIME_OUT = 15
+    }
 }

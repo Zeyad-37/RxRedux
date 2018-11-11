@@ -15,7 +15,6 @@ data class UserDetailState(val isTwoPane: Boolean = false,
             parcel.readParcelable(User::class.java.classLoader),
             emptyList())
 
-
     class Builder internal constructor() {
         internal var repos: List<ItemInfo> = emptyList()
         internal var user: User = User()

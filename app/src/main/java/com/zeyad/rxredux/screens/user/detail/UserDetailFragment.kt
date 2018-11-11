@@ -132,6 +132,30 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
+    private fun applyPalette() {
+        if (Utils.hasM()) {
+            val activity = activity as UserDetailActivity?
+            val drawable = activity!!.getImageViewAvatar().drawable as BitmapDrawable
+            val bitmap = drawable.bitmap
+            Palette.from(bitmap).generate { palette ->
+                palette?.let {
+                    activity.findViewById<View>(R.id.coordinator_detail)
+                            .setOnScrollChangeListener { v, scrollX, scrollY, _, _ ->
+                                if (v.height == scrollX) {
+                                    activity.getToolbar().setTitleTextColor(it
+                                            .getLightVibrantColor(Color.TRANSPARENT))
+                                    activity.getToolbar().background = ColorDrawable(it
+                                            .getLightVibrantColor(Color.TRANSPARENT))
+                                } else if (scrollY == 0) {
+                                    activity.getToolbar().setTitleTextColor(0)
+                                    activity.getToolbar().background = null
+                                }
+                            }
+                }
+            }
+        }
+    }
+
     companion object {
 
         fun newInstance(userDetailState: UserDetailState): UserDetailFragment {

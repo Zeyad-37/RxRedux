@@ -97,7 +97,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                         BiFunction<List<User>, MutableList<User>, List<User>>
                         { singleton, users ->
                             users.addAll(singleton)
-                            users.toSet().toList()
+                            users.asSequence().toSet().toList()
                         })
     }
 
