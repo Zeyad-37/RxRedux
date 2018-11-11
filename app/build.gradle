@@ -2,7 +2,6 @@ apply plugin: Plugins.app
 apply plugin: Plugins.kt_and
 apply plugin: Plugins.kt_and_x
 apply plugin: Plugins.kotlinter
-apply plugin: Plugins.kapt
 apply plugin: Plugins.realm
 
 android {
@@ -56,8 +55,14 @@ dependencies {
     implementation Deps.palette
     implementation Deps.constraint_layout
 
-    implementation Deps.use_cases
-    implementation Deps.generic_recycler_review
+    implementation(Deps.use_cases) {
+        exclude group: 'com.android.support'
+        exclude group: 'io.reactivex.rxjava2'
+    }
+    implementation(Deps.generic_recycler_review) {
+        exclude group: 'com.android.support'
+        exclude group: 'io.reactivex.rxjava2'
+    }
 
     // Network
     implementation Deps.glide
