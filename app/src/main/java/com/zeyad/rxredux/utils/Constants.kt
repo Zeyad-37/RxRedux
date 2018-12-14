@@ -1,7 +1,5 @@
 package com.zeyad.rxredux.utils
 
-/** @author zeyad on 11/29/16.
- */
 object Constants {
 
     object URLS {

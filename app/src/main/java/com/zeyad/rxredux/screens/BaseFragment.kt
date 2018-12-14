@@ -7,10 +7,6 @@ import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
-/**
- * @author by ZIaDo on 7/21/17.
- */
-
 abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragment<S, VM>() {
 
     @JvmOverloads

@@ -2,66 +2,56 @@ package com.zeyad.rxredux.screens.user.list
 
 import android.os.Parcel
 import android.os.Parcelable
+import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.R
-import com.zeyad.rxredux.screens.user.User
-import io.reactivex.Observable
+import com.zeyad.rxredux.screens.user.UserDiffCallBack
 
-/**
- * @author by ZIaDo on 1/28/17.
- */
-//@Parcel
-data class UserListState(val users: List<ItemInfo> = emptyList(),
-                         val searchList: List<ItemInfo> = emptyList(),
-                         var lastId: Long = 0) : Parcelable {
+sealed class UserListState : Parcelable {
+    abstract val list: List<ItemInfo>
+    abstract val lastId: Long
+    abstract val callback: DiffUtil.DiffResult
+}
 
+data class EmptyState(override val list: List<ItemInfo> = emptyList(),
+                      override val lastId: Long = 1,
+                      override val callback: DiffUtil.DiffResult =
+                              DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
+) : UserListState(), Parcelable {
+    constructor(parcel: Parcel) : this(
+            parcel.createTypedArrayList(ItemInfo.CREATOR),
+            parcel.readLong(),
+            DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf<ItemInfo>(), mutableListOf<ItemInfo>())))
 
-    constructor(parcel: Parcel) : this(emptyList(), emptyList(), parcel.readLong())
-
-    private constructor(builder: Builder) : this(builder.users, builder.searchList, builder.lastId)
-
-    class Builder {
-        var users: List<ItemInfo> = emptyList()
-        var searchList: List<ItemInfo> = emptyList()
-        var lastId: Long = 0
-
-        fun users(value: List<User>): Builder {
-            users = Observable.fromIterable(value)
-                    .map { user -> ItemInfo(user, R.layout.user_item_layout).setId(user.id.toLong()) }
-                    .toList(value.size).blockingGet()
-            return this
-        }
-
-        fun searchList(value: List<User>): Builder {
-            searchList = Observable.fromIterable(value)
-                    .map { user -> ItemInfo(user, R.layout.user_item_layout).setId(user.id.toLong()) }
-                    .toList().blockingGet()
-            return this
-        }
-
-        fun lastId(value: Long): Builder {
-            lastId = value
-            return this
-        }
-
-        fun build(): UserListState {
-            return UserListState(this)
-        }
-    }
-
-    fun isEmpty() = users.isEmpty() && searchList.isEmpty() && lastId < 1
-
-    companion object {
-        val CREATOR: Parcelable.Creator<UserListState> = object : Parcelable.Creator<UserListState> {
-            override fun createFromParcel(source: Parcel) = UserListState(source)
-
-            override fun newArray(size: Int) = arrayOfNulls<UserListState>(size)
-        }
-
-        fun builder() = Builder()
-    }
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) = parcel.writeLong(lastId)
+    override fun writeToParcel(parcel: Parcel, flags: Int) = Unit
 
     override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<EmptyState> {
+        override fun createFromParcel(parcel: Parcel): EmptyState = EmptyState(parcel)
+
+        override fun newArray(size: Int): Array<EmptyState?> = arrayOfNulls(size)
+    }
+}
+
+data class GetState(override val list: List<ItemInfo> = emptyList(),
+                    override val lastId: Long = 1,
+                    override val callback: DiffUtil.DiffResult =
+                            DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
+) : UserListState(), Parcelable {
+
+    constructor(parcel: Parcel) : this(emptyList(),
+            parcel.readLong(),
+            DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf<ItemInfo>(), mutableListOf<ItemInfo>())))
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeLong(lastId)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<GetState> {
+        override fun createFromParcel(parcel: Parcel) = GetState(parcel)
+
+        override fun newArray(size: Int) = arrayOfNulls<GetState?>(size)
+    }
 }

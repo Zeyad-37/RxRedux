@@ -3,9 +3,6 @@ package com.zeyad.rxredux.screens.user.list
 import android.support.v7.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v7.widget.RecyclerViewScrollEvent
 
-/**
- * @author ZIaDo on 1/9/18.
- */
 internal object ScrollEventCalculator {
 
     /**

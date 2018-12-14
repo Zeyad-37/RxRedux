@@ -4,26 +4,23 @@ import android.support.annotation.ColorInt
 import android.support.design.widget.Snackbar
 import android.view.View
 
-/**
- * @author by ZIaDo on 7/21/17.
- */
 object ColoredSnackBar {
 
     private fun getSnackBarLayout(snackbar: Snackbar): View? {
         return snackbar.view
     }
 
-    private fun colorSnackBar(snackbar: Snackbar, @ColorInt colorId: Int): Snackbar {
-        val snackBarView = getSnackBarLayout(snackbar)
+    private fun colorSnackBar(snackBar: Snackbar, @ColorInt colorId: Int): Snackbar {
+        val snackBarView = getSnackBarLayout(snackBar)
         snackBarView?.setBackgroundColor(colorId)
-        return snackbar
+        return snackBar
     }
 
-    fun info(snackbar: Snackbar, color: Int): Snackbar {
-        return colorSnackBar(snackbar, color)
+    fun info(snackBar: Snackbar, color: Int): Snackbar {
+        return colorSnackBar(snackBar, color)
     }
 
-    fun error(snackbar: Snackbar, color: Int): Snackbar {
-        return colorSnackBar(snackbar, color)
+    fun error(snackBar: Snackbar, color: Int): Snackbar {
+        return colorSnackBar(snackBar, color)
     }
 }

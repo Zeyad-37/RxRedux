@@ -3,7 +3,6 @@ package com.zeyad.rxredux.core.redux
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
-import com.zeyad.rxredux.core.viewmodel.StateReducer
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
@@ -11,37 +10,31 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.functions.Function
 
-/**
- * @author zeyad on 11/1/16.
- */
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
 
-    override fun stateReducer(): StateReducer<UserListState> {
-        return object : StateReducer<UserListState> {
-            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?):
-                    UserListState {
-                var users: MutableList<User> = if (currentStateBundle?.getUsers() == null)
-                    mutableListOf()
-                else
-                    Observable.fromIterable<ItemInfo>(currentStateBundle.getUsers())
-                            .map { it.getData<User>() }
-                            .toList().blockingGet()
-                val searchList = mutableListOf<User>()
-                when (event) {
-                    is GetPaginatedUsersEvent -> users.addAll(newResult as List<User>)
-                    is SearchUsersEvent -> searchList.addAll(newResult as List<User>)
-                    is DeleteUsersEvent -> users = Observable.fromIterable(users)
-                            .filter { user -> !(newResult as List<*>).contains(user.getLogin()) }
-                            .distinct().toList().blockingGet()
-                    else -> {
-                    }
+    override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
+        return { newResult, event, currentStateBundle ->
+            var users: MutableList<User> = if (currentStateBundle.getUsers() == null)
+                mutableListOf()
+            else
+                Observable.fromIterable<ItemInfo>(currentStateBundle.getUsers())
+                        .map { it.getData<User>() }
+                        .toList().blockingGet()
+            val searchList = mutableListOf<User>()
+            when (event) {
+                is GetPaginatedUsersEvent -> users.addAll(newResult as List<User>)
+                is SearchUsersEvent -> searchList.addAll(newResult as List<User>)
+                is DeleteUsersEvent -> users = Observable.fromIterable(users)
+                        .filter { user -> !(newResult as List<*>).contains(user.getLogin()) }
+                        .distinct().toList().blockingGet()
+                else -> {
                 }
-                return UserListState.builder()
-                        .users(users)
-                        .searchList(searchList)
-                        .lastId(users[users.size - 1].getId().toLong())
-                        .build()
             }
+            UserListState.builder()
+                    .users(users)
+                    .searchList(searchList)
+                    .lastId(users[users.size - 1].getId().toLong())
+                    .build()
         }
     }
 
@@ -60,12 +53,12 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
 
     private fun getUsers(lastId: Long): Flowable<List<User>> {
         return if (lastId == 0L)
-            dataUseCase.getListOffLineFirst<User>(GetRequest.Builder(User::class.java, true)
+            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
                     .url(String.format("user/%s", lastId))
                     .cache(User.LOGIN)
                     .build())
         else
-            dataUseCase.getList<User>(GetRequest.Builder(User::class.java, true)
+            dataUseCase.getList(GetRequest.Builder(User::class.java, true)
                     .url(String.format("", lastId)).build())
     }
 

@@ -4,8 +4,6 @@ import com.zeyad.rxredux.core.BaseEvent
 
 /**
  * Interface representing a View that will use to load data.
- *
- * @author Zeyad Gasser.
  */
 interface LoadDataView<S> {
     /**

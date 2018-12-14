@@ -8,9 +8,6 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import io.reactivex.Observable
 
-/**
- * @author Zeyad Gasser.
- */
 abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatActivity(), LoadDataView<S> {
     lateinit var viewModel: VM
     var viewState: S? = null

@@ -1,9 +1,12 @@
 package com.zeyad.rxredux.screens.user.list
 
+import android.support.v7.util.DiffUtil
+import com.zeyad.gadapter.ItemInfo
+import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
-import com.zeyad.rxredux.core.viewmodel.StateReducer
 import com.zeyad.rxredux.screens.user.User
+import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
 import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
 import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
@@ -14,15 +17,12 @@ import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function
-import java.util.*
+import io.realm.Realm
+import io.realm.RealmQuery
 
-/**
- * @author ZIaDo on 6/8/18.
- */
-class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserListState>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
 
     override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
         return Function { event ->
@@ -35,31 +35,43 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
         }
     }
 
-    override fun stateReducer(): StateReducer<UserListState> {
-        return object : StateReducer<UserListState> {
-            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?): UserListState {
-                var users: MutableList<User>
-                users = if (currentStateBundle?.users == null)
-                    ArrayList()
-                else
-                    Observable.fromIterable(currentStateBundle.users)
-                            .map<User> { it.getData() }
-                            .toList().blockingGet()
-                val searchList = ArrayList<User>()
-                when (event) {
-                    is GetPaginatedUsersEvent -> users.addAll(newResult as List<User>)
-                    is SearchUsersEvent -> searchList.addAll(newResult as List<User>)
-                    is DeleteUsersEvent -> users = Observable.fromIterable(users)
-                            .filter { user -> !(newResult as List<*>).contains(user.login) }
-                            .distinct().toList().blockingGet()
-                    else -> {
+    override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
+        return { newResult, _, currentStateBundle ->
+            val currentItemInfo = currentStateBundle.list.toMutableList()
+            when (currentStateBundle) {
+                is EmptyState -> when (newResult) {
+                    is List<*> -> {
+                        val pair = Flowable.fromIterable(newResult as List<User>)
+                                .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
+                                .toList()
+                                .toFlowable()
+                                .scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(currentItemInfo,
+                                        DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))))
+                                { pair1, next -> Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next))) }
+                                .skip(1)
+                                .blockingFirst()
+                        GetState(pair.first, currentStateBundle.lastId, pair.second)
                     }
+                    else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
                 }
-                return UserListState.builder()
-                        .users(users)
-                        .searchList(searchList)
-                        .lastId(users[users.size - 1].id.toLong())
-                        .build()
+                is GetState -> when (newResult) {
+                    is List<*> -> {
+                        currentItemInfo.addAll(Flowable.fromIterable(newResult as List<User>)
+                                .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
+                                .toList().blockingGet())
+                        val pair = Flowable.just(currentItemInfo.toSet().toMutableList())
+                                .scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(currentItemInfo,
+                                        DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(),
+                                                mutableListOf()))))
+                                { pair1, next ->
+                                    Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next)))
+                                }
+                                .skip(1)
+                                .blockingFirst()
+                        GetState(pair.first, currentStateBundle.lastId + 1, pair.second)
+                    }
+                    else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
+                }
             }
         }
     }
@@ -76,23 +88,27 @@ class UserListVM(private var dataUseCase: IDataService) : BaseViewModel<UserList
 
     private fun search(query: String): Flowable<List<User>> {
         return dataUseCase
-                .queryDisk<User>(RealmQueryProvider { it.where(User::class.java).beginsWith(User.LOGIN, query) })
-                .zipWith(dataUseCase.getObject<User>(GetRequest.Builder(User::class
-                        .java,
-                        false)
+                .queryDisk(object : RealmQueryProvider<User> {
+                    override fun create(realm: Realm): RealmQuery<User> =
+                            realm.where(User::class.java).beginsWith(User.LOGIN, query)
+                })
+                .zipWith(dataUseCase.getObject<User>(GetRequest.Builder(User::class.java, false)
                         .url(String.format(USER, query)).build())
                         .onErrorReturnItem(User())
-                        .filter { user -> user.id != 0 }
+                        .filter { user -> user.id != 0L }
                         .map { mutableListOf(it) },
-                        BiFunction<MutableList<User>, List<User>, List<User>>
-                        { users, singleton ->
+                        BiFunction<List<User>, MutableList<User>, List<User>>
+                        { singleton, users ->
                             users.addAll(singleton)
                             users.toSet().toList()
                         })
     }
 
     private fun deleteCollection(selectedItemsIds: List<String>): Flowable<List<String>> {
-        return dataUseCase.deleteCollectionByIds<Any>(PostRequest.Builder(User::class.java, true).payLoad(selectedItemsIds)
-                .idColumnName(User.LOGIN, String::class.java).cache().build()).map { o -> selectedItemsIds }
+        return dataUseCase.deleteCollectionByIds<Any>(PostRequest.Builder(User::class.java, true)
+                .payLoad(selectedItemsIds)
+                .idColumnName(User.LOGIN, String::class.java).cache()
+                .build())
+                .map { o -> selectedItemsIds }
     }
 }

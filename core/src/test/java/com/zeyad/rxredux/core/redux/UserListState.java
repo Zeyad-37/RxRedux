@@ -8,9 +8,6 @@ import com.zeyad.gadapter.ItemInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * @author by ZIaDo on 1/28/17.
- */
 public class UserListState implements Parcelable {
     public static final Parcelable.Creator<UserListState> CREATOR = new Parcelable.Creator<UserListState>() {
         @Override

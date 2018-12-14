@@ -3,9 +3,7 @@ package com.zeyad.rxredux.screens.user.list
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
-import android.content.Intent
 import android.support.design.widget.Snackbar
-import android.support.v7.util.DiffUtil
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -24,7 +22,6 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
-import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
 import com.zeyad.rxredux.screens.user.detail.UserDetailState
@@ -34,7 +31,7 @@ import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
-import com.zeyad.rxredux.utils.Utils
+import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -64,11 +61,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
 
     override fun errorMessageFactory(): ErrorMessageFactory {
-        return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
-                return throwable.localizedMessage
-            }
-        }
+        return { throwable, _ -> throwable.localizedMessage }
     }
 
     override fun initialize() {
@@ -87,7 +80,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
 
-    override fun initialState(): UserListState = UserListState()
+    override fun initialState(): UserListState = EmptyState()
 
     override fun events(): Observable<BaseEvent<*>> {
         return eventObservable.mergeWith(postOnResumeEvents())
@@ -98,15 +91,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     }
 
     override fun renderSuccessState(successState: UserListState) {
-        val users = successState.users
-        val searchList = successState.searchList
-        if (searchList.isNotEmpty()) {
-            usersAdapter.setDataList(searchList, DiffUtil.calculateDiff(UserDiffCallBack(searchList,
-                    usersAdapter.adapterData)))
-        } else if (users.isNotEmpty()) {
-            usersAdapter.setDataList(users, DiffUtil.calculateDiff(UserDiffCallBack(users,
-                    usersAdapter.dataList)))
-        }
+        usersAdapter.setDataList(successState.list, successState.callback)
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
@@ -135,14 +120,14 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         usersAdapter.setAreItemsClickable(true)
         usersAdapter.setOnItemClickListener { position, itemInfo, holder ->
             if (actionMode != null) {
-                toggleSelection(position)
+                toggleItemSelection(position)
             } else if (itemInfo.getData<Any>() is User) {
                 val userModel = itemInfo.getData<User>()
                 val userDetailState = UserDetailState.builder().setUser(userModel).setIsTwoPane(twoPane)
                         .build()
                 var pair: android.util.Pair<View, String>? = null
                 var secondPair: android.util.Pair<View, String>? = null
-                if (Utils.hasLollipop()) {
+                if (hasLollipop()) {
                     val userViewHolder = holder as UserViewHolder
                     val avatar = userViewHolder.getAvatar()
                     pair = android.util.Pair.create(avatar, avatar.transitionName)
@@ -158,7 +143,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                     addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
                             pair!!, secondPair!!)
                 } else {
-                    if (Utils.hasLollipop()) {
+                    if (hasLollipop()) {
                         val options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
                                 secondPair)
                         startActivity(UserDetailActivity.getCallingIntent(this, userDetailState),
@@ -171,13 +156,13 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         }
         usersAdapter.setOnItemLongClickListener { position, _, _ ->
             if (usersAdapter.isSelectionAllowed) {
-                actionMode = startSupportActionMode(this@UserListActivity)!!
-                toggleSelection(position)
+                actionMode = startSupportActionMode(this@UserListActivity)
+                toggleItemSelection(position)
             }
             true
         }
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login!!)) }
+                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })
         user_list.layoutManager = LinearLayoutManager(this)
         user_list.adapter = usersAdapter
@@ -199,6 +184,17 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         itemTouchHelper.attachToRecyclerView(user_list)
     }
 
+    private fun toggleItemSelection(position: Int) {
+        usersAdapter.toggleSelection(position)
+        val count = usersAdapter.selectedItemCount
+        if (count == 0) {
+            actionMode?.finish()
+        } else {
+            actionMode?.title = count.toString()
+            actionMode?.invalidate()
+        }
+    }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.list_menu, menu)
         val searchManager = getSystemService(Context.SEARCH_SERVICE) as SearchManager
@@ -216,27 +212,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                 .distinctUntilChanged()
                 .doOnEach { Log.d("SearchEvent", FIRED) })
         return super.onCreateOptionsMenu(menu)
-    }
-
-    /**
-     * Toggle the selection viewState of an item.
-     *
-     *
-     *
-     * If the item was the last one in the selection and is unselected, the selection is stopped.
-     * Note that the selection must already be started (actionMode must not be null).
-     *
-     * @param position Position of the item to toggle the selection viewState
-     */
-    private fun toggleSelection(position: Int) {
-        usersAdapter.toggleSelection(position)
-        val count = usersAdapter.selectedItemCount
-        if (count == 0) {
-            actionMode?.finish()
-        } else {
-            actionMode?.title = count.toString()
-            actionMode?.invalidate()
-        }
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -279,9 +254,5 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     companion object {
         const val FIRED = "fired!"
-
-        fun getCallingIntent(context: Context): Intent {
-            return Intent(context, UserListActivity::class.java)
-        }
     }
 }

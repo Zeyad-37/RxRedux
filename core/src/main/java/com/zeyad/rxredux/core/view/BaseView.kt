@@ -10,16 +10,16 @@ import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import io.reactivex.Observable
 import org.reactivestreams.Publisher
 
-/**
- * @author Zeyad Gasser.
- */
 const val UI_MODEL = "viewState"
 
 fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
         if (savedInstanceState != null && savedInstanceState.containsKey(UI_MODEL))
             savedInstanceState.getParcelable(UI_MODEL)
         else null
+
 fun <T> Publisher<T>.toLiveData() = LiveDataReactiveStreams.fromPublisher(this) as LiveData<T>
+
+typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
 
 interface BaseView<S : Parcelable, VM : BaseViewModel<S>> : LoadDataView<S>, LifecycleOwner {
     var viewModel: VM?
@@ -29,7 +29,8 @@ interface BaseView<S : Parcelable, VM : BaseViewModel<S>> : LoadDataView<S>, Lif
 
     fun onStartImpl() {
         viewState = initialState()
-        viewModel?.processEvents(events(), initialState())?.toLiveData()?.observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+        viewModel?.processEvents(events(), initialState())?.toLiveData()
+                ?.observe(this, UIObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 
     override fun setState(bundle: S) {

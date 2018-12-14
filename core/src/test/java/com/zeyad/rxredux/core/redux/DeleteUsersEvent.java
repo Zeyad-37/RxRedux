@@ -1,12 +1,11 @@
 package com.zeyad.rxredux.core.redux;
 
+import android.os.Parcel;
+
 import com.zeyad.rxredux.core.BaseEvent;
 
 import java.util.List;
 
-/**
- * @author by Zeyad Gasser on 3/27/17.
- */
 public final class DeleteUsersEvent implements BaseEvent<List<String>> {
 
     private final List<String> selectedItemsIds;
@@ -18,5 +17,15 @@ public final class DeleteUsersEvent implements BaseEvent<List<String>> {
     @Override
     public List<String> getPayLoad() {
         return selectedItemsIds;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+
     }
 }

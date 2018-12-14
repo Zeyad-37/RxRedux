@@ -25,9 +25,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-/**
- * @author Zeyad Gasser on 1/14/18.
- */
 public class BaseViewModelTest {
 
     @Rule
@@ -37,13 +34,13 @@ public class BaseViewModelTest {
     private UserListVM viewModel;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         mockDataUseCase = mock(IDataService.class);
         viewModel = new UserListVM(mockDataUseCase);
     }
 
     @Test
-    public void uiModels() throws Exception {
+    public void uiModels() {
         List<User> userList1;
         User user = new User();
         user.setLogin("testUser1");

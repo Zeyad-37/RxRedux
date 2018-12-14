@@ -3,12 +3,10 @@ package com.zeyad.rxredux.screens.user.list
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
-import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
-import android.support.v7.util.DiffUtil
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -28,7 +26,6 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.user.User
-import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment2
@@ -39,7 +36,7 @@ import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
-import com.zeyad.rxredux.utils.Utils
+import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -86,41 +83,13 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         super.onSaveInstanceState(outState)
     }
 
-    /**
-     * This method is called after [.onStart] when the activity is
-     * being re-initialized from a previously saved state, given here in
-     * <var>savedInstanceState</var>.  Most implementations will simply use [.onCreate]
-     * to restore their state, but it is sometimes convenient to do it here
-     * after all of the initialization has been done or to allow subclasses to
-     * decide whether to use your default implementation.  The default
-     * implementation of this method performs a restore of any view state that
-     * had previously been frozen by [.onSaveInstanceState].
-     *
-     *
-     * This method is called between [.onStart] and
-     * [.onPostCreate].
-     *
-     * @param savedInstanceState the data most recently supplied in [.onSaveInstanceState].
-     *
-     * @see .onCreate
-     *
-     * @see .onPostCreate
-     *
-     * @see .onResume
-     *
-     * @see .onSaveInstanceState
-     */
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         onRestoreInstanceStateImpl(savedInstanceState)
     }
 
     override fun errorMessageFactory(): ErrorMessageFactory {
-        return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
-                return throwable.localizedMessage
-            }
-        }
+        return { throwable, _ -> throwable.localizedMessage }
     }
 
     override fun initialize() {
@@ -139,7 +108,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
 
-    override fun initialState(): UserListState = UserListState()
+    override fun initialState(): UserListState = EmptyState()
 
     override fun events(): Observable<BaseEvent<*>> {
         return eventObservable.mergeWith(postOnResumeEvents())
@@ -150,15 +119,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     }
 
     override fun renderSuccessState(successState: UserListState) {
-        val users = successState.users
-        val searchList = successState.searchList
-        if (searchList.isNotEmpty()) {
-            usersAdapter.setDataList(searchList, DiffUtil.calculateDiff(UserDiffCallBack(searchList,
-                    usersAdapter.adapterData)))
-        } else if (users.isNotEmpty()) {
-            usersAdapter.setDataList(users, DiffUtil.calculateDiff(UserDiffCallBack(users,
-                    usersAdapter.dataList)))
-        }
+        successState.callback.dispatchUpdatesTo(usersAdapter)
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
@@ -187,14 +148,14 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         usersAdapter.setAreItemsClickable(true)
         usersAdapter.setOnItemClickListener { position, itemInfo, holder ->
             if (actionMode != null) {
-                toggleSelection(position)
+                toggleItemSelection(position)
             } else if (itemInfo.getData<Any>() is User) {
                 val userModel = itemInfo.getData<User>()
                 val userDetailState = UserDetailState.builder().setUser(userModel).setIsTwoPane(twoPane)
                         .build()
                 var pair: Pair<View, String>? = null
                 var secondPair: Pair<View, String>? = null
-                if (Utils.hasLollipop()) {
+                if (hasLollipop()) {
                     val userViewHolder = holder as UserViewHolder
                     val avatar = userViewHolder.getAvatar()
                     pair = Pair.create(avatar, avatar.transitionName)
@@ -210,7 +171,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
                     addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
                             pair!!, secondPair!!)
                 } else {
-                    if (Utils.hasLollipop()) {
+                    if (hasLollipop()) {
                         val options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
                                 secondPair)
                         startActivity(UserDetailActivity2.getCallingIntent(this, userDetailState),
@@ -224,12 +185,12 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         usersAdapter.setOnItemLongClickListener { position, _, _ ->
             if (usersAdapter.isSelectionAllowed) {
                 actionMode = startSupportActionMode(this@UserListActivity2)!!
-                toggleSelection(position)
+                toggleItemSelection(position)
             }
             true
         }
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login!!)) }
+                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })
         user_list.layoutManager = LinearLayoutManager(this)
         user_list.adapter = usersAdapter
@@ -270,15 +231,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         return super.onCreateOptionsMenu(menu)
     }
 
-    /**
-     * Toggle the selection viewState of an item.
-     *
-     * If the item was the last one in the selection and is unselected, the selection is stopped.
-     * Note that the selection must already be started (actionMode must not be null).
-     *
-     * @param position Position of the item to toggle the selection viewState
-     */
-    private fun toggleSelection(position: Int) {
+    private fun toggleItemSelection(position: Int) {
         usersAdapter.toggleSelection(position)
         val count = usersAdapter.selectedItemCount
         if (count == 0) {
@@ -348,16 +301,12 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         fragmentTransaction.add(containerViewId, fragment, fragment.tag).commit()
     }
 
-    fun removeFragment(tag: String) {
+    private fun removeFragment(tag: String) {
         supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentByTag(tag))
                 .commit()
     }
 
     companion object {
         const val FIRED = "fired!"
-
-        fun getCallingIntent(context: Context): Intent {
-            return Intent(context, UserListActivity2::class.java)
-        }
     }
 }

@@ -7,9 +7,6 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import io.reactivex.Observable
 
-/**
- * @author Zeyad Gasser.
- */
 abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), LoadDataView<S> {
 
     lateinit var viewModel: VM

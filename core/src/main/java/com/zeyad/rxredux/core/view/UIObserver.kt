@@ -1,32 +1,26 @@
 package com.zeyad.rxredux.core.view
 
 import android.arch.lifecycle.Observer
-import android.util.Log
 import com.zeyad.rxredux.core.ErrorState
 import com.zeyad.rxredux.core.SuccessState
 import com.zeyad.rxredux.core.UIModel
 
-/**
- * @author Zeyad Gasser.
- */
-class UIObserver<V : LoadDataView<S>, S>(private val view: V, private val errorMessageFactory: ErrorMessageFactory) :
-        Observer<UIModel<S>> {
+class UIObserver<V : LoadDataView<S>, S>(private val view: V,
+                                         private val errorMessageFactory: ErrorMessageFactory
+) : Observer<UIModel<S>> {
     override fun onChanged(uiModel: UIModel<S>?) {
         uiModel?.apply {
             view.toggleViews(isLoading, event)
             if (!isLoading) {
                 when (this) {
-                    is ErrorState -> {
-                        Log.e("UIObserver", "onChanged", error)
-                        view.showError(errorMessageFactory.getErrorMessage(error, event), event)
-                    }
+                    is ErrorState ->
+                        view.showError(errorMessageFactory.invoke(error, event), event)
                     is SuccessState -> {
-                        Log.d("onNext", "UIModel: " + toString())
                         view.setState(bundle)
                         view.renderSuccessState(bundle)
                     }
                 }
-            } else Log.d("onNext", "UIModel: " + toString())
+            }
         }
     }
 }

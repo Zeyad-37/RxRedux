@@ -7,9 +7,6 @@ import android.support.design.widget.Snackbar
 import android.support.design.widget.Snackbar.LENGTH_INDEFINITE
 import android.view.View
 
-/**
- * @author by ZIaDo on 7/21/17.
- */
 object SnackBarFactory {
 
     val TYPE_INFO = "typeInfo"

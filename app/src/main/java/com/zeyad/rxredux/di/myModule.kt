@@ -24,12 +24,12 @@ val myModule: Module = applicationContext {
 }
 
 fun createDataService(context: Context): IDataService {
-    DataServiceFactory.init(DataServiceConfig.Builder(context)
+    DataServiceFactory(DataServiceConfig.Builder(context)
             .baseUrl(API_BASE_URL)
             .okHttpBuilder(getOkHttpBuilder())
             .withRealm()
             .build())
-    return DataServiceFactory.getInstance()!!
+    return DataServiceFactory.dataService!!
 }
 
 fun getOkHttpBuilder(): OkHttpClient.Builder {
@@ -40,4 +40,9 @@ fun getOkHttpBuilder(): OkHttpClient.Builder {
             .connectTimeout(15L, TimeUnit.SECONDS)
             .writeTimeout(15L, TimeUnit.SECONDS)
             .readTimeout(15L, TimeUnit.SECONDS)
+//            .certificatePinner(CertificatePinner.Builder()
+//                    .add(API_BASE_URL, "sha256/6wJsqVDF8K19zxfLxV5DGRneLyzso9adVdUN/exDacw")
+//                    .add(API_BASE_URL, "sha256/k2v657xBsOVe1PQRwOsHsw3bsGT2VzIqz5K+59sNQws=")
+//                    .add(API_BASE_URL, "sha256/WoiWRyIOVNa9ihaBciRSC7XHjliYS9VwUGOIud4PB18=").build())
+//            .connectionSpecs(Arrays.asList(ConnectionSpec.MODERN_TLS, ConnectionSpec.COMPATIBLE_TLS))
 }

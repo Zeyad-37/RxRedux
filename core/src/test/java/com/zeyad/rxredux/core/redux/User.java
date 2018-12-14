@@ -8,9 +8,6 @@ import com.google.gson.annotations.SerializedName;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
-/**
- * @author zeyad on 1/10/17.
- */
 //@Parcel
 public class User extends RealmObject implements Parcelable {
 

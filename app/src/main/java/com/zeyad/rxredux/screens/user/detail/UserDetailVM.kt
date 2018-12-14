@@ -1,41 +1,46 @@
 package com.zeyad.rxredux.screens.user.detail
 
+import com.zeyad.gadapter.ItemInfo
+import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
-import com.zeyad.rxredux.core.viewmodel.StateReducer
 import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import io.reactivex.Flowable
+import io.reactivex.Observable
 import io.reactivex.functions.Function
+import io.realm.Realm
+import io.realm.RealmQuery
 
-/**
- * @author zeyad on 1/10/17.
- */
 class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState>() {
 
-    override fun stateReducer(): StateReducer<UserDetailState> {
-        return object : StateReducer<UserDetailState> {
-            override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState?): UserDetailState {
-                return UserDetailState.builder()
-                        .setRepos(newResult as List<Repository>).setUser(currentStateBundle?.user!!)
-                        .setIsTwoPane(currentStateBundle.isTwoPane).build()
+    override fun stateReducer():
+            (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState) -> UserDetailState =
+            { newResult, _, currentStateBundle ->
+                if (newResult is List<*>)
+                    UserDetailState.builder()
+                            .setRepos(Observable.fromIterable(newResult as List<Repository>)
+                                    .map { repository -> ItemInfo(repository, R.layout.repo_item_layout) }
+                                    .toList(newResult.size).blockingGet())
+                            .setUser(currentStateBundle.user)
+                            .setIsTwoPane(currentStateBundle.isTwoPane).build()
+                else throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
             }
-        }
-    }
 
-    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
-        return Function { event -> getRepositories((event as GetReposEvent).getPayLoad()) }
-    }
+
+    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
+            Function { event -> getRepositories((event as GetReposEvent).getPayLoad()) }
 
     private fun getRepositories(userLogin: String): Flowable<List<Repository>> {
         return dataUseCase
-                .queryDisk<Repository>(RealmQueryProvider {
-                    it.where(Repository::class.java).equalTo("owner.login", userLogin)
+                .queryDisk(object : RealmQueryProvider<Repository> {
+                    override fun create(realm: Realm): RealmQuery<Repository> =
+                            realm.where(Repository::class.java).equalTo("owner.login", userLogin)
                 })
                 .flatMap { list ->
-                    if (!list.isEmpty())
+                    if (list.isNotEmpty())
                         Flowable.just(list)
                     else
                         dataUseCase.getList(GetRequest.Builder(Repository::class.java, true)

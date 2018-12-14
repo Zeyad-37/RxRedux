@@ -2,13 +2,9 @@ package com.zeyad.rxredux.screens.user.detail
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
@@ -26,8 +22,8 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2.Companion.UI_MODEL
+import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
-import com.zeyad.rxredux.utils.Utils
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -80,11 +76,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     }
 
     override fun errorMessageFactory(): ErrorMessageFactory {
-        return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
-                return throwable.localizedMessage
-            }
-        }
+        return { throwable, _ -> throwable.localizedMessage }
     }
 
     override fun initialize() {
@@ -94,7 +86,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     override fun initialState(): UserDetailState = arguments?.getParcelable(UI_MODEL)!!
 
     override fun events(): Observable<BaseEvent<*>> {
-        return Observable.just(GetReposEvent(viewState?.user!!.login!!))
+        return Observable.just(GetReposEvent(viewState?.user!!.login))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -125,9 +117,9 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
             (activity as UserListActivity2).let { activity ->
                 val appBarLayout = activity.findViewById<Toolbar>(R.id.toolbar)
                 if (appBarLayout != null) {
-                    appBarLayout.title = user!!.login
+                    appBarLayout.title = user.login
                 }
-                if (user!!.avatarUrl!!.isNotBlank()) {
+                if (user.avatarUrl.isNotBlank()) {
                     Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
                             .into(activity.getImageViewAvatar())
                 }
@@ -135,14 +127,13 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
         } else {
             (activity as UserDetailActivity2).let { activity ->
                 val appBarLayout = activity.getCollapsingToolbarLayout()
-                appBarLayout.title = user!!.login
-                if (user.avatarUrl!!.isNotBlank()) {
+                appBarLayout.title = user.login
+                if (user.avatarUrl.isNotBlank()) {
                     Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
                             .into(activity.getImageViewAvatar())
                 }
             }
         }
-        //        applyPalette();
     }
 
     internal fun glideRequestListenerCore(): Boolean {
@@ -157,26 +148,6 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
 
     override fun showError(errorMessage: String, event: BaseEvent<*>) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
-    }
-
-    private fun applyPalette() {
-        if (Utils.hasM()) {
-            val activity = activity as UserDetailActivity2?
-            val drawable = activity!!.getImageViewAvatar().drawable as BitmapDrawable
-            val bitmap = drawable.bitmap
-            Palette.from(bitmap).generate { palette ->
-                activity.findViewById<View>(R.id.coordinator_detail)
-                        .setOnScrollChangeListener { v, scrollX, scrollY, oldScrollX, oldScrollY ->
-                            if (v.height == scrollX) {
-                                activity.getToolbar().setTitleTextColor(palette.getLightVibrantColor(Color.TRANSPARENT))
-                                activity.getToolbar().background = ColorDrawable(palette.getLightVibrantColor(Color.TRANSPARENT))
-                            } else if (scrollY == 0) {
-                                activity.getToolbar().setTitleTextColor(0)
-                                activity.getToolbar().background = null
-                            }
-                        }
-            }
-        }
     }
 
     companion object {

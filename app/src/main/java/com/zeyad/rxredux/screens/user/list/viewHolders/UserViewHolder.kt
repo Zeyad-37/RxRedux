@@ -9,13 +9,10 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.rxredux.screens.user.User
 import kotlinx.android.synthetic.main.user_item_layout.view.*
 
-/**
- * @author zeyad on 12/1/16.
- */
 class UserViewHolder(itemView: View) : GenericRecyclerViewAdapter.GenericViewHolder<User>(itemView) {
 
     override fun bindData(userModel: User, isItemSelected: Boolean, position: Int, isEnabled: Boolean) {
-        if (userModel.avatarUrl!!.isNotEmpty()) {
+        if (userModel.avatarUrl.isNotEmpty()) {
             Glide.with(itemView.context).load(userModel.avatarUrl).into(itemView.avatar)
         } else {
             Glide.with(itemView.context)
@@ -25,9 +22,7 @@ class UserViewHolder(itemView: View) : GenericRecyclerViewAdapter.GenericViewHol
                         "https://help.github.com/assets/images/help/profile/identicon.png")
                     .into(itemView.avatar)
         }
-        if (userModel.login!!.isNotEmpty()) {
-            itemView.title.text = userModel.login
-        }
+        itemView.title.text = userModel.login
         itemView.setBackgroundColor(if (isItemSelected) Color.GRAY else Color.WHITE)
     }
 

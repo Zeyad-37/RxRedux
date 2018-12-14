@@ -6,17 +6,14 @@ import io.realm.RealmObject
 import io.realm.annotations.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
-/**
- * @author zeyad on 1/10/17.
- */
 @Parcelize
 open class User(@PrimaryKey
                 @SerializedName(LOGIN)
-                var login: String? = null,
+                var login: String = "",
                 @SerializedName(ID)
-                var id: Int = 0,
+                var id: Long = 0,
                 @SerializedName(AVATAR_URL)
-                var avatarUrl: String? = null) : RealmObject(), Parcelable {
+                var avatarUrl: String = "") : RealmObject(), Parcelable {
 
     companion object {
         const val LOGIN = "login"

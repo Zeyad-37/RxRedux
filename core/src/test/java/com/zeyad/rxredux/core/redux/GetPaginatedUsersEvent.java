@@ -1,10 +1,9 @@
 package com.zeyad.rxredux.core.redux;
 
+import android.os.Parcel;
+
 import com.zeyad.rxredux.core.BaseEvent;
 
-/**
- * @author by Zeyad Gasser on 4/19/17.
- */
 public class GetPaginatedUsersEvent implements BaseEvent<Long> {
 
     private final long lastId;
@@ -16,5 +15,14 @@ public class GetPaginatedUsersEvent implements BaseEvent<Long> {
     @Override
     public Long getPayLoad() {
         return lastId;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
     }
 }

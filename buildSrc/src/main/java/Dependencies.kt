@@ -6,7 +6,7 @@ object Versions {
     const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
-    val kotlin = "1.2.61"
+    val kotlin = "1.3.11"
 
     // Realm
     val realm = "5.2.0"
@@ -59,7 +59,7 @@ object Versions {
     val restMock = "0.2.2"
     val junit = "4.12"
 
-    val genericRecyclerViewAdapter = "1.9.0"
+    val genericRecyclerViewAdapter = "1.9.1"
     val appId = "com.remotegen.app"
 }
 
@@ -85,7 +85,7 @@ object Deps {
     // Libs
     val realm = "io.realm:realm-gradle-plugin:${Versions.realm}"
 
-    val use_cases = "com.github.Zeyad-37:Usecases:1.2.2"
+    val use_cases = "com.github.Zeyad-37:Usecases:2.0.1"
 
     // - Support
     val design_support = "com.android.support:design:${Versions.support_lib}"

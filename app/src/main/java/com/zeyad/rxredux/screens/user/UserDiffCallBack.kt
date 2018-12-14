@@ -4,10 +4,8 @@ import android.support.v7.util.DiffUtil
 
 import com.zeyad.gadapter.ItemInfo
 
-/**
- * @author ZIaDo on 12/13/17.
- */
-class UserDiffCallBack(internal var newUsers: List<ItemInfo>, internal var oldUsers: List<ItemInfo>) : DiffUtil.Callback() {
+class UserDiffCallBack(private var newUsers: List<ItemInfo>,
+                       private var oldUsers: List<ItemInfo>) : DiffUtil.Callback() {
 
     override fun getOldListSize(): Int {
         return oldUsers.size
@@ -26,8 +24,4 @@ class UserDiffCallBack(internal var newUsers: List<ItemInfo>, internal var oldUs
                 .getData<User>()
     }
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-        //you can return particular field for changed item.
-        return super.getChangePayload(oldItemPosition, newItemPosition)
-    }
 }

@@ -9,9 +9,6 @@ import com.zeyad.rxredux.core.view.BaseActivity
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
-/**
- * @author by ZIaDo on 7/21/17.
- */
 abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivity<S, VM>() {
 
     /**
