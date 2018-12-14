@@ -30,9 +30,8 @@ First, an
  implementing StateReducer interface.
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
-override fun stateReducer(): StateReducer<UserListState> {
-    return object : StateReducer<UserListState> {
-        override fun reduce(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState?): UserListState {
+override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
+        return { newResult, event, currentStateBundle ->
             val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
             return when (currentStateBundle) {
                 is EmptyState -> when (newResult) {
@@ -65,7 +64,20 @@ override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
 }
 ```
 This is a simple mapping function that links every Event with its corresponding action
-function. The rest of the class holds your executables which are methods that return flowables.
+function. The rest of the class holds your executables which are methods that return Flowables.
+
+### Middleware
+If you want to hookup a crash reporting library or any middleware of any sorts you can override the middleware method
+```
+override fun middleware(): (UIModel<UserListState>) -> Unit {
+    return {
+        when (it) {
+            is SuccessState, is LoadingState -> Crashlytics.log(Log.DEBUG, "UIModel", it.toString())
+            is ErrorState -> Crashlytics.logException(it.error)
+        }
+    }
+}
+```
 
 # Step 2
 ### Option A: Activities/Fragments extend abstract classes
@@ -123,7 +135,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     
     override fun setupUI(isNew: Boolean) {
         setContentView(R.layout.activity_user_list)
-        // etc..
+        // ...
     }
     
     override fun initialState(): UserListState = UserListState()
@@ -144,13 +156,9 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         showErrorSnackBar(message, anyView, LENGTH_LONG);
     }
     
-    override fun errorMessageFactory(): ErrorMessageFactory {
-        return object : ErrorMessageFactory {
-            override fun getErrorMessage(throwable: Throwable, event: BaseEvent<*>): String {
-                return throwable.localizedMessage
-            }
+     override fun errorMessageFactory(): ErrorMessageFactory {
+            return { throwable, event: BaseEvent<*> -> throwable.localizedMessage }
         }
-    }
     
     override fun events(): Observable<BaseEvent<*>> {
         return eventObservable.mergeWith(postOnResumeEvents())

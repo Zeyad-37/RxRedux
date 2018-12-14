@@ -109,6 +109,6 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 .payLoad(selectedItemsIds)
                 .idColumnName(User.LOGIN, String::class.java).cache()
                 .build())
-                .map { o -> selectedItemsIds }
+                .map { selectedItemsIds }
     }
 }
