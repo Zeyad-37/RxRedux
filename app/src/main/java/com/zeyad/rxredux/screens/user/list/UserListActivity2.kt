@@ -30,9 +30,6 @@ import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment2
 import com.zeyad.rxredux.screens.user.detail.UserDetailState
-import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder

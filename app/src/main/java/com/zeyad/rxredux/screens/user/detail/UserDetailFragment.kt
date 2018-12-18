@@ -59,9 +59,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         //        setSharedElementReturnTransition(null); // supply the correct element for return transition
     }
 
-    override fun errorMessageFactory(): ErrorMessageFactory {
-        return { throwable, _ -> throwable.localizedMessage }
-    }
+    override fun errorMessageFactory(): ErrorMessageFactory = { throwable, _ -> throwable.localizedMessage }
 
     override fun initialize() {
         viewModel = getViewModel()
@@ -69,9 +67,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun initialState(): UserDetailState = arguments?.getParcelable(UI_MODEL)!!
 
-    override fun events(): Observable<BaseEvent<*>> {
-        return Observable.just(viewState?.user?.login?.let { GetReposEvent(it) })
-    }
+    override fun events(): Observable<BaseEvent<*>> = Observable.just(viewState?.user?.login?.let { GetReposEvent(it) })
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.user_detail, container, false)

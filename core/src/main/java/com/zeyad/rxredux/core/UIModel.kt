@@ -17,11 +17,11 @@ data class ErrorState<S>(val bundle: S,
                          val error: Throwable,
                          override val event: BaseEvent<*>,
                          override val isLoading: Boolean = false) : UIModel<S>() {
-    override fun toString() = "State: Error, Throwable: $error, " + super.toString()
+    override fun toString() = "State: Error, ${super.toString()}, Throwable: $error"
 }
 
 data class SuccessState<S>(val bundle: S,
                            override val event: BaseEvent<*> = EmptyEvent,
                            override val isLoading: Boolean = false) : UIModel<S>() {
-    override fun toString() = "State: Success, Bundle: $bundle, " + super.toString()
+    override fun toString() = "State: Success, ${super.toString()},  Bundle: $bundle"
 }

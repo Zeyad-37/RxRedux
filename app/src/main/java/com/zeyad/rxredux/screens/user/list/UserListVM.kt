@@ -7,9 +7,6 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
-import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
 import com.zeyad.rxredux.utils.Constants.URLS.USER
 import com.zeyad.rxredux.utils.Constants.URLS.USERS
 import com.zeyad.usecases.api.IDataService
@@ -26,11 +23,11 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
 
     override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
         return Function { event ->
-            when (event) {
-                is GetPaginatedUsersEvent -> getUsers(event.getPayLoad())
-                is DeleteUsersEvent -> deleteCollection(event.getPayLoad())
-                is SearchUsersEvent -> search(event.getPayLoad())
-                else -> Flowable.empty<Any>()
+            val userListEvent = event as UserListEvents
+            when (userListEvent) {
+                is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
+                is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
+                is SearchUsersEvent -> search(userListEvent.getPayLoad())
             }
         }
     }
@@ -43,38 +40,38 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                     is List<*> -> {
                         val pair = Flowable.fromIterable(newResult as List<User>)
                                 .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
-                                .toList()
-                                .toFlowable()
-                                .scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(currentItemInfo,
-                                        DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))))
-                                { pair1, next -> Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next))) }
-                                .skip(1)
-                                .blockingFirst()
-                        GetState(pair.first, currentStateBundle.lastId, pair.second)
+                                .toList().toFlowable()
+                                .calculateDiff(currentItemInfo)
+                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                     }
                     else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
                 }
                 is GetState -> when (newResult) {
                     is List<*> -> {
-                        currentItemInfo.addAll(Flowable.fromIterable(newResult as List<User>)
+                        val pair = Flowable.fromIterable(newResult as List<User>)
                                 .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
-                                .toList().blockingGet())
-                        val pair = Flowable.just(currentItemInfo.toSet().toMutableList())
-                                .scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(currentItemInfo,
-                                        DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(),
-                                                mutableListOf()))))
-                                { pair1, next ->
-                                    Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next)))
-                                }
-                                .skip(1)
-                                .blockingFirst()
-                        GetState(pair.first, currentStateBundle.lastId + 1, pair.second)
+                                .toList()
+                                .map {
+                                    val list = currentStateBundle.list.toMutableList()
+                                    list.addAll(it)
+                                    list.toSet().toMutableList()
+                                }.toFlowable()
+                                .calculateDiff(currentItemInfo)
+                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                     }
                     else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
                 }
             }
         }
     }
+
+    private fun Flowable<MutableList<ItemInfo>>.calculateDiff(initialList: MutableList<ItemInfo>)
+            : Pair<MutableList<ItemInfo>, DiffUtil.DiffResult> =
+            scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(initialList,
+                    DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))))
+            { pair1, next -> Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next))) }
+                    .skip(1)
+                    .blockingFirst()
 
     private fun getUsers(lastId: Long): Flowable<List<User>> {
         return if (lastId == 0L)

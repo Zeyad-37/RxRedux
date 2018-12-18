@@ -25,9 +25,6 @@ import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
 import com.zeyad.rxredux.screens.user.detail.UserDetailState
-import com.zeyad.rxredux.screens.user.list.events.DeleteUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.GetPaginatedUsersEvent
-import com.zeyad.rxredux.screens.user.list.events.SearchUsersEvent
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
@@ -60,9 +57,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
 
-    override fun errorMessageFactory(): ErrorMessageFactory {
-        return { throwable, _ -> throwable.localizedMessage }
-    }
+    override fun errorMessageFactory(): ErrorMessageFactory =
+            { throwable, _ -> throwable.localizedMessage }
 
     override fun initialize() {
         viewModel = getViewModel()
@@ -82,13 +78,9 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     override fun initialState(): UserListState = EmptyState()
 
-    override fun events(): Observable<BaseEvent<*>> {
-        return eventObservable.mergeWith(postOnResumeEvents())
-    }
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents())
 
-    private fun postOnResumeEvents(): Observable<BaseEvent<*>> {
-        return postOnResumeEvents
-    }
+    private fun postOnResumeEvents(): Observable<BaseEvent<*>> = postOnResumeEvents
 
     override fun renderSuccessState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)
@@ -231,9 +223,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         return true
     }
 
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-        return item.itemId == R.id.delete_item
-    }
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = item.itemId == R.id.delete_item
 
     override fun onDestroyActionMode(mode: ActionMode) {
         try {
@@ -241,7 +231,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         } catch (e: Exception) {
             Log.e("onDestroyActionMode", e.message, e)
         }
-
         actionMode = null
         toolbar.visibility = View.VISIBLE
     }

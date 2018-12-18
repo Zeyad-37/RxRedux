@@ -23,66 +23,66 @@ abstract class BaseViewModel<S> : ViewModel() {
     fun processEvents(events: Observable<BaseEvent<*>>, initialState: S): Flowable<UIModel<S>> =
             events.toFlowable(BackpressureStrategy.BUFFER)
                     .compose<UIModel<S>>(uiModelsTransformer(initialState))
+                    .compose(ReplayingShare.instance())
                     .doAfterNext {
                         when (it) {
-                            is SuccessState, is LoadingState ->
-                                Log.d("onNext", "UIModel: " + it.toString())
-                            is ErrorState -> Log.e("UIObserver", "onChanged", it.error)
+                            is SuccessState, is LoadingState -> Log.d("ViewModel", "UIModel: $it")
+                            is ErrorState -> Log.e("ViewModel", "Error", it.error)
                         }
                         middleware().invoke(it)
                     }
-                    .compose(ReplayingShare.instance())
 
     private fun uiModelsTransformer(initialState: S): FlowableTransformer<BaseEvent<*>, UIModel<S>> =
             FlowableTransformer { events ->
                 events.observeOn(Schedulers.computation())
-                        .concatMap {
-                            Flowable.just(it)
+                        .concatMap { event ->
+                            Flowable.just(event)
                                     .concatMap(mapEventsToActions())
-                                    .compose(mapActionsToResults(it))
+                                    .compose(mapActionsToResults(event))
                         }
-                        .distinctUntilChanged { t1: Result<*>, t2: Result<*> -> t1 == t2 }
+                        .distinctUntilChanged { r1: Result<*>, r2: Result<*> -> r1 == r2 }
                         .scan<UIModel<S>>(SuccessState(initialState), reducer())
-                        .distinctUntilChanged { t1: UIModel<*>, t2: UIModel<*> -> t1 == t2 }
+                        .distinctUntilChanged { m1: UIModel<S>, m2: UIModel<S> -> m1 == m2 }
                         .observeOn(AndroidSchedulers.mainThread())
             }
 
-    private fun mapActionsToResults(eventName: BaseEvent<*>): FlowableTransformer<Any, Result<*>> =
-            FlowableTransformer { it ->
-                it.map<Result<*>> { SuccessResult(it, eventName) }
-                        .onErrorReturn { ErrorResult(it, eventName) }
-                        .startWith(LoadingResult(eventName))
+    private fun mapActionsToResults(event: BaseEvent<*>): FlowableTransformer<Any, Result<*>> =
+            FlowableTransformer { action ->
+                action.map<Result<*>> { SuccessResult(it, event) }
+                        .onErrorReturn { ErrorResult(it, event) }
+                        .startWith(LoadingResult(event))
             }
 
     private fun reducer(): BiFunction<UIModel<S>, Result<*>, UIModel<S>> =
             BiFunction { currentUIModel, result ->
-                when (result) {
-                    is LoadingResult -> when (currentUIModel) {
-                        is LoadingState ->
-                            throw IllegalStateException(getErrorMessage(currentUIModel, result, LOADING_STATE))
-                        is SuccessState -> LoadingState(currentUIModel.bundle, result.event)
-                        is ErrorState -> LoadingState(currentUIModel.bundle, result.event)
-                    }
-                    is ErrorResult -> when (currentUIModel) {
-                        is LoadingState -> ErrorState(currentUIModel.bundle, result.error, result.event)
-                        is SuccessState ->
-                            throw IllegalStateException(getErrorMessage(currentUIModel, result, SUCCESS_STATE))
-                        is ErrorState ->
-                            throw IllegalStateException(getErrorMessage(currentUIModel, result, ERROR_STATE))
-                    }
-                    is SuccessResult<*> -> when (currentUIModel) {
-                        is SuccessState ->
-                            SuccessState(stateReducer().invoke(result.bundle!!, result.event,
-                                    currentUIModel.bundle), result.event)
-                        is LoadingState -> SuccessState(stateReducer().invoke(result.bundle!!,
-                                result.event, currentUIModel.bundle), result.event)
-                        is ErrorState ->
-                            throw IllegalStateException(getErrorMessage(currentUIModel, result, ERROR_STATE))
+                result.run {
+                    when (this) {
+                        is LoadingResult -> when (currentUIModel) {
+                            is LoadingState ->
+                                throw IllegalStateException(makeMsg(currentUIModel, this, LOADING_STATE))
+                            is SuccessState -> LoadingState(currentUIModel.bundle, event)
+                            is ErrorState -> LoadingState(currentUIModel.bundle, event)
+                        }
+                        is ErrorResult -> when (currentUIModel) {
+                            is LoadingState -> ErrorState(currentUIModel.bundle, error, event)
+                            is SuccessState ->
+                                throw IllegalStateException(makeMsg(currentUIModel, this, SUCCESS_STATE))
+                            is ErrorState ->
+                                throw IllegalStateException(makeMsg(currentUIModel, this, ERROR_STATE))
+                        }
+                        is SuccessResult<*> -> when (currentUIModel) {
+                            is SuccessState -> SuccessState(stateReducer()
+                                    .invoke(bundle!!, event, currentUIModel.bundle), event)
+                            is LoadingState -> SuccessState(stateReducer()
+                                    .invoke(bundle!!, event, currentUIModel.bundle), event)
+                            is ErrorState ->
+                                throw IllegalStateException(makeMsg(currentUIModel, this, ERROR_STATE))
+                        }
                     }
                 }
             }
 
-    private fun getErrorMessage(currentUIModel: UIModel<S>, result: Result<*>, nextState: String) =
+    private fun makeMsg(currentUIModel: UIModel<S>, result: Result<*>, nextState: String) =
             "Can not reduce from $currentUIModel to $nextState with $result"
 
     companion object {
