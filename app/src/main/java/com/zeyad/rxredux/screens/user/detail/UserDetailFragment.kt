@@ -39,15 +39,18 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
-        override fun onException(e: Exception, model: String, target: Target<GlideDrawable>,
-                                 isFirstResource: Boolean): Boolean {
-            return glideRequestListenerCore()
-        }
+        override fun onException(e: Exception,
+                                 model: String,
+                                 target: Target<GlideDrawable>,
+                                 isFirstResource: Boolean): Boolean =
+                glideRequestListenerCore()
 
-        override fun onResourceReady(resource: GlideDrawable, model: String, target: Target<GlideDrawable>,
-                                     isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
-            return glideRequestListenerCore()
-        }
+        override fun onResourceReady(resource: GlideDrawable,
+                                     model: String,
+                                     target: Target<GlideDrawable>,
+                                     isFromMemoryCache: Boolean,
+                                     isFirstResource: Boolean): Boolean =
+                glideRequestListenerCore()
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -69,9 +72,8 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun events(): Observable<BaseEvent<*>> = Observable.just(viewState?.user?.login?.let { GetReposEvent(it) })
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.user_detail, container, false)
-    }
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.user_detail, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

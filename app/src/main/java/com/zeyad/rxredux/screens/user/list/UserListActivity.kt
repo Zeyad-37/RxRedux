@@ -12,6 +12,7 @@ import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.ItemInfo.SECTION_HEADER
@@ -160,18 +161,17 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler);
-//        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
-//                .map { recyclerViewScrollEvent ->
-//                    GetPaginatedUsersEvent(
-//                            if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
-//                                viewState!!.lastId
-//                            else
-//                                -1)
-//                }
-//                .filter { !it.getPayLoad().equals(-1) }
-//                .throttleLast(200, TimeUnit.MILLISECONDS)
-//                .debounce(300, TimeUnit.MILLISECONDS)
-//                .doOnNext { Log.d("NextPageEvent", FIRED) })
+        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
+                .map { recyclerViewScrollEvent ->
+                    GetPaginatedUsersEvent(
+                            if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
+                                viewState!!.lastId
+                            else -1)
+                }
+                .filter { it.getPayLoad() != -1L }
+                .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
+                .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
+                .doOnNext { Log.d("NextPageEvent", FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
     }
