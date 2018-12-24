@@ -80,7 +80,6 @@ object Deps {
 
     // Libs
     val realm = "io.realm:realm-gradle-plugin:${Versions.realm}"
-
     val use_cases = "com.github.Zeyad-37:Usecases:2.0.1"
 
     // - Support
@@ -95,6 +94,7 @@ object Deps {
     val arch_life_cycle = "android.arch.lifecycle:extensions:${Versions.archComp}"
     val arch_reactive_stream = "android.arch.lifecycle:reactivestreams:${Versions.archComp}"
     val arch_rxjava_paging = "android.arch.paging:rxjava2:1.0.0-alpha1"
+
     // - Network
     val retrofit = "com.squareup.retrofit2:retrofit:${Versions.retrofit}"
     val retrofit_rxjava = "com.squareup.retrofit2:adapter-rxjava2:${Versions.retrofit}"
@@ -126,6 +126,7 @@ object Deps {
     val leakCanary = "com.squareup.leakcanary:leakcanary-android:${Versions.leakCanary}"
     val leakCanary_no_op = "com.squareup.leakcanary:leakcanary-android-no-op:${Versions.leakCanary}"
     val generic_recycler_review = "com.github.Zeyad-37:GenericRecyclerViewAdapter:${Versions.genericRecyclerViewAdapter}"
+    val timber = "com.jakewharton.timber:timber:4.7.1"
 
     // - Testing
     val junit = "junit:junit:${Versions.junit}"
@@ -134,7 +135,6 @@ object Deps {
     val mockito_kotlin = "com.nhaarman:mockito-kotlin:${Versions.mockitoKotlin}"
     val robolectric = "org.robolectric:robolectric:${Versions.robolectric}"
     val robolectric_shadow_support_v4 = "org.robolectric:shadows-support-v4:3.3.2"
-
 
     val kotlin_test = "org.jetbrains.kotlin:kotlin-test:${Versions.kotlin}"
     val kotlin_junit = "org.jetbrains.kotlin:kotlin-test-junit:${Versions.kotlin}"

@@ -54,7 +54,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Deps.kotlin_stdlib
-
+    implementation Deps.timber
     api Deps.appcompat_v7
 
     api Deps.arch_reactive_stream

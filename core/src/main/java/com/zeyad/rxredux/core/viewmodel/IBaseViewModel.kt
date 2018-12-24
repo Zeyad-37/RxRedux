@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.core.viewmodel
 
-import android.util.Log
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
 import io.reactivex.BackpressureStrategy
@@ -11,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
 import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
+import timber.log.Timber
 
 interface IBaseViewModel<S> {
 
@@ -26,8 +26,8 @@ interface IBaseViewModel<S> {
                     .compose(ReplayingShare.instance())
                     .doAfterNext {
                         when (it) {
-                            is SuccessState, is LoadingState -> Log.d("ViewModel", "PModel: $it")
-                            is ErrorState -> Log.e("ViewModel", "Error", it.error)
+                            is SuccessState, is LoadingState -> Timber.d("PModel: $it")
+                            is ErrorState -> Timber.e(it.error, "Error")
                         }
                         middleware().invoke(it)
                     }
@@ -35,6 +35,7 @@ interface IBaseViewModel<S> {
     private fun pModelsTransformer(initialState: S): FlowableTransformer<BaseEvent<*>, PModel<S>> =
             FlowableTransformer { events ->
                 events.observeOn(Schedulers.computation())
+                        .distinctUntilChanged { e1: BaseEvent<*>, e2: BaseEvent<*> -> e1 == e2 }
                         .concatMap { event ->
                             Flowable.just(event)
                                     .concatMap(mapEventsToActions())
