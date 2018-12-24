@@ -3,7 +3,6 @@ package com.zeyad.rxredux.screens.user.list
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
-import android.support.design.widget.Snackbar
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -54,9 +53,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     private var actionMode: ActionMode? = null
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
-
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     override fun errorMessageFactory(): ErrorMessageFactory =
             { throwable, _ -> throwable.localizedMessage }
@@ -65,6 +63,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         viewModel = getViewModel()
         if (viewState == null) {
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
+                    .filter { viewState !is GetState }
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
     }
@@ -93,7 +92,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     }
 
     override fun showError(errorMessage: String, event: BaseEvent<*>) {
-        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
+        showErrorSnackBarWithAction(errorMessage, user_list, "Retry",
+                View.OnClickListener { postOnResumeEvents.onNext(event) })
     }
 
     private fun setupRecyclerView() {

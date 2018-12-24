@@ -77,4 +77,8 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
      */
     fun showErrorSnackBar(message: String, view: View, duration: Int) =
             SnackBarFactory.getSnackBar(SnackBarFactory.TYPE_ERROR, view, message, duration).show()
+
+    fun showErrorSnackBarWithAction(message: String, view: View, actionText: String,
+                                    onClickListener: View.OnClickListener) =
+            showSnackBarWithAction(SnackBarFactory.TYPE_ERROR, view, message, actionText, onClickListener)
 }

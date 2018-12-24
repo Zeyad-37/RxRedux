@@ -21,9 +21,12 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
 
     override fun onStart() {
         super.onStart()
-        viewState = initialState()
-        viewModel.store(events(), initialState()).toLiveData()
-                .observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+        if (viewState == null) {
+            viewState = initialState()
+            vmStart(viewModel, initialState(), events(), errorMessageFactory(), this, this)
+        } else {
+            vmStart(viewModel, viewState!!, events(), errorMessageFactory(), this, this)
+        }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

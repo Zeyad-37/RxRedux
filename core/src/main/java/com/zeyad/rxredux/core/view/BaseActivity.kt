@@ -26,15 +26,18 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        bundle.putParcelable(UI_MODEL, viewState)
+        onSaveInstanceState(bundle, viewState)
         super.onSaveInstanceState(bundle)
     }
 
     override fun onStart() {
         super.onStart()
-        viewState = initialState()
-        viewModel.store(events(), initialState()).toLiveData()
-                .observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
+        if (viewState == null) {
+            viewState = initialState()
+            vmStart(viewModel, initialState(), events(), errorMessageFactory(), this, this)
+        } else {
+            vmStart(viewModel, viewState!!, events(), errorMessageFactory(), this, this)
+        }
     }
 
     override fun setState(bundle: S) {
