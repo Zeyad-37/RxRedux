@@ -33,7 +33,7 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
     override fun onStart() {
         super.onStart()
         viewState = initialState()
-        viewModel.processEvents(events(), initialState()).toLiveData()
+        viewModel.store(events(), initialState()).toLiveData()
                 .observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }
 

@@ -29,7 +29,7 @@ interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LoadDataView<S>, Li
 
     fun onStartImpl() {
         viewState = initialState()
-        viewModel?.processEvents(events(), initialState())
+        viewModel?.store(events(), initialState())
                 ?.toLiveData()
                 ?.observe(this, PModObserver<LoadDataView<S>, S>(this, errorMessageFactory()))
     }

@@ -6,21 +6,12 @@ import android.view.View
 
 object ColoredSnackBar {
 
-    private fun getSnackBarLayout(snackbar: Snackbar): View? {
-        return snackbar.view
-    }
+    private fun getSnackBarLayout(snackBar: Snackbar): View? = snackBar.view
 
-    private fun colorSnackBar(snackBar: Snackbar, @ColorInt colorId: Int): Snackbar {
-        val snackBarView = getSnackBarLayout(snackBar)
-        snackBarView?.setBackgroundColor(colorId)
-        return snackBar
-    }
+    private fun colorSnackBar(snackBar: Snackbar, @ColorInt colorId: Int): Snackbar =
+            getSnackBarLayout(snackBar)?.apply { setBackgroundColor(colorId) } as Snackbar
 
-    fun info(snackBar: Snackbar, color: Int): Snackbar {
-        return colorSnackBar(snackBar, color)
-    }
+    fun info(snackBar: Snackbar, color: Int): Snackbar = colorSnackBar(snackBar, color)
 
-    fun error(snackBar: Snackbar, color: Int): Snackbar {
-        return colorSnackBar(snackBar, color)
-    }
+    fun error(snackBar: Snackbar, color: Int): Snackbar = colorSnackBar(snackBar, color)
 }

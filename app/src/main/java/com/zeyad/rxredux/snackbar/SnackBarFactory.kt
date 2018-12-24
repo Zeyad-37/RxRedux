@@ -9,41 +9,37 @@ import android.view.View
 
 object SnackBarFactory {
 
-    val TYPE_INFO = "typeInfo"
-    val TYPE_ERROR = "typeError"
+    const val TYPE_INFO = "typeInfo"
+    const val TYPE_ERROR = "typeError"
 
-    fun getSnackBar(snackBarType: String, view: View, @StringRes stringId: Int,
-                    duration: Int): Snackbar {
-        return getSnackBar(view, stringId, duration, getColorId(snackBarType))
-    }
+    fun getSnackBar(snackBarType: String,
+                    view: View,
+                    @StringRes stringId: Int,
+                    duration: Int): Snackbar =
+            getSnackBar(view, stringId, duration, getColorId(snackBarType))
 
     fun getSnackBar(snackBarType: String, view: View, text: CharSequence,
-                    duration: Int): Snackbar {
-        return getSnackBar(view, text, duration, getColorId(snackBarType))
-    }
+                    duration: Int): Snackbar =
+            getSnackBar(view, text, duration, getColorId(snackBarType))
 
     fun getSnackBar(view: View, @StringRes stringId: Int, duration: Int,
-                    @ColorInt colorId: Int): Snackbar {
-        return createSnackBar(Snackbar.make(view, stringId, duration), colorId)
-    }
+                    @ColorInt colorId: Int): Snackbar =
+            createSnackBar(Snackbar.make(view, stringId, duration), colorId)
 
     fun getSnackBar(view: View, text: CharSequence, duration: Int,
-                    @ColorInt colorId: Int): Snackbar {
-        return createSnackBar(Snackbar.make(view, text, duration), colorId)
-    }
+                    @ColorInt colorId: Int): Snackbar =
+            createSnackBar(Snackbar.make(view, text, duration), colorId)
 
     fun getSnackBarWithAction(snackBarType: String, view: View,
-                              text: CharSequence, actionText: String?, onClickListener: View.OnClickListener): Snackbar {
-        return createSnackBar(Snackbar.make(view, text, LENGTH_INDEFINITE)
-                .setAction(if (actionText != null && !actionText.isEmpty()) actionText else "RETRY", onClickListener)
-                .setActionTextColor(Color.BLACK), getColorId(snackBarType))
-    }
+                              text: CharSequence, actionText: String?,
+                              onClickListener: View.OnClickListener): Snackbar =
+            createSnackBar(Snackbar.make(view, text, LENGTH_INDEFINITE)
+                    .setAction(if (actionText != null && !actionText.isEmpty()) actionText else "RETRY", onClickListener)
+                    .setActionTextColor(Color.BLACK), getColorId(snackBarType))
 
-    private fun createSnackBar(snackbar: Snackbar, @ColorInt colorId: Int): Snackbar {
-        return ColoredSnackBar.info(snackbar, colorId)
-    }
+    private fun createSnackBar(snackBar: Snackbar, @ColorInt colorId: Int): Snackbar =
+            ColoredSnackBar.info(snackBar, colorId)
 
-    private fun getColorId(snackBarType: String): Int {
-        return if (snackBarType == TYPE_INFO) Color.parseColor("#45d482") else Color.parseColor("#e15D50")
-    }
+    private fun getColorId(snackBarType: String): Int =
+            Color.parseColor(if (snackBarType == TYPE_INFO) "#45d482" else "#e15D50")
 }

@@ -34,6 +34,7 @@ import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
+import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -41,7 +42,6 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
-import org.koin.android.architecture.ext.getViewModel
 import java.util.*
 import java.util.concurrent.TimeUnit
 
@@ -51,8 +51,8 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity2(override var viewModel: UserListVM2?, override var viewState: UserListState?)
-    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM2>, OnStartDragListener, ActionMode.Callback {
+class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
     constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -90,7 +90,7 @@ class UserListActivity2(override var viewModel: UserListVM2?, override var viewS
     }
 
     override fun initialize() {
-        viewModel = UserListVM2(DataServiceFactory.dataService!!)
+        viewModel = UserListVM(DataServiceFactory.dataService!!)
         if (viewState == null) {
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
@@ -299,8 +299,10 @@ class UserListActivity2(override var viewModel: UserListVM2?, override var viewS
     }
 
     private fun removeFragment(tag: String) {
-        supportFragmentManager.beginTransaction().remove(supportFragmentManager.findFragmentByTag(tag))
+        supportFragmentManager.findFragmentByTag(tag)?.let {
+            supportFragmentManager.beginTransaction().remove(it)
                 .commit()
+        }
     }
 
     companion object {

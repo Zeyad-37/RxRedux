@@ -74,13 +74,13 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                     .blockingFirst()
 
     private fun getUsers(lastId: Long): Flowable<List<User>> {
-        return if (lastId == 0L)
-            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
-                    .url(String.format(USERS, lastId))
-                    .build())
-        else
-            dataUseCase.getList(GetRequest.Builder(User::class.java, true)
-                    .url(String.format(USERS, lastId)).build())
+//        return if (lastId == 0L)
+//            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
+//                    .url(String.format(USERS, lastId))
+//                    .build())
+//        else
+        return dataUseCase.getList(GetRequest.Builder(User::class.java, true)
+                .url(String.format(USERS, lastId)).build())
     }
 
     private fun search(query: String): Flowable<List<User>> {

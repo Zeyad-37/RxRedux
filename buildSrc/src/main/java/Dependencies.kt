@@ -1,6 +1,4 @@
-/**
- * @author ZIaDo on 2/20/18.
- */
+
 object Versions {
     // Gradle
     const val android_gradle_plugin = "3.0.1"

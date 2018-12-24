@@ -34,42 +34,32 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
         fragmentTransaction.add(containerViewId, fragment, fragment.tag).commit()
     }
 
-    fun removeFragment(tag: String) {
-        supportFragmentManager.findFragmentByTag(tag)?.let {
-            supportFragmentManager.beginTransaction().remove(it)
-                    .commit()
-        }
-    }
+    fun removeFragment(tag: String) =
+            supportFragmentManager.findFragmentByTag(tag)?.let {
+                supportFragmentManager.beginTransaction().remove(it)
+                        .commit()
+            }
 
     @JvmOverloads
-    fun showToastMessage(message: String, duration: Int = Toast.LENGTH_LONG) {
-        Toast.makeText(this, message, duration).show()
-    }
+    fun showToastMessage(message: String, duration: Int = Toast.LENGTH_LONG) =
+            Toast.makeText(this, message, duration).show()
 
     /**
      * Shows a [android.support.design.widget.Snackbar] message.
      *
      * @param message An string representing a message to be shown.
      */
-    fun showSnackBarMessage(view: View?, message: String, duration: Int) {
-        if (view != null) {
+    fun showSnackBarMessage(view: View, message: String, duration: Int) =
             SnackBarFactory.getSnackBar(SnackBarFactory.TYPE_INFO, view, message, duration).show()
-        } else {
-            throw IllegalArgumentException("View is null")
-        }
-    }
 
     fun showSnackBarWithAction(typeSnackBar: String,
-                               view: View?,
+                               view: View,
                                message: String,
                                actionText: String,
-                               onClickListener: View.OnClickListener) {
-        if (view != null) {
-            SnackBarFactory.getSnackBarWithAction(typeSnackBar, view, message, actionText, onClickListener).show()
-        } else {
-            throw IllegalArgumentException("View is null")
-        }
-    }
+                               onClickListener: View.OnClickListener) =
+            SnackBarFactory
+                    .getSnackBarWithAction(typeSnackBar, view, message, actionText, onClickListener)
+                    .show()
 
     fun showSnackBarWithAction(typeSnackBar: String,
                                view: View,
@@ -85,11 +75,6 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivit
      * @param message  An string representing a message to be shown.
      * @param duration Visibility duration.
      */
-    fun showErrorSnackBar(message: String, view: View?, duration: Int) {
-        if (view != null) {
+    fun showErrorSnackBar(message: String, view: View, duration: Int) =
             SnackBarFactory.getSnackBar(SnackBarFactory.TYPE_ERROR, view, message, duration).show()
-        } else {
-            throw IllegalArgumentException("View is null")
-        }
-    }
 }

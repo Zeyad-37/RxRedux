@@ -5,10 +5,10 @@ import com.zeyad.rxredux.core.ErrorState
 import com.zeyad.rxredux.core.PModel
 import com.zeyad.rxredux.core.SuccessState
 
-class UIObserver<V : LoadDataView<S>, S>(private val view: V,
-                                         private val errorMessageFactory: ErrorMessageFactory
-) : Observer<UIModel<S>> {
-    override fun onChanged(uiModel: UIModel<S>?) {
+class PModObserver<V : LoadDataView<S>, S>(private val view: V,
+                                           private val errorMessageFactory: ErrorMessageFactory
+) : Observer<PModel<S>> {
+    override fun onChanged(uiModel: PModel<S>?) {
         uiModel?.apply {
             view.toggleViews(isLoading, event)
             if (!isLoading) {

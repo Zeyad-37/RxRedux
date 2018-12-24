@@ -15,7 +15,7 @@ class RxReduxApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        initializeRealm()
+//        initializeRealm()
         startKoin(listOf(myModule))
         RxAndroidPlugins.setMainThreadSchedulerHandler { AndroidSchedulers.from(Looper.getMainLooper(), true) }
         //        if (LeakCanary.isInAnalyzerProcess(this)) {
@@ -48,9 +48,5 @@ class RxReduxApplication : Application() {
             StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder().detectAll().penaltyLog().build())
             StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder().detectAll().penaltyLog().build())
         }
-    }
-
-    companion object {
-        private const val TIME_OUT = 15
     }
 }

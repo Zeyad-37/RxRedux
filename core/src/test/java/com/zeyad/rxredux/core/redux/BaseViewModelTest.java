@@ -74,7 +74,7 @@ public class BaseViewModelTest {
                                 .build())
                         .test();
 
-//        viewModel.processEvents(Observable.fromArray(new GetPaginatedUsersEvent(0),
+//        viewModel.store(Observable.fromArray(new GetPaginatedUsersEvent(0),
 //                new GetPaginatedUsersEvent(1),
 //                new DeleteUsersEvent(Collections.singletonList("1"))));
 //                ,

@@ -2,9 +2,13 @@ package com.zeyad.rxredux.screens.user.detail
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
@@ -24,6 +28,7 @@ import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity2.Companion.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
+import com.zeyad.rxredux.utils.hasM
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -151,7 +156,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     }
 
     private fun applyPalette() {
-        if (Utils.hasM()) {
+        if (hasM()) {
             val activity = activity as UserDetailActivity2?
             val drawable = activity!!.getImageViewAvatar().drawable as BitmapDrawable
             val bitmap = drawable.bitmap
