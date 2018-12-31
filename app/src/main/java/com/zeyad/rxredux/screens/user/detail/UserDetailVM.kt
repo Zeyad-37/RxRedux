@@ -20,12 +20,10 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
             (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState) -> UserDetailState =
             { newResult, _, currentStateBundle ->
                 if (newResult is List<*>)
-                    UserDetailState.builder()
-                            .setRepos(Observable.fromIterable(newResult as List<Repository>)
-                                    .map { repository -> ItemInfo(repository, R.layout.repo_item_layout) }
+                    UserDetailState(currentStateBundle.isTwoPane, currentStateBundle.user,
+                            Observable.fromIterable(newResult as List<Repository>)
+                                    .map { ItemInfo(it, R.layout.repo_item_layout) }
                                     .toList(newResult.size).blockingGet())
-                            .setUser(currentStateBundle.user)
-                            .setIsTwoPane(currentStateBundle.isTwoPane).build()
                 else throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
             }
 

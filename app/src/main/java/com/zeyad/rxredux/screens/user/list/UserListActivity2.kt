@@ -148,8 +148,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
                 toggleItemSelection(position)
             } else if (itemInfo.getData<Any>() is User) {
                 val userModel = itemInfo.getData<User>()
-                val userDetailState = UserDetailState.builder().setUser(userModel).setIsTwoPane(twoPane)
-                        .build()
+                val userDetailState = UserDetailState(twoPane, userModel)
                 var pair: Pair<View, String>? = null
                 var secondPair: Pair<View, String>? = null
                 if (hasLollipop()) {
