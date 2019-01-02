@@ -23,6 +23,7 @@
                 android:id="@+id/imageView_avatar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:contentDescription="Repo Owner Photo"
                 android:scaleType="centerInside" />
         </android.support.v7.widget.Toolbar>
     </android.support.design.widget.AppBarLayout>
