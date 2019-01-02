@@ -1,7 +1,7 @@
 apply plugin: Plugins.library
 apply plugin: Plugins.kt_and
 apply plugin: Plugins.kt_and_x
-//apply plugin: "io.gitlab.arturbosch.detekt"
+apply plugin: "com.vanniktech.code.quality.tools"
 apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.Zeyad-37'
 
@@ -34,18 +34,74 @@ android {
         experimental = true
     }
 
-//    detekt {
-//        def reportsDir = "${project.buildDir}/reports"
-//        xml {
-//            enabled = true
-//            destination = file("$reportsDir/detekt/dktreport.xml")
-//        }
-//        html {
-//            enabled = true
-//            destination = file("$reportsDir/detekt/dktreport.xml")
-//        }
-//    }
+    codeQualityTools {
+        boolean failEarly = true
+        boolean xmlReports = true
+        boolean htmlReports = false
+        boolean textReports = false
+        String[] ignoreProjects = []
 
+        findbugs {
+            boolean enabled = true
+            String toolVersion = '3.0.1'
+            String excludeFilter = 'code_quality_tools/findbugs-filter.xml'
+            Boolean ignoreFailures = null
+            String source = 'src'
+            String effort = 'max'
+            String reportLevel = 'low'
+        }
+        checkstyle {
+            boolean enabled = true
+            String toolVersion = '8.6'
+            String configFile = 'code_quality_tools/checkstyle.xml'
+            Boolean ignoreFailures = null
+            Boolean showViolations = null
+            String source = 'src'
+            List<String> include = ['**/*.java']
+            List<String> exclude = ['**/gen/**']
+        }
+        pmd {
+            boolean enabled = true
+            String toolVersion = '6.0.0'
+            String ruleSetFile = 'code_quality_tools/pmd.xml'
+            Boolean ignoreFailures = null
+            String source = 'src'
+            List<String> include = ['**/*.java']
+            List<String> exclude = ['**/gen/**']
+        }
+        lint {
+            boolean enabled = true
+            Boolean textReport = null
+            String textOutput = 'stdout'
+            Boolean abortOnError = null
+            Boolean warningsAsErrors = null
+            Boolean checkAllWarnings = null
+            String baselineFileName = null
+            Boolean absolutePaths = null
+            File lintConfig = null
+        }
+        ktlint {
+            boolean enabled = true
+            String toolVersion = '0.14.0'
+        }
+        detekt {
+            boolean enabled = true
+            String toolVersion = '1.0.0.RC6'
+            String config = 'code_quality_tools/detekt.yml'
+            String baselineFileName = null
+        }
+        cpd {
+            boolean enabled = true
+            String source = 'src'
+            String language = 'java'
+            Boolean ignoreFailures = null
+            int minimumTokenCount = 50
+        }
+        errorProne {
+            boolean enabled = true
+            String toolVersion = '2.1.3'
+        }
+    }
 //    allOpen {
 //        annotation('com.Mockable')
 //    }
