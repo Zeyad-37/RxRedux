@@ -10,7 +10,7 @@ import io.reactivex.Observable
 abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), LoadDataView<S> {
 
     lateinit var viewModel: VM
-    var viewState: S? = null
+    lateinit var viewState: S
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,12 +21,10 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
 
     override fun onStart() {
         super.onStart()
-        if (viewState == null) {
+        if (!::viewState.isInitialized) {
             viewState = initialState()
-            vmStart(viewModel, initialState(), events(), errorMessageFactory(), this, this)
-        } else {
-            viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
         }
+        vmStart(viewModel, viewState, events(), errorMessageFactory(), this, this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

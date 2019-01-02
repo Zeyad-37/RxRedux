@@ -42,10 +42,8 @@ interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LoadDataView<S>, Li
     fun onStartImpl() {
         if (viewState == null) {
             viewState = initialState()
-            vmStart(viewModel, initialState(), events(), errorMessageFactory(), this, this)
-        } else {
-            viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
         }
+        viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
     }
 
     override fun setState(bundle: S) {
