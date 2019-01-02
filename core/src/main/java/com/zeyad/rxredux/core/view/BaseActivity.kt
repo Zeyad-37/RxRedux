@@ -36,7 +36,7 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
             viewState = initialState()
             vmStart(viewModel, initialState(), events(), errorMessageFactory(), this, this)
         } else {
-            vmStart(viewModel, viewState!!, events(), errorMessageFactory(), this, this)
+            viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
         }
     }
 
