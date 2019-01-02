@@ -8,7 +8,7 @@ interface BaseEvent<T> : Parcelable {
 }
 
 val EmptyEvent = object : BaseEvent<Any> {
-    override fun getPayLoad(): Unit = Unit
+    override fun getPayLoad() = Unit
 
     override fun writeToParcel(dest: Parcel?, flags: Int) = Unit
 
