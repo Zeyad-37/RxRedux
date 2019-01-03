@@ -67,37 +67,25 @@ interface IBaseViewModel<S> {
 
     private fun SuccessResult<*>.successState(currentUIModel: PModel<S>): SuccessState<S> =
             when (currentUIModel) {
-                is SuccessState -> SuccessState(stateReducer()
-                        .invoke(bundle!!, event, currentUIModel.bundle), event)
-                is LoadingState -> SuccessState(stateReducer()
-                        .invoke(bundle!!, event, currentUIModel.bundle), event)
-                is ErrorState ->
-                    throw IllegalStateException(makeMsg(currentUIModel, this, ERROR_STATE))
+                is SuccessState, is LoadingState ->
+                    SuccessState(stateReducer().invoke(bundle!!, event, currentUIModel.bundle), event)
+                is ErrorState -> throw IllegalStateException(makeMsg(currentUIModel, this))
             }
 
     private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorState<S> =
             when (currentUIModel) {
-                is LoadingState -> ErrorState(currentUIModel.bundle, error, event)
-                is SuccessState ->
-                    throw IllegalStateException(makeMsg(currentUIModel, this, SUCCESS_STATE))
-                is ErrorState ->
-                    throw IllegalStateException(makeMsg(currentUIModel, this, ERROR_STATE))
+                is LoadingState -> ErrorState(error, currentUIModel.bundle, event)
+                is SuccessState, is ErrorState ->
+                    throw IllegalStateException(makeMsg(currentUIModel, this))
             }
 
     private fun Result<*>.loadingState(currentUIModel: PModel<S>): LoadingState<S> =
             when (currentUIModel) {
+                is SuccessState, is ErrorState -> LoadingState(currentUIModel.bundle, event)
                 is LoadingState ->
-                    throw IllegalStateException(makeMsg(currentUIModel, this, LOADING_STATE))
-                is SuccessState -> LoadingState(currentUIModel.bundle, event)
-                is ErrorState -> LoadingState(currentUIModel.bundle, event)
+                    throw IllegalStateException(makeMsg(currentUIModel, this))
             }
 
-    private fun makeMsg(currentUIModel: PModel<S>, result: Result<*>, nextState: String) =
-            "Can not reduce from $currentUIModel to $nextState with $result"
-
-    companion object {
-        const val ERROR_STATE = "ErrorsState"
-        const val SUCCESS_STATE = "SuccessState"
-        const val LOADING_STATE = "LoadingState"
-    }
+    private fun makeMsg(currentUIModel: PModel<S>, result: Result<*>) =
+            "Can not reduce from $currentUIModel to ${currentUIModel::class.java.simpleName} with $result"
 }
