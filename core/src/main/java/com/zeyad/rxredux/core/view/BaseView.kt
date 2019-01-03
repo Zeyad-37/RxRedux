@@ -17,7 +17,10 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
             savedInstanceState.getParcelable(UI_MODEL)
         else null
 
-fun <T> Publisher<T>.toLiveData() = LiveDataReactiveStreams.fromPublisher(this) as LiveData<T>
+fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
+        bundle.putParcelable(UI_MODEL, viewState)
+
+fun <T> Publisher<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
 
 fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM?, viewState: S,
                                                      events: Observable<BaseEvent<*>>,
@@ -27,9 +30,6 @@ fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM?, viewState: 
     viewModel?.store(events, viewState)?.toLiveData()
             ?.observe(lifecycleOwner, PModObserver(view, errorMessageFactory))
 }
-
-fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
-        bundle.putParcelable(UI_MODEL, viewState)
 
 typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
 
