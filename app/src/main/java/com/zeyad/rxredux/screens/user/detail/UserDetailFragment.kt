@@ -1,13 +1,9 @@
 package com.zeyad.rxredux.screens.user.detail
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.BitmapDrawable
-import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
-import android.support.v7.graphics.Palette
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
@@ -23,11 +19,10 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
+import com.zeyad.rxredux.core.view.UI_MODEL
 import com.zeyad.rxredux.screens.BaseFragment
-import com.zeyad.rxredux.screens.user.detail.UserDetailActivity.Companion.UI_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
-import com.zeyad.rxredux.utils.hasM
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -137,38 +132,9 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
-    private fun applyPalette() {
-        if (hasM()) {
-            val activity = activity as UserDetailActivity?
-            val drawable = activity!!.getImageViewAvatar().drawable as BitmapDrawable
-            val bitmap = drawable.bitmap
-            Palette.from(bitmap).generate { palette ->
-                palette?.let {
-                    activity.findViewById<View>(R.id.coordinator_detail)
-                            .setOnScrollChangeListener { v, scrollX, scrollY, _, _ ->
-                                if (v.height == scrollX) {
-                                    activity.getToolbar().setTitleTextColor(it
-                                            .getLightVibrantColor(Color.TRANSPARENT))
-                                    activity.getToolbar().background = ColorDrawable(it
-                                            .getLightVibrantColor(Color.TRANSPARENT))
-                                } else if (scrollY == 0) {
-                                    activity.getToolbar().setTitleTextColor(0)
-                                    activity.getToolbar().background = null
-                                }
-                            }
-                }
-            }
-        }
-    }
-
     companion object {
 
-        fun newInstance(userDetailState: UserDetailState): UserDetailFragment {
-            val userDetailFragment = UserDetailFragment()
-            val bundle = Bundle()
-            bundle.putParcelable(UI_MODEL, userDetailState)
-            userDetailFragment.arguments = bundle
-            return userDetailFragment
-        }
+        fun newInstance(userDetailState: UserDetailState): UserDetailFragment =
+                UserDetailFragment().apply { arguments = Bundle().apply { putParcelable(UI_MODEL, userDetailState) } }
     }
 }
