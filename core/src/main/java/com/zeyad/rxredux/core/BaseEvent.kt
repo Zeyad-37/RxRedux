@@ -1,16 +1,9 @@
 package com.zeyad.rxredux.core
 
-import android.os.Parcel
-import android.os.Parcelable
-
-interface BaseEvent<T> : Parcelable {
+interface BaseEvent<T> {
     fun getPayLoad(): T
 }
 
-val EmptyEvent = object : BaseEvent<Any> {
+val EmptyEvent = object : BaseEvent<Unit> {
     override fun getPayLoad() = Unit
-
-    override fun writeToParcel(dest: Parcel?, flags: Int) = Unit
-
-    override fun describeContents() = 0
 }
