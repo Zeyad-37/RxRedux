@@ -11,16 +11,16 @@ import com.zeyad.usecases.api.DataServiceFactory
 import com.zeyad.usecases.api.IDataService
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import org.koin.android.architecture.ext.viewModel
+import org.koin.android.viewmodel.ext.koin.viewModel
 import org.koin.dsl.module.Module
-import org.koin.dsl.module.applicationContext
+import org.koin.dsl.module.module
 import java.util.concurrent.TimeUnit
 
-val myModule: Module = applicationContext {
+val myModule: Module = module {
     viewModel { UserListVM(get()) }
     viewModel { UserDetailVM(get()) }
 
-    bean { createDataService(get()) }
+    single { createDataService(get()) }
 }
 
 fun createDataService(context: Context): IDataService {

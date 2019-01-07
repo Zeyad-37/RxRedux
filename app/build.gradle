@@ -44,7 +44,7 @@ dependencies {
     implementation Deps.kotlin_stdlib
     implementation Deps.kotlin_all_open
     implementation "androidx.core:core-ktx:0.3"
-    implementation "org.koin:koin-android-architecture:0.9.3"
+    implementation "org.koin:koin-android-viewmodel:1.0.2"
 
     implementation Deps.design_support
     implementation Deps.appcompat_v7

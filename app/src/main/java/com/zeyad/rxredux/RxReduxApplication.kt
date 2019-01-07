@@ -16,7 +16,7 @@ class RxReduxApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 //        initializeRealm()
-        startKoin(listOf(myModule))
+        startKoin(this, listOf(myModule))
         RxAndroidPlugins.setMainThreadSchedulerHandler { AndroidSchedulers.from(Looper.getMainLooper(), true) }
         //        if (LeakCanary.isInAnalyzerProcess(this)) {
         //            return;
@@ -38,9 +38,10 @@ class RxReduxApplication : Application() {
         Realm.init(this)
         Realm.setDefaultConfiguration(RealmConfiguration.Builder()
                 .name("app.realm")
-                .modules(Realm.getDefaultModule(), LibraryModule())
+                .modules(Realm.getDefaultModule()!!, LibraryModule())
                 .rxFactory(RealmObservableFactory())
-                .deleteRealmIfMigrationNeeded().build())
+                .deleteRealmIfMigrationNeeded()
+                .build())
     }
 
     private fun initializeStrictMode() {
