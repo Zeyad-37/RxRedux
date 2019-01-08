@@ -33,7 +33,7 @@ fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM?, viewState: 
 
 typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
 
-interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LoadDataView<S>, LifecycleOwner {
+interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LifecycleOwner, LoadDataView<S> {
     var viewModel: VM?
     var viewState: S?
 
@@ -49,23 +49,4 @@ interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : LoadDataView<S>, Li
     override fun setState(bundle: S) {
         viewState = bundle
     }
-
-    fun errorMessageFactory(): ErrorMessageFactory
-
-    /**
-     * Initialize objects or any required dependencies.
-     */
-    fun initialize()
-
-    /**
-     * Merge all events into one [Observable].
-     *
-     * @return [Observable].
-     */
-    fun events(): Observable<BaseEvent<*>>
-
-    /**
-     * @return initial state of view
-     */
-    fun initialState(): S
 }
