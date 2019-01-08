@@ -65,7 +65,6 @@ dependencies {
 
     // Network
     implementation Deps.glide
-    implementation "com.airbnb.android:lottie:2.5.1"
     implementation "com.andrognito.flashbar:flashbar:1.0.2"
 
     // Rx
