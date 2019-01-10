@@ -33,18 +33,15 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
     override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
             Function { event -> getRepositories((event as GetReposEvent).getPayLoad()) }
 
-    private fun getRepositories(userLogin: String): Flowable<List<Repository>> {
-        return dataUseCase
-                .queryDisk(object : RealmQueryProvider<Repository> {
-                    override fun create(realm: Realm): RealmQuery<Repository> =
-                            realm.where(Repository::class.java).equalTo("owner.login", userLogin)
-                })
-                .flatMap { list ->
-                    if (list.isNotEmpty())
-                        Flowable.just(list)
-                    else
-                        dataUseCase.getList(GetRequest.Builder(Repository::class.java, true)
-                                .url(String.format(REPOSITORIES, userLogin)).build())
-                }
-    }
+    private fun getRepositories(userLogin: String): Flowable<List<Repository>> =
+            dataUseCase.queryDisk(object : RealmQueryProvider<Repository> {
+                override fun create(realm: Realm): RealmQuery<Repository> =
+                        realm.where(Repository::class.java).equalTo("owner.login", userLogin)
+            }).flatMap { list ->
+                if (list.isNotEmpty())
+                    Flowable.just(list)
+                else
+                    dataUseCase.getList(GetRequest.Builder(Repository::class.java, true)
+                            .url(String.format(REPOSITORIES, userLogin)).build())
+            }
 }

@@ -21,16 +21,15 @@ import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
 
-    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
-        return Function { event ->
-            val userListEvent = event as UserListEvents
-            when (userListEvent) {
-                is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
-                is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
-                is SearchUsersEvent -> search(userListEvent.getPayLoad())
+    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
+            Function { event ->
+                val userListEvent = event as UserListEvents
+                when (userListEvent) {
+                    is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
+                    is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
+                    is SearchUsersEvent -> search(userListEvent.getPayLoad())
+                }
             }
-        }
-    }
 
     override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
         return { newResult, _, currentStateBundle ->
