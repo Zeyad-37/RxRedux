@@ -27,8 +27,7 @@ import com.zeyad.rxredux.screens.user.list.UserListActivity2
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
-import org.koin.android.architecture.ext.getViewModel
-import java.util.*
+import org.koin.android.viewmodel.ext.android.getViewModel
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a

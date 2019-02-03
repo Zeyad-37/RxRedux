@@ -37,7 +37,6 @@ import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
-import java.util.*
 import java.util.concurrent.TimeUnit
 
 /**

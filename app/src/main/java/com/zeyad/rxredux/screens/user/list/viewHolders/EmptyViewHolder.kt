@@ -4,5 +4,5 @@ import android.view.View
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 
 class EmptyViewHolder(itemView: View) : GenericRecyclerViewAdapter.GenericViewHolder<Any>(itemView) {
-    override fun bindData(data: Any, isItemSelected: Boolean, position: Int, isEnabled: Boolean) {}
+    override fun bindData(data: Any, isItemSelected: Boolean, position: Int, isEnabled: Boolean) = Unit
 }
