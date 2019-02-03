@@ -87,8 +87,8 @@ interface IBaseViewModel<S> {
             "Can not reduce from $currentUIModel to $nextState with $result"
 
     companion object {
-        const val ERROR_STATE = "ErrorsState"
-        const val SUCCESS_STATE = "SuccessState"
-        const val LOADING_STATE = "LoadingState"
+        private const val ERROR_STATE = "ErrorsState"
+        private const val SUCCESS_STATE = "SuccessState"
+        private const val LOADING_STATE = "LoadingState"
     }
 }
