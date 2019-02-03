@@ -1,11 +1,29 @@
 package com.zeyad.rxredux.core.view
 
 import com.zeyad.rxredux.core.BaseEvent
+import io.reactivex.Observable
 
-/**
- * Interface representing a View that will use to load data.
- */
-interface LoadDataView<S> {
+typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
+
+interface IBaseView<S> {
+
+    /**
+     * Map Throwables & events into error messages
+     */
+    fun errorMessageFactory(): ErrorMessageFactory
+
+    /**
+     * Initialize objects or any required dependencies.
+     */
+    fun initialize()
+
+    /**
+     * Merge all events into one [Observable].
+     *
+     * @return [Observable].
+     */
+    fun events(): Observable<BaseEvent<*>>
+
     /**
      * Renders the model of the view
      *

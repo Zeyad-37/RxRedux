@@ -5,8 +5,8 @@ import com.zeyad.rxredux.core.ErrorState
 import com.zeyad.rxredux.core.PModel
 import com.zeyad.rxredux.core.SuccessState
 
-class PModObserver<V : LoadDataView<S>, S>(private val view: V,
-                                           private val errorMessageFactory: ErrorMessageFactory
+class PModObserver<V : IBaseView<S>, S>(private val view: V,
+                                        private val errorMessageFactory: ErrorMessageFactory
 ) : Observer<PModel<S>> {
     override fun onChanged(uiModel: PModel<S>?) {
         uiModel?.apply {
