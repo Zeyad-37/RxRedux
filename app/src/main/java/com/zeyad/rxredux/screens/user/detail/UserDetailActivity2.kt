@@ -12,7 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.view.UI_MODEL
+import com.zeyad.rxredux.core.view.P_MODEL
 import kotlinx.android.synthetic.main.activity_user_detail.*
 
 /**
@@ -32,7 +32,7 @@ class UserDetailActivity2 : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            val fragment = UserDetailFragment2.newInstance(intent.getParcelableExtra(UI_MODEL))
+            val fragment = UserDetailFragment2.newInstance(intent.getParcelableExtra(P_MODEL))
             addFragment(R.id.user_detail_container, fragment, fragment.tag, null)
         }
     }
@@ -75,7 +75,7 @@ class UserDetailActivity2 : AppCompatActivity() {
 
         fun getCallingIntent(context: Context, userDetailModel: UserDetailState): Intent {
             return Intent(context, UserDetailActivity2::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                    .putExtra(UI_MODEL, userDetailModel)
+                    .putExtra(P_MODEL, userDetailModel)
         }
     }
 }

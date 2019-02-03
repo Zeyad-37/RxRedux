@@ -21,13 +21,13 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.IBaseFragment
-import com.zeyad.rxredux.core.view.UI_MODEL
+import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
 import io.reactivex.Observable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
-import org.koin.android.viewmodel.ext.android.getViewModel
+import org.koin.android.architecture.ext.getViewModel
 import java.util.*
 
 /**
@@ -83,7 +83,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
         viewModel = getViewModel()
     }
 
-    override fun initialState(): UserDetailState = arguments?.getParcelable(UI_MODEL)!!
+    override fun initialState(): UserDetailState = arguments?.getParcelable(P_MODEL)!!
 
     override fun events(): Observable<BaseEvent<*>> {
         return Observable.just(GetReposEvent(viewState?.user!!.login))
@@ -153,6 +153,6 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     companion object {
 
         fun newInstance(userDetailState: UserDetailState): UserDetailFragment2 =
-                UserDetailFragment2().apply { arguments = Bundle().apply { putParcelable(UI_MODEL, userDetailState) } }
+                UserDetailFragment2().apply { arguments = Bundle().apply { putParcelable(P_MODEL, userDetailState) } }
     }
 }
