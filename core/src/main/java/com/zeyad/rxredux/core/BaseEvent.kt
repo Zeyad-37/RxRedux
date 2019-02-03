@@ -5,5 +5,5 @@ interface BaseEvent<T> {
 }
 
 object EmptyEvent : BaseEvent<Unit> {
-    override fun getPayLoad(): Unit = Unit
+    override fun getPayLoad() = Unit
 }

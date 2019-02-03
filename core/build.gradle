@@ -37,8 +37,8 @@ android {
     codeQualityTools {
         boolean failEarly = true
         boolean xmlReports = true
-        boolean htmlReports = false
-        boolean textReports = false
+        boolean htmlReports = true
+        boolean textReports = true
         String[] ignoreProjects = []
 
         findbugs {

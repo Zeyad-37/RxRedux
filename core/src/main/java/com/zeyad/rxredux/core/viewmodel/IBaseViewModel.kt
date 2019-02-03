@@ -82,10 +82,4 @@ interface IBaseViewModel<S> {
     private fun illegalStateException(currentUIModel: PModel<S>, result: Result<*>) =
             IllegalStateException("Can not reduce from $currentUIModel to " +
                     "${currentUIModel::class.java.simpleName} with $result")
-
-    companion object {
-        private const val ERROR_STATE = "ErrorsState"
-        private const val SUCCESS_STATE = "SuccessState"
-        private const val LOADING_STATE = "LoadingState"
-    }
 }
