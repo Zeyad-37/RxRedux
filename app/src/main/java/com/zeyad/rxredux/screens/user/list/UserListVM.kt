@@ -21,16 +21,15 @@ import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
 
-    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
-        return Function { event ->
-            val userListEvent = event as UserListEvents
-            when (userListEvent) {
-                is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
-                is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
-                is SearchUsersEvent -> search(userListEvent.getPayLoad())
+    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
+            Function { event ->
+                val userListEvent = event as UserListEvents
+                when (userListEvent) {
+                    is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
+                    is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
+                    is SearchUsersEvent -> search(userListEvent.getPayLoad())
+                }
             }
-        }
-    }
 
     override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
         return { newResult, _, currentStateBundle ->
@@ -42,7 +41,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                                 .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
                                 .toList().toFlowable()
                                 .calculateDiff(currentItemInfo)
-                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
+                        GetState(pair.first, pair.first[pair.first.size - 1].id).callback(pair.second)
                     }
                     else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
                 }
@@ -57,7 +56,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                                     list.toSet().toMutableList()
                                 }.toFlowable()
                                 .calculateDiff(currentItemInfo)
-                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
+                        GetState(pair.first, pair.first[pair.first.size - 1].id).callback(pair.second)
                     }
                     else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
                 }

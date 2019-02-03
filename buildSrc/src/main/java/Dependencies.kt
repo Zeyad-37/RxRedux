@@ -7,7 +7,7 @@ object Versions {
     val kotlin = "1.3.11"
 
     // Realm
-    val realm = "4.4.0"
+    val realm = "4.2.0"
 
     // SDK
     val min_sdk = 21
@@ -26,9 +26,9 @@ object Versions {
     val archComp = "1.1.1"
 
     // - Network
-    val retrofit = "2.3.0"
+    val retrofit = "2.5.0"
     val glide = "3.8.0"
-    val okhttpVersion = "3.9.1"
+    val okhttpVersion = "3.12.1"
 
     // - Reactive
     val rxjava = "2.2.0"
@@ -37,7 +37,7 @@ object Versions {
     val rxredux = "2.1.2"
 
     // - Injection
-    val koin_version = "0.8.2"
+    val koin_version = "1.0.2"
 
     // - Tools
     val lottie = "2.2.0"
@@ -118,7 +118,7 @@ object Deps {
     // - Injection
     val koin_core = "org.koin:koin-core:${Versions.koin_version}"
     val koin_android = "org.koin:koin-android:${Versions.koin_version}"
-    val koin_arch = "org.koin:koin-android-architecture:${Versions.koin_version}"
+    val koin_arch = "org.koin:koin-android-viewmodel:${Versions.koin_version}"
 
     // - Tools
     val lottie = "com.airbnb.android:lottie:${Versions.lottie}"

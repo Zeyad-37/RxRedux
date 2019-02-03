@@ -12,6 +12,7 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import com.zeyad.rxredux.R
+import com.zeyad.rxredux.core.view.UI_MODEL
 import kotlinx.android.synthetic.main.activity_user_detail.*
 
 /**
@@ -71,7 +72,7 @@ class UserDetailActivity2 : AppCompatActivity() {
     fun getCollapsingToolbarLayout(): CollapsingToolbarLayout = toolbar_layout
 
     companion object {
-        const val UI_MODEL = "uiModel"
+
         fun getCallingIntent(context: Context, userDetailModel: UserDetailState): Intent {
             return Intent(context, UserDetailActivity2::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(UI_MODEL, userDetailModel)

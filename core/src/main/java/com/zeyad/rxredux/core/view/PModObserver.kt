@@ -13,8 +13,7 @@ class PModObserver<V : IBaseView<S>, S>(private val view: V,
             view.toggleViews(isLoading, event)
             if (!isLoading) {
                 when (this) {
-                    is ErrorState ->
-                        view.showError(errorMessageFactory.invoke(error, event), event)
+                    is ErrorState -> view.showError(errorMessageFactory.invoke(error, event), event)
                     is SuccessState -> {
                         view.setState(bundle)
                         view.renderSuccessState(bundle)
