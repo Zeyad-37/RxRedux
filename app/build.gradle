@@ -1,6 +1,7 @@
 apply plugin: Plugins.app
 apply plugin: Plugins.kt_and
 apply plugin: Plugins.kt_and_x
+apply plugin: Plugins.kapt
 apply plugin: Plugins.realm
 
 android {
