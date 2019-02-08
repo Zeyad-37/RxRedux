@@ -55,7 +55,7 @@ interface IBaseViewModel<S> {
                     when (this) {
                         is ErrorResult -> errorState(currentUIModel)
                         is LoadingResult -> loadingState(currentUIModel)
-                        is SuccessResult<*> -> successState(currentUIModel)
+                        is SuccessResult -> successState(currentUIModel)
                     }
                 }
             }
@@ -64,22 +64,21 @@ interface IBaseViewModel<S> {
             when (currentUIModel) {
                 is SuccessState, is LoadingState ->
                     SuccessState(stateReducer().invoke(bundle!!, event, currentUIModel.bundle), event)
-                is ErrorState -> throw illegalStateException(currentUIModel, this)
+                is ErrorState -> throwIllegalStateException(currentUIModel, this)
             }
 
     private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorState<S> =
             when (currentUIModel) {
                 is LoadingState -> ErrorState(error, currentUIModel.bundle, event)
-                is SuccessState, is ErrorState -> throw illegalStateException(currentUIModel, this)
+                is SuccessState, is ErrorState -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun Result<*>.loadingState(currentUIModel: PModel<S>): LoadingState<S> =
+    private fun LoadingResult.loadingState(currentUIModel: PModel<S>): LoadingState<S> =
             when (currentUIModel) {
                 is SuccessState, is ErrorState -> LoadingState(currentUIModel.bundle, event)
-                is LoadingState -> throw illegalStateException(currentUIModel, this)
+                is LoadingState -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun illegalStateException(currentUIModel: PModel<S>, result: Result<*>) =
-            IllegalStateException("Can not reduce from $currentUIModel to " +
-                    "${currentUIModel::class.java.simpleName} with $result")
+    private fun throwIllegalStateException(currentUIModel: PModel<S>, result: Result<*>): Nothing =
+            throw IllegalStateException("Can not reduce from $currentUIModel to ${currentUIModel::class.java.simpleName} with $result")
 }
