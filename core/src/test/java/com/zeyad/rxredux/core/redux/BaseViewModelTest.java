@@ -68,7 +68,7 @@ public class BaseViewModelTest {
         when(mockDataUseCase.<List<String>>deleteCollectionByIds((PostRequest) any())).thenReturn(deleteResult);
 
         TestSubscriber<PModel<UserListState>> testSubscriber =
-                viewModel.processEvents(Observable.<BaseEvent<?>>just(new GetPaginatedUsersEvent(1)),
+                viewModel.store(Observable.<BaseEvent<?>>just(new GetPaginatedUsersEvent(1)),
                         UserListState.builder()
                                 .lastId(0)
                                 .build())

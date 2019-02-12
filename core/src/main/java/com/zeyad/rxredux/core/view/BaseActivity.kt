@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 
-abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatActivity(), IBaseView<S> {
+abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatActivity(), BaseView<S> {
 
     lateinit var viewModel: VM
     var viewState: S? = null

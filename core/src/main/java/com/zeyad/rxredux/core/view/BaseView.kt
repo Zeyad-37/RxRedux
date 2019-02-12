@@ -1,55 +1,53 @@
 package com.zeyad.rxredux.core.view
 
-import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.LiveDataReactiveStreams
-import android.os.Bundle
-import android.os.Parcelable
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
-import org.reactivestreams.Publisher
 
-const val P_MODEL = "viewState"
+typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
 
-fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
-        if (savedInstanceState != null && savedInstanceState.containsKey(P_MODEL))
-            savedInstanceState.getParcelable(P_MODEL)
-        else null
-
-fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
-        bundle.putParcelable(P_MODEL, viewState)
-
-fun <T> Publisher<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
-
-fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM?, viewState: S,
-                                                     events: Observable<BaseEvent<*>>,
-                                                     errorMessageFactory: ErrorMessageFactory,
-                                                     view: IBaseView<S>,
-                                                     lifecycleOwner: LifecycleOwner) {
-    viewModel?.store(events, viewState)?.toLiveData()
-            ?.observe(lifecycleOwner, PModObserver(view, errorMessageFactory))
-}
-
-interface BaseView<S : Parcelable, VM : IBaseViewModel<S>> : IBaseView<S>, LifecycleOwner {
-    var viewModel: VM?
-    var viewState: S?
-
-    fun onSaveInstanceStateImpl(bundle: Bundle) = onSaveInstanceState(bundle, viewState)
-
-    fun onStartImpl() {
-        if (viewState == null) {
-            viewState = initialState()
-        }
-        viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
-    }
-
-    override fun setState(bundle: S) {
-        viewState = bundle
-    }
+interface BaseView<S> {
 
     /**
-     * @return initial state of view
+     * Map Throwables & events into error messages
      */
-    fun initialState(): S
+    fun errorMessageFactory(): ErrorMessageFactory
+
+    /**
+     * Initialize objects or any required dependencies.
+     */
+    fun initialize()
+
+    /**
+     * Merge all events into one [Observable].
+     *
+     * @return [Observable].
+     */
+    fun events(): Observable<BaseEvent<*>>
+
+    /**
+     * Renders the model of the view
+     *
+     * @param successState the model to be rendered.
+     */
+    fun renderSuccessState(successState: S)
+
+    /**
+     * Show or hide a view with a progress bar indicating a loading process.
+     *
+     * @param isLoading whether to show or hide the loading view.
+     */
+    fun toggleViews(isLoading: Boolean, event: BaseEvent<*>)
+
+    /**
+     * Show an errorResult message
+     *
+     * @param errorMessage A string representing an errorResult.
+     */
+    fun showError(errorMessage: String, event: BaseEvent<*>)
+
+    /**
+     * Sets the viewState and the firing event on the implementing View.
+     * @param bundle state to be saved.
+     */
+    fun setState(bundle: S)
 }

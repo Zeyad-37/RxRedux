@@ -5,7 +5,7 @@ import android.os.Parcelable
 import android.support.v4.app.Fragment
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 
-abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), IBaseView<S> {
+abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), BaseView<S> {
 
     lateinit var viewModel: VM
     var viewState: S? = null
