@@ -65,9 +65,8 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun initialize() {
         viewModel = getViewModel()
+        viewState = arguments?.getParcelable(P_MODEL)!!
     }
-
-    override fun initialState(): UserDetailState = arguments?.getParcelable(P_MODEL)!!
 
     override fun events(): Observable<BaseEvent<*>> = Observable.just(viewState?.user?.login?.let { GetReposEvent(it) })
 

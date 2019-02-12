@@ -34,7 +34,6 @@ import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
-import com.zeyad.usecases.api.DataServiceFactory
 import io.reactivex.Observable
 import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
@@ -42,6 +41,7 @@ import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
+import org.koin.android.viewmodel.ext.android.getViewModel
 import java.util.concurrent.TimeUnit
 
 /**
@@ -89,11 +89,13 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     }
 
     override fun initialize() {
-        viewModel = UserListVM(DataServiceFactory.dataService!!)
+        viewModel = getViewModel()
         if (viewState == null) {
             eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
-                    .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
+                    .filter { viewState !is GetState }
+                    .doOnSuccess { Log.d("GetPaginatedUsersEvent", UserListActivity.FIRED) }.toObservable()
         }
+        viewState = EmptyState()
     }
 
     override fun setupUI(isNew: Boolean) {
@@ -103,8 +105,6 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         setupRecyclerView()
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
-
-    override fun initialState(): UserListState = EmptyState()
 
     override fun events(): Observable<BaseEvent<*>> {
         return eventObservable.mergeWith(postOnResumeEvents())

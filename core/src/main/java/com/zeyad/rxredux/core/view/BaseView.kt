@@ -18,11 +18,6 @@ interface BaseView<S> {
     fun initialize()
 
     /**
-     * @return initial state of view
-     */
-    fun initialState(): S
-
-    /**
      * Setup the UI.
      *
      * @param isNew = savedInstanceState == null

@@ -22,13 +22,13 @@ fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
 
 fun <T> Publisher<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
 
-fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM?, viewState: S,
+fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, viewState: S,
                                                      events: Observable<BaseEvent<*>>,
                                                      errorMessageFactory: ErrorMessageFactory,
                                                      view: BaseView<S>,
                                                      lifecycleOwner: LifecycleOwner) {
-    viewModel?.store(events, viewState)?.toLiveData()
-            ?.observe(lifecycleOwner, PModObserver(view, errorMessageFactory))
+    viewModel.store(events, viewState).toLiveData()
+            .observe(lifecycleOwner, PModObserver(view, errorMessageFactory))
 }
 
 interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, LifecycleOwner {
@@ -38,10 +38,7 @@ interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, Lifec
     fun onSaveInstanceStateImpl(bundle: Bundle) = onSaveInstanceState(bundle, viewState)
 
     fun onStartImpl() {
-        if (viewState == null) {
-            viewState = initialState()
-        }
-        viewState?.let { vmStart(viewModel, it, events(), errorMessageFactory(), this, this) }
+        vmStart(viewModel!!, viewState!!, events(), errorMessageFactory(), this, this)
     }
 
     override fun setState(bundle: S) {

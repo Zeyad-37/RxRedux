@@ -25,12 +25,7 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
 
     override fun onStart() {
         super.onStart()
-        if (viewState == null) {
-            viewState = initialState()
-        }
-        viewState?.let {
-            vmStart(viewModel, it, events(), errorMessageFactory(), this, this)
-        }
+        vmStart(viewModel, viewState!!, events(), errorMessageFactory(), this, this)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

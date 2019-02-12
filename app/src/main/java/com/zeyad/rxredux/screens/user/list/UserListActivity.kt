@@ -65,6 +65,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                     .filter { viewState !is GetState }
                     .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
         }
+        viewState = EmptyState()
     }
 
     override fun setupUI(isNew: Boolean) {
@@ -74,8 +75,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         setupRecyclerView()
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
-
-    override fun initialState(): UserListState = EmptyState()
 
     override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents())
 

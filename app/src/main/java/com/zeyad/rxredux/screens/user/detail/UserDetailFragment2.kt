@@ -80,9 +80,8 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
 
     override fun initialize() {
         viewModel = getViewModel()
+        viewState = arguments?.getParcelable(P_MODEL)!!
     }
-
-    override fun initialState(): UserDetailState = arguments?.getParcelable(P_MODEL)!!
 
     override fun events(): Observable<BaseEvent<*>> {
         return Observable.just(GetReposEvent(viewState?.user!!.login))
