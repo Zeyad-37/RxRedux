@@ -71,7 +71,7 @@ interface IBaseViewModel<S> {
 
     private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorState<S> =
             when (currentUIModel) {
-                is LoadingState -> ErrorState(error, currentUIModel.bundle, event)
+                is LoadingState -> ErrorState(error, errorMessageFactory().invoke(error, event), currentUIModel.bundle, event)
                 is SuccessState, is ErrorState -> throwIllegalStateException(currentUIModel, this)
             }
 

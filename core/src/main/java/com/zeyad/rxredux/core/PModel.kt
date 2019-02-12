@@ -13,6 +13,7 @@ data class LoadingState<S>(override val bundle: S,
 }
 
 data class ErrorState<S>(val error: Throwable,
+                         val errorMessage: String,
                          override val bundle: S,
                          override val event: BaseEvent<*>) : PModel<S>() {
     override fun toString() = "State: Error, ${super.toString()}, Throwable: $error"
