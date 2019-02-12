@@ -92,15 +92,10 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
         return inflater.inflate(R.layout.user_detail, container, false)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        setupRecyclerView()
-    }
-
-    private fun setupRecyclerView() {
+    override fun setupUI(isNew: Boolean) {
         recyclerView_repositories.layoutManager = LinearLayoutManager(context)
         repositoriesAdapter = object : GenericRecyclerViewAdapter(
-                context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
+                requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
                 ArrayList<ItemInfo>()) {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
                 return RepositoryViewHolder(layoutInflater.inflate(viewType, parent, false))

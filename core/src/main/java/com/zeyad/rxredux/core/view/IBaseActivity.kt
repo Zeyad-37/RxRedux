@@ -12,13 +12,6 @@ interface IBaseActivity<S : Parcelable, VM : BaseViewModel<S>> : IBaseView<S, VM
         setupUI(savedInstanceState == null)
     }
 
-    /**
-     * Setup the UI.
-     *
-     * @param isNew = savedInstanceState == null
-     */
-    fun setupUI(isNew: Boolean)
-
     fun onRestoreInstanceStateImpl(savedInstanceState: Bundle) =
             getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
 }

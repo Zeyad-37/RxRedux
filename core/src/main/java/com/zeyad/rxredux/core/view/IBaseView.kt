@@ -47,9 +47,4 @@ interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, Lifec
     override fun setState(bundle: S) {
         viewState = bundle
     }
-
-    /**
-     * @return initial state of view
-     */
-    fun initialState(): S
 }

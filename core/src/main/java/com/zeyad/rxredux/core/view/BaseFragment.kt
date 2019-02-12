@@ -3,6 +3,7 @@ package com.zeyad.rxredux.core.view
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
+import android.view.View
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 
 abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(), BaseView<S> {
@@ -15,6 +16,11 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
         retainInstance = true
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setupUI(savedInstanceState == null)
     }
 
     override fun onStart() {
@@ -35,9 +41,4 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : Fragment(),
     override fun setState(bundle: S) {
         viewState = bundle
     }
-
-    /**
-     * @return initial state of view
-     */
-    abstract fun initialState(): S
 }

@@ -18,6 +18,18 @@ interface BaseView<S> {
     fun initialize()
 
     /**
+     * @return initial state of view
+     */
+    fun initialState(): S
+
+    /**
+     * Setup the UI.
+     *
+     * @param isNew = savedInstanceState == null
+     */
+    fun setupUI(isNew: Boolean)
+
+    /**
      * Merge all events into one [Observable].
      *
      * @return [Observable].

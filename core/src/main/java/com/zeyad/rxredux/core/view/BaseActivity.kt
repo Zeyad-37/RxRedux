@@ -42,16 +42,4 @@ abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : AppCompatAc
     override fun setState(bundle: S) {
         viewState = bundle
     }
-
-    /**
-     * Setup the UI.
-     *
-     * @param isNew = savedInstanceState == null
-     */
-    abstract fun setupUI(isNew: Boolean)
-
-    /**
-     * @return initial state of view
-     */
-    abstract fun initialState(): S
 }
