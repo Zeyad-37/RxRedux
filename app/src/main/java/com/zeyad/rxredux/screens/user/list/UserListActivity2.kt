@@ -23,7 +23,6 @@ import com.zeyad.gadapter.OnStartDragListener
 import com.zeyad.gadapter.SimpleItemTouchHelperCallback
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
@@ -82,10 +81,6 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
         super.onRestoreInstanceState(savedInstanceState)
         onRestoreInstanceStateImpl(savedInstanceState)
-    }
-
-    override fun errorMessageFactory(): ErrorMessageFactory {
-        return { throwable, _ -> throwable.localizedMessage }
     }
 
     override fun initialize() {

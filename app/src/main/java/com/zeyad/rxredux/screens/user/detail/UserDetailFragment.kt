@@ -18,7 +18,6 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.BaseFragment
 import com.zeyad.rxredux.screens.user.list.UserListActivity
@@ -60,8 +59,6 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         }
         //        setSharedElementReturnTransition(null); // supply the correct element for return transition
     }
-
-    override fun errorMessageFactory(): ErrorMessageFactory = { throwable, _ -> throwable.localizedMessage }
 
     override fun initialize() {
         viewModel = getViewModel()

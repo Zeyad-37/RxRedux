@@ -4,6 +4,7 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.ErrorMessageFactory
 import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.db.RealmQueryProvider
@@ -15,6 +16,8 @@ import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState>() {
+
+    override fun errorMessageFactory(): ErrorMessageFactory = { throwable, _ -> throwable.localizedMessage }
 
     override fun stateReducer():
             (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState) -> UserDetailState =

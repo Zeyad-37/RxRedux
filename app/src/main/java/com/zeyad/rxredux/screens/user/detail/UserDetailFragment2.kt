@@ -19,7 +19,6 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
@@ -72,10 +71,6 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     override fun onSaveInstanceState(outState: Bundle) {
         onSaveInstanceStateImpl(outState)
         super.onSaveInstanceState(outState)
-    }
-
-    override fun errorMessageFactory(): ErrorMessageFactory {
-        return { throwable, _ -> throwable.localizedMessage }
     }
 
     override fun initialize() {

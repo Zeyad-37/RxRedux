@@ -3,14 +3,7 @@ package com.zeyad.rxredux.core.view
 import com.zeyad.rxredux.core.BaseEvent
 import io.reactivex.Observable
 
-typealias ErrorMessageFactory = (throwable: Throwable, event: BaseEvent<*>) -> String
-
 interface BaseView<S> {
-
-    /**
-     * Map Throwables & events into error messages
-     */
-    fun errorMessageFactory(): ErrorMessageFactory
 
     /**
      * Initialize objects or any required dependencies.

@@ -19,7 +19,6 @@ import com.zeyad.gadapter.OnStartDragListener
 import com.zeyad.gadapter.SimpleItemTouchHelperCallback
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.view.ErrorMessageFactory
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
@@ -54,9 +53,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     private var twoPane: Boolean = false
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
-
-    override fun errorMessageFactory(): ErrorMessageFactory =
-            { throwable, _ -> throwable.localizedMessage }
 
     override fun initialize() {
         viewModel = getViewModel()

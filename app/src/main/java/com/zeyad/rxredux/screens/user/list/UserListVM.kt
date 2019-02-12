@@ -5,6 +5,7 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.ErrorMessageFactory
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.utils.Constants.URLS.USER
@@ -20,6 +21,8 @@ import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
+
+    override fun errorMessageFactory(): ErrorMessageFactory = { throwable, _ -> throwable.localizedMessage }
 
     override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
             Function { event ->

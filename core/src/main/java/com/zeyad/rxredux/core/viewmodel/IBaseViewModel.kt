@@ -19,6 +19,8 @@ interface IBaseViewModel<S> {
 
     fun middleware(): (PModel<S>) -> Unit = { Unit }
 
+    fun errorMessageFactory(): ErrorMessageFactory
+
     fun store(events: Observable<BaseEvent<*>>, initialState: S): Flowable<PModel<S>> =
             events.toFlowable(BackpressureStrategy.BUFFER)
                     .toPModel(initialState)
