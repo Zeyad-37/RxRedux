@@ -4,16 +4,12 @@ import com.zeyad.rxredux.core.BaseEvent
 
 sealed class Result<S> {
     abstract val event: BaseEvent<*>
-    abstract val isLoading: Boolean
 }
 
-data class LoadingResult(override val event: BaseEvent<*>,
-                         override val isLoading: Boolean = true) : Result<Nothing>()
+data class LoadingResult(override val event: BaseEvent<*>) : Result<Nothing>()
 
 data class ErrorResult(val error: Throwable,
-                       override val event: BaseEvent<*>,
-                       override val isLoading: Boolean = false) : Result<Nothing>()
+                       override val event: BaseEvent<*>) : Result<Nothing>()
 
 data class SuccessResult<S>(val bundle: S,
-                            override val event: BaseEvent<*>,
-                            override val isLoading: Boolean = false) : Result<S>()
+                            override val event: BaseEvent<*>) : Result<S>()

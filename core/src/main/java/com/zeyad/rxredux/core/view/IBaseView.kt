@@ -22,12 +22,11 @@ fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
 
 fun <T> Publisher<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
 
-fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, viewState: S,
+fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, initialState: S,
                                                      events: Observable<BaseEvent<*>>,
                                                      view: BaseView<S>,
                                                      lifecycleOwner: LifecycleOwner) {
-    viewModel.store(events, viewState).toLiveData()
-            .observe(lifecycleOwner, PModObserver(view, viewModel.errorMessageFactory()))
+    viewModel.store(events, initialState).toLiveData().observe(lifecycleOwner, PModObserver(view))
 }
 
 interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, LifecycleOwner {
