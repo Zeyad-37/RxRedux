@@ -10,7 +10,7 @@ object Versions {
     val realm = "4.2.0"
 
     // SDK
-    val min_sdk = 21
+    val min_sdk = 19
     val target_sdk = 28
     val compile_sdk = 28
     val buildTool = "28.0.3"
@@ -55,7 +55,7 @@ object Versions {
     val restMock = "0.2.2"
     val junit = "4.12"
 
-    val genericRecyclerViewAdapter = "1.9.1"
+    val genericRecyclerViewAdapter = "2.0.1"
     val appId = "com.remotegen.app"
 }
 
