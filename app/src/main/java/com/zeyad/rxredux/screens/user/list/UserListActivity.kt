@@ -13,10 +13,8 @@ import android.view.*
 import android.widget.ImageView
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
-import com.zeyad.gadapter.GenericRecyclerViewAdapter
-import com.zeyad.gadapter.ItemInfo.SECTION_HEADER
-import com.zeyad.gadapter.OnStartDragListener
-import com.zeyad.gadapter.SimpleItemTouchHelperCallback
+import com.zeyad.gadapter.*
+import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.BaseActivity
@@ -91,10 +89,9 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     }
 
     private fun setupRecyclerView() {
-        usersAdapter = object : GenericRecyclerViewAdapter(
-                getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater, ArrayList()) {
-            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-                    when (viewType) {
+        usersAdapter = object : GenericRecyclerViewAdapter(getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
+                return when (viewType) {
                         SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
                                 .inflate(R.layout.section_header_layout, parent, false))
                         R.layout.empty_view -> EmptyViewHolder(layoutInflater
@@ -103,50 +100,56 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                                 .inflate(R.layout.user_item_layout, parent, false))
                         else -> throw IllegalArgumentException("Could not find view of type $viewType")
                     }
+            }
         }
         usersAdapter.setAreItemsClickable(true)
-        usersAdapter.setOnItemClickListener { position, itemInfo, holder ->
-            if (actionMode != null) {
-                toggleItemSelection(position)
-            } else if (itemInfo.getData<Any>() is User) {
-                val userModel = itemInfo.getData<User>()
-                val userDetailState = UserDetailState(twoPane, userModel)
-                var pair: android.util.Pair<View, String>? = null
-                var secondPair: android.util.Pair<View, String>? = null
-                if (hasLollipop()) {
-                    val userViewHolder = holder as UserViewHolder
-                    val avatar = userViewHolder.getAvatar()
-                    pair = android.util.Pair.create(avatar, avatar.transitionName)
-                    val textViewTitle = userViewHolder.getTextViewTitle()
-                    secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
-                }
-                if (twoPane) {
-                    if (currentFragTag.isNotBlank()) {
-                        removeFragment(currentFragTag)
-                    }
-                    val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
-                    currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
-                    addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
-                            pair!!, secondPair!!)
-                } else {
+        usersAdapter.setOnItemClickListener(object : OnItemClickListener {
+            override fun onItemClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>) {
+                if (actionMode != null) {
+                    toggleItemSelection(position)
+                } else if (itemInfo.getData<Any>() is User) {
+                    val userModel = itemInfo.getData<User>()
+                    val userDetailState = UserDetailState(twoPane, userModel)
+                    var pair: android.util.Pair<View, String>? = null
+                    var secondPair: android.util.Pair<View, String>? = null
                     if (hasLollipop()) {
-                        val options = ActivityOptions.makeSceneTransitionAnimation(this, pair,
-                                secondPair)
-                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState),
-                                options.toBundle())
+                        val userViewHolder = holder as UserViewHolder
+                        val avatar = userViewHolder.getAvatar()
+                        pair = android.util.Pair.create(avatar, avatar.transitionName)
+                        val textViewTitle = userViewHolder.getTextViewTitle()
+                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+                    }
+                    if (twoPane) {
+                        if (currentFragTag.isNotBlank()) {
+                            removeFragment(currentFragTag)
+                        }
+                        val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
+                        currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
+                        addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
+                                pair!!, secondPair!!)
                     } else {
-                        startActivity(UserDetailActivity.getCallingIntent(this, userDetailState))
+                        if (hasLollipop()) {
+                            val options = ActivityOptions
+                                    .makeSceneTransitionAnimation(this@UserListActivity, pair,
+                                            secondPair).toBundle()
+                            startActivity(UserDetailActivity
+                                    .getCallingIntent(this@UserListActivity, userDetailState), options)
+                        } else {
+                            startActivity(UserDetailActivity.getCallingIntent(this@UserListActivity, userDetailState))
+                        }
                     }
                 }
             }
-        }
-        usersAdapter.setOnItemLongClickListener { position, _, _ ->
-            if (usersAdapter.isSelectionAllowed) {
-                actionMode = startSupportActionMode(this@UserListActivity)
-                toggleItemSelection(position)
+        })
+        usersAdapter.setOnItemLongClickListener(object : OnItemLongClickListener {
+            override fun onItemLongClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>): Boolean {
+                if (usersAdapter.isSelectionAllowed) {
+                    actionMode = startSupportActionMode(this@UserListActivity)
+                    toggleItemSelection(position)
+                }
+                return true
             }
-            true
-        }
+        })
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
                 .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })

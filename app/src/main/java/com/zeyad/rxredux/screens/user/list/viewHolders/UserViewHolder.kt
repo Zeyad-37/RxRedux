@@ -5,15 +5,14 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
-import com.zeyad.gadapter.GenericRecyclerViewAdapter
+import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.rxredux.screens.user.User
 import kotlinx.android.synthetic.main.user_item_layout.view.*
 
-class UserViewHolder(itemView: View) : GenericRecyclerViewAdapter.GenericViewHolder<User>(itemView) {
-
-    override fun bindData(userModel: User, isItemSelected: Boolean, position: Int, isEnabled: Boolean) {
-        if (userModel.avatarUrl.isNotEmpty()) {
-            Glide.with(itemView.context).load(userModel.avatarUrl).into(itemView.avatar)
+class UserViewHolder(itemView: View) : GenericViewHolder<User>(itemView) {
+    override fun bindData(data: User, position: Int, isItemSelected: Boolean, isEnabled: Boolean, isExpanded: Boolean) {
+        if (data.avatarUrl.isNotEmpty()) {
+            Glide.with(itemView.context).load(data.avatarUrl).into(itemView.avatar)
         } else {
             Glide.with(itemView.context)
                     .load(if ((Math.random() * 10).toInt() % 2 == 0)
@@ -22,7 +21,7 @@ class UserViewHolder(itemView: View) : GenericRecyclerViewAdapter.GenericViewHol
                         "https://help.github.com/assets/images/help/profile/identicon.png")
                     .into(itemView.avatar)
         }
-        itemView.title.text = userModel.login
+        itemView.title.text = data.login
         itemView.setBackgroundColor(if (isItemSelected) Color.GRAY else Color.WHITE)
     }
 

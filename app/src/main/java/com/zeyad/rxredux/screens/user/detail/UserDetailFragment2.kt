@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
+import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
@@ -99,7 +100,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     }
 
     override fun renderSuccessState(successState: UserDetailState) {
-        repositoriesAdapter.animateTo(successState.repos)
+        repositoriesAdapter.setDataList(successState.repos, null)
         val user = successState.user
         if (successState.isTwoPane) {
             (activity as UserListActivity2).let { activity ->

@@ -5,7 +5,6 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
-import com.zeyad.rxredux.core.viewmodel.ErrorMessageFactory
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
 import com.zeyad.rxredux.utils.Constants.URLS.USER
@@ -16,53 +15,49 @@ import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
 import io.reactivex.Flowable
 import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function
 import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
 
-    override fun errorMessageFactory(): ErrorMessageFactory = { throwable, _ -> throwable.localizedMessage }
+    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage
 
-    override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> =
-            Function { event ->
-                val userListEvent = event as UserListEvents
-                when (userListEvent) {
-                    is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
-                    is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
-                    is SearchUsersEvent -> search(userListEvent.getPayLoad())
+    override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {
+        val userListEvent = event as UserListEvents
+        return when (userListEvent) {
+            is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
+            is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
+            is SearchUsersEvent -> search(userListEvent.getPayLoad())
+        }
+    }
+
+    override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
+        val currentItemInfo = currentStateBundle.list.toMutableList()
+        return when (currentStateBundle) {
+            is EmptyState -> when (newResult) {
+                is List<*> -> {
+                    val pair = Flowable.fromIterable(newResult as List<User>)
+                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
+                            .toList().toFlowable()
+                            .calculateDiff(currentItemInfo)
+                    GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                 }
+                else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
             }
-
-    override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
-        return { newResult, _, currentStateBundle ->
-            val currentItemInfo = currentStateBundle.list.toMutableList()
-            when (currentStateBundle) {
-                is EmptyState -> when (newResult) {
-                    is List<*> -> {
-                        val pair = Flowable.fromIterable(newResult as List<User>)
-                                .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
-                                .toList().toFlowable()
-                                .calculateDiff(currentItemInfo)
-                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
-                    }
-                    else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
+            is GetState -> when (newResult) {
+                is List<*> -> {
+                    val pair = Flowable.fromIterable(newResult as List<User>)
+                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
+                            .toList()
+                            .map {
+                                val list = currentStateBundle.list.toMutableList()
+                                list.addAll(it)
+                                list.toSet().toMutableList()
+                            }.toFlowable()
+                            .calculateDiff(currentItemInfo)
+                    GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                 }
-                is GetState -> when (newResult) {
-                    is List<*> -> {
-                        val pair = Flowable.fromIterable(newResult as List<User>)
-                                .map { ItemInfo(it, R.layout.user_item_layout).setId(it.id) }
-                                .toList()
-                                .map {
-                                    val list = currentStateBundle.list.toMutableList()
-                                    list.addAll(it)
-                                    list.toSet().toMutableList()
-                                }.toFlowable()
-                                .calculateDiff(currentItemInfo)
-                        GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
-                    }
-                    else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
-                }
+                else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
             }
         }
     }

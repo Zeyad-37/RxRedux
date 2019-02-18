@@ -7,38 +7,36 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.functions.BiFunction
-import io.reactivex.functions.Function
 import io.reactivex.schedulers.Schedulers
 import timber.log.Timber
 
 interface IBaseViewModel<S> {
 
-    fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: S) -> S
+    fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
 
-    fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>>
+    fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
-    fun middleware(): (PModel<S>) -> Unit = { Unit }
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): String
 
-    fun errorMessageFactory(): ErrorMessageFactory
+    fun middleware(): (PModel<S>) -> Unit = {
+        when (it) {
+            is SuccessState, is LoadingState -> Timber.d("PModel: $it")
+            is ErrorState -> Timber.e(it.error, "Error")
+        }
+    }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): Flowable<PModel<S>> =
             events.toFlowable(BackpressureStrategy.BUFFER)
                     .toPModel(initialState)
                     .compose(ReplayingShare.instance())
-                    .doAfterNext {
-                        when (it) {
-                            is SuccessState, is LoadingState -> Timber.d("PModel: $it")
-                            is ErrorState -> Timber.e(it.error, "Error")
-                        }
-                        middleware().invoke(it)
-                    }
+                    .doAfterNext { middleware().invoke(it) }
 
     private fun Flowable<BaseEvent<*>>.toPModel(initialState: S): Flowable<PModel<S>> =
             observeOn(Schedulers.computation())
                     .distinctUntilChanged { e1: BaseEvent<*>, e2: BaseEvent<*> -> e1 == e2 }
                     .concatMap { event ->
                         Flowable.just(event)
-                                .concatMap(mapEventsToActions())
+                                .concatMap { mapEventsToActions(it) }
                                 .toResult(event)
                     }
                     .distinctUntilChanged { r1: Result<*>, r2: Result<*> -> r1 == r2 }
@@ -65,13 +63,13 @@ interface IBaseViewModel<S> {
     private fun SuccessResult<*>.successState(currentUIModel: PModel<S>): SuccessState<S> =
             when (currentUIModel) {
                 is SuccessState, is LoadingState ->
-                    SuccessState(stateReducer().invoke(bundle!!, event, currentUIModel.bundle), event)
+                    SuccessState(stateReducer(bundle!!, event, currentUIModel.bundle), event)
                 is ErrorState -> throwIllegalStateException(currentUIModel, this)
             }
 
     private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorState<S> =
             when (currentUIModel) {
-                is LoadingState -> ErrorState(error, errorMessageFactory().invoke(error, event), currentUIModel.bundle, event)
+                is LoadingState -> ErrorState(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
                 is SuccessState, is ErrorState -> throwIllegalStateException(currentUIModel, this)
             }
 
