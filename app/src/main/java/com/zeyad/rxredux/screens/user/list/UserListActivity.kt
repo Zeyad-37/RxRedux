@@ -53,9 +53,6 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
 
     override fun initialize() {
         viewModel = getViewModel()
-        if (viewState == null) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
-        }
         viewState = EmptyState()
     }
 
@@ -67,9 +64,14 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
 
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents())
+    override fun onResume() {
+        super.onResume()
+        if (viewState is EmptyState) {
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+        }
+    }
 
-    private fun postOnResumeEvents(): Observable<BaseEvent<*>> = postOnResumeEvents
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)
