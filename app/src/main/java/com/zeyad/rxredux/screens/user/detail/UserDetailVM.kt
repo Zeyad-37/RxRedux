@@ -1,5 +1,6 @@
 package com.zeyad.rxredux.screens.user.detail
 
+import android.content.Intent
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
@@ -18,16 +19,32 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage!!
 
     override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState): UserDetailState {
-        return if (newResult is List<*>)
-            UserDetailState(currentStateBundle.isTwoPane, currentStateBundle.user,
-                    Observable.fromIterable(newResult as List<Repository>)
-                            .map { ItemInfo(it, R.layout.repo_item_layout) }
-                            .toList(newResult.size).blockingGet())
-        else throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
+        return when (currentStateBundle) {
+            is IntentBundleState -> when (newResult) {
+                is Pair<*, *> -> NavigateFromDetail(newResult.first as Intent, newResult.second as Boolean)
+                is List<*> -> FullDetailState(currentStateBundle.isTwoPane, currentStateBundle.user,
+                        Observable.fromIterable(newResult as List<Repository>)
+                                .map { ItemInfo(it, R.layout.repo_item_layout) }
+                                .toList(newResult.size).blockingGet())
+                else ->
+                    throw IllegalStateException("Can not reduce ${currentStateBundle.javaClass} with this result: $newResult!")
+            }
+            is FullDetailState -> when (newResult) {
+                is Pair<*, *> -> NavigateFromDetail(newResult.first as Intent, newResult.second as Boolean)
+                else ->
+                    throw IllegalStateException("Can not reduce ${currentStateBundle.javaClass} with this result: $newResult!")
+            }
+            else ->
+                throw IllegalStateException("Can not reduce ${currentStateBundle.javaClass} with this result: $newResult!")
+        }
     }
 
     override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {
-        return getRepositories((event as GetReposEvent).getPayLoad())
+        val userDetailEvents = event as UserDetailEvents
+        return when (userDetailEvents) {
+            is GetReposEvent -> getRepositories(userDetailEvents.getPayLoad())
+            is NavigateToEvent -> Flowable.just(Pair(userDetailEvents.getPayLoad(), false))
+        }
     }
 
     private fun getRepositories(userLogin: String): Flowable<List<Repository>> =

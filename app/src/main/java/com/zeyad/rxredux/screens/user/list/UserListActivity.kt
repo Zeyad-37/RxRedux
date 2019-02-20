@@ -19,9 +19,9 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
+import com.zeyad.rxredux.screens.user.detail.IntentBundleState
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
-import com.zeyad.rxredux.screens.user.detail.UserDetailState
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
@@ -108,7 +108,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
                     toggleItemSelection(position)
                 } else if (itemInfo.getData<Any>() is User) {
                     val userModel = itemInfo.getData<User>()
-                    val userDetailState = UserDetailState(twoPane, userModel)
+                    val userDetailState = IntentBundleState(twoPane, userModel)
                     var pair: android.util.Pair<View, String>? = null
                     var secondPair: android.util.Pair<View, String>? = null
                     if (hasLollipop()) {
