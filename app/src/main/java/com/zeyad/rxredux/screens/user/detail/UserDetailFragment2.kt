@@ -37,6 +37,8 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 @SuppressLint("ValidFragment")
 class UserDetailFragment2(override var viewModel: UserDetailVM?,
                           override var viewState: UserDetailState?) : Fragment(), IBaseFragment<UserDetailState, UserDetailVM> {
+    override fun applyEffect(successState: Any) {
+    }
 
     constructor() : this(null, null)
 

@@ -32,6 +32,13 @@ interface BaseView<S> {
     fun renderSuccessState(successState: S)
 
     /**
+     * Apply the effect to the view
+     *
+     * @param successState the model to be rendered.
+     */
+    fun applyEffect(successState: Any)
+
+    /**
      * Show or hide a view with a progress bar indicating a loading process.
      *
      * @param isLoading whether to show or hide the loading view.

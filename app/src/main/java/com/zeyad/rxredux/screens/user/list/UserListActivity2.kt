@@ -46,8 +46,12 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
+
 class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
     : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
+    override fun applyEffect(successState: Any) {
+    }
+
     constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper

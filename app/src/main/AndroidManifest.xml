@@ -11,14 +11,28 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".screens.user.list.UserListActivity"
-            android:label="@string/title_user_list"
+            android:name=".screens.navigation.SecondActivity"
+            android:label="@string/title_activity_second"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".screens.navigation.FirstActivity"
+            android:label="@string/title_activity_first"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".screens.user.list.UserListActivity"
+            android:label="@string/title_user_list"
+            android:theme="@style/AppTheme.NoActionBar">
+            <!--<intent-filter>-->
+            <!--<action android:name="android.intent.action.MAIN" />-->
+
+            <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
         <activity
             android:name=".screens.user.detail.UserDetailActivity"
@@ -28,15 +42,15 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".screens.user.list.UserListActivity" />
         </activity>
-
         <activity
             android:name=".screens.user.list.UserListActivity2"
             android:label="@string/title_user_list"
             android:theme="@style/AppTheme.NoActionBar">
-            <!--<intent-filter>-->
-            <!--<action android:name="android.intent.action.MAIN" />-->
-            <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
+
+            <!-- <intent-filter> -->
+            <!-- <action android:name="android.intent.action.MAIN" /> -->
+            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
+            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".screens.user.detail.UserDetailActivity2"
@@ -47,4 +61,5 @@
                 android:value=".screens.user.list.UserListActivity2" />
         </activity>
     </application>
+
 </manifest>

@@ -21,33 +21,30 @@ interface IBaseViewModel<S> {
 
     fun middleware(): (PModel<S>) -> Unit = {
         when (it) {
-            is SuccessState, is LoadingState -> Timber.d("PModel: $it")
-            is ErrorState -> Timber.e(it.error, "Error")
+            is SuccessState, is LoadingEffect -> Timber.d("PModel: $it")
+            is ErrorEffect -> Timber.e(it.error, "Error")
         }
     }
 
-    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<Flowable<PState<S>>, Observable<PEffect<S>>> {
-        val pModels = events.toFlowable(BackpressureStrategy.BUFFER).toPModel(initialState)
+    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<Flowable<SuccessState<S>>, Observable<PEffect<S>>> {
+        val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
+                .toPModel(initialState)
+                .publish()
+                .autoConnect(0)
         val effects = PublishSubject.create<PEffect<S>>()
-        pModels.flatMap {
-            when (it) {
-                is PEffect -> Flowable.just(it)
-                else -> Flowable.empty()
-            }
-        }.doAfterNext { middleware().invoke(it) }
-                .compose(ReplayingShare.instance())
+        pModels.filter { it is PEffect }
+                .map { it as PEffect }
+                .doAfterNext { middleware().invoke(it) }
                 .toObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(effects)
-        val states = pModels.flatMap {
-            when (it) {
-                is PState -> Flowable.just(it)
-                else -> Flowable.empty()
-            }
-        }.doAfterNext { middleware().invoke(it) }
+        val states = pModels
+                .filter { it is SuccessState }
+                .map { it as SuccessState }
+                .doAfterNext { middleware().invoke(it) }
                 .compose(ReplayingShare.instance())
                 .observeOn(AndroidSchedulers.mainThread())
-        return Pair<Flowable<PState<S>>, Observable<PEffect<S>>>(states, effects)
+        return Pair<Flowable<SuccessState<S>>, Observable<PEffect<S>>>(states, effects)
     }
 
     private fun Flowable<BaseEvent<*>>.toPModel(initialState: S): Flowable<PModel<S>> =
@@ -56,46 +53,49 @@ interface IBaseViewModel<S> {
                     .concatMap { event ->
                         Flowable.just(event)
                                 .concatMap { mapEventsToActions(it) }
-                                .toResult(event)
+                                .toResult(event) // Todo break the chain here!
                     }
                     .distinctUntilChanged { r1: Result<*>, r2: Result<*> -> r1 == r2 }
                     .scan<PModel<S>>(SuccessState(initialState), reducer())
                     .distinctUntilChanged { m1: PModel<*>, m2: PModel<*> -> m1 == m2 }
 
     private fun Flowable<*>.toResult(event: BaseEvent<*>): Flowable<Result<*>> =
-            map<Result<*>> { SuccessResult(it, event) }
-                    .onErrorReturn { ErrorResult(it, event) }
+            map<Result<*>> {
+                if (it is EffectResult<*>) it
+                else SuccessResult(it, event)
+            }.onErrorReturn { ErrorResult(it, event) }
                     .startWith(LoadingResult(event))
 
     private fun reducer(): BiFunction<PModel<S>, Result<*>, PModel<S>> =
             BiFunction { currentUIModel, result ->
                 result.run {
-                    when (this) {
-                        is ErrorResult -> errorState(currentUIModel)
-                        is LoadingResult -> loadingState(currentUIModel)
-                        is SuccessResult -> successState(currentUIModel)
+                    when {
+                        this is EffectResult<*> -> SuccessEffect(bundle as S)
+                        this is ErrorResult -> errorState(currentUIModel)
+                        this is LoadingResult -> loadingState(currentUIModel)
+                        this is SuccessResult -> successState(currentUIModel)
+                        else -> throw IllegalStateException()
                     }
                 }
             }
 
-    private fun SuccessResult<*>.successState(currentUIModel: PModel<S>): PModel<S> =
+    private fun SuccessResult<*>.successState(currentUIModel: PModel<S>): SuccessState<S> =
             when (currentUIModel) {
-                is SuccessState, is LoadingState ->
+                is SuccessState, is LoadingEffect ->
                     SuccessState(stateReducer(bundle!!, event, currentUIModel.bundle), event)
-                is SuccessEffect -> SuccessEffect(stateReducer(bundle!!, event, currentUIModel.bundle), event)
-                is ErrorState -> throwIllegalStateException(currentUIModel, this)
+                is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorState<S> =
+    private fun ErrorResult.errorState(currentUIModel: PModel<S>): ErrorEffect<S> =
             when (currentUIModel) {
-                is LoadingState -> ErrorState(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
-                is SuccessState, is SuccessEffect, is ErrorState -> throwIllegalStateException(currentUIModel, this)
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
+                is SuccessState, is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun LoadingResult.loadingState(currentUIModel: PModel<S>): LoadingState<S> =
+    private fun LoadingResult.loadingState(currentUIModel: PModel<S>): LoadingEffect<S> =
             when (currentUIModel) {
-                is SuccessState, is SuccessEffect, is ErrorState -> LoadingState(currentUIModel.bundle, event)
-                is LoadingState -> throwIllegalStateException(currentUIModel, this)
+                is SuccessState, is SuccessEffect, is ErrorEffect -> LoadingEffect(currentUIModel.bundle, event)
+                is LoadingEffect -> throwIllegalStateException(currentUIModel, this)
             }
 
     private fun throwIllegalStateException(currentUIModel: PModel<S>, result: Result<*>): Nothing =

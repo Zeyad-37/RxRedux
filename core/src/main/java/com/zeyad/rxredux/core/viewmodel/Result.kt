@@ -13,3 +13,6 @@ data class ErrorResult(val error: Throwable,
 
 data class SuccessResult<S>(val bundle: S,
                             override val event: BaseEvent<*>) : Result<S>()
+
+data class EffectResult<S>(val bundle: S,
+                           override val event: BaseEvent<*>) : Result<S>()

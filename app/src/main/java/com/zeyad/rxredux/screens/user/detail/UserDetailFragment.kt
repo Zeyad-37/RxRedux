@@ -35,6 +35,9 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
+    override fun applyEffect(successState: Any) {
+
+    }
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
