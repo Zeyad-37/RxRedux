@@ -27,9 +27,9 @@ fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, initialState
                                                      events: Observable<BaseEvent<*>>,
                                                      view: BaseView<S>,
                                                      lifecycleOwner: LifecycleOwner) {
-    viewModel.store(events, initialState).first.toLiveData()
-            .observe(lifecycleOwner, PStateObserver(view))
-    viewModel.store(events, initialState).second.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
+    val store = viewModel.store(events, initialState)
+    store.first.toLiveData().observe(lifecycleOwner, PStateObserver(view))
+    store.second.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
             .observe(lifecycleOwner, PEffectObserver(view))
 }
 
