@@ -15,7 +15,7 @@ class RxReduxApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-//        initializeRealm()
+        initializeRealm()
         startKoin(this, listOf(myModule))
         RxAndroidPlugins.setMainThreadSchedulerHandler { AndroidSchedulers.from(Looper.getMainLooper(), true) }
         //        if (LeakCanary.isInAnalyzerProcess(this)) {

@@ -27,7 +27,6 @@ import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
@@ -55,9 +54,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
     override fun initialize() {
         viewModel = getViewModel()
         if (viewState == null) {
-            eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
-                    .filter { viewState !is GetState }
-                    .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
         }
         viewState = EmptyState()
     }
@@ -92,14 +89,14 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         usersAdapter = object : GenericRecyclerViewAdapter(getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
                 return when (viewType) {
-                        SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
-                                .inflate(R.layout.section_header_layout, parent, false))
-                        R.layout.empty_view -> EmptyViewHolder(layoutInflater
-                                .inflate(R.layout.empty_view, parent, false))
-                        R.layout.user_item_layout -> UserViewHolder(layoutInflater
-                                .inflate(R.layout.user_item_layout, parent, false))
-                        else -> throw IllegalArgumentException("Could not find view of type $viewType")
-                    }
+                    SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
+                            .inflate(R.layout.section_header_layout, parent, false))
+                    R.layout.empty_view -> EmptyViewHolder(layoutInflater
+                            .inflate(R.layout.empty_view, parent, false))
+                    R.layout.user_item_layout -> UserViewHolder(layoutInflater
+                            .inflate(R.layout.user_item_layout, parent, false))
+                    else -> throw IllegalArgumentException("Could not find view of type $viewType")
+                }
             }
         }
         usersAdapter.setAreItemsClickable(true)
@@ -231,9 +228,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         toolbar.visibility = View.VISIBLE
     }
 
-    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
-        itemTouchHelper.startDrag(viewHolder)
-    }
+    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) = itemTouchHelper.startDrag(viewHolder)
 
     fun getImageViewAvatar(): ImageView = imageView_avatar
 

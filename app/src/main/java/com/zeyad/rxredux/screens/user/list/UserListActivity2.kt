@@ -31,7 +31,6 @@ import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
-import io.reactivex.Single
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
@@ -83,9 +82,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     override fun initialize() {
         viewModel = getViewModel()
         if (viewState == null) {
-            eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
-                    .filter { viewState !is GetState }
-                    .doOnSuccess { Log.d("GetPaginatedUsersEvent", UserListActivity.FIRED) }.toObservable()
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
         }
         viewState = EmptyState()
     }
