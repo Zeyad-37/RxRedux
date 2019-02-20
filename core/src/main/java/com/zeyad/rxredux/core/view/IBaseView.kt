@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
+import io.reactivex.BackpressureStrategy
 import io.reactivex.Observable
 import org.reactivestreams.Publisher
 
@@ -26,7 +27,10 @@ fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, initialState
                                                      events: Observable<BaseEvent<*>>,
                                                      view: BaseView<S>,
                                                      lifecycleOwner: LifecycleOwner) {
-    viewModel.store(events, initialState).toLiveData().observe(lifecycleOwner, PModObserver(view))
+    viewModel.store(events, initialState).first.toLiveData()
+            .observe(lifecycleOwner, PStateObserver(view))
+    viewModel.store(events, initialState).second.toFlowable(BackpressureStrategy.BUFFER).toLiveData()
+            .observe(lifecycleOwner, PEffectObserver(view))
 }
 
 interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, LifecycleOwner {

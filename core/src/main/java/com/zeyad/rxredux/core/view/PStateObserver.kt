@@ -3,11 +3,11 @@ package com.zeyad.rxredux.core.view
 import android.arch.lifecycle.Observer
 import com.zeyad.rxredux.core.ErrorState
 import com.zeyad.rxredux.core.LoadingState
-import com.zeyad.rxredux.core.PModel
+import com.zeyad.rxredux.core.PState
 import com.zeyad.rxredux.core.SuccessState
 
-class PModObserver<V : BaseView<S>, S>(private val view: V) : Observer<PModel<S>> {
-    override fun onChanged(uiModel: PModel<S>?) {
+class PStateObserver<V : BaseView<S>, S>(private val view: V) : Observer<PState<S>> {
+    override fun onChanged(uiModel: PState<S>?) {
         uiModel?.apply {
             view.toggleViews(this is LoadingState, event)
             when (this) {
