@@ -14,12 +14,13 @@ import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
 import io.reactivex.Flowable
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
-
+    override var disposable: CompositeDisposable = CompositeDisposable()
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage
 
     override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {

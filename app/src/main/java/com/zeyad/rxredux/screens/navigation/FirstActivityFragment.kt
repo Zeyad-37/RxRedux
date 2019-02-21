@@ -42,8 +42,10 @@ class FirstActivityFragment : BaseFragment<FirstState, FirstVM>() {
 
     override fun onResume() {
         super.onResume()
-        postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
-        postOnResumeEvents.onNext(EmptyEvent)
+        if (viewState == EmptyFirstState) {
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            postOnResumeEvents.onNext(EmptyEvent)
+        }
     }
 
     override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)

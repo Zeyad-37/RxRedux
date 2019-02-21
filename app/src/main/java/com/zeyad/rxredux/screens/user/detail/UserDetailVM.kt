@@ -11,11 +11,12 @@ import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
 import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState>() {
-
+    override var disposable: CompositeDisposable = CompositeDisposable()
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage!!
 
     override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState): UserDetailState {
