@@ -25,4 +25,6 @@
     <string name="string_content_description">Non accessible view</string>
     <string name="flow_up_api_key">2d50433de1d540e993114e6ce6161447</string>
     <string name="retry">RETRY</string>
+    <string name="title_activity_first">FirstActivity</string>
+    <string name="title_activity_second">SecondActivity</string>
 </resources>

@@ -7,19 +7,26 @@ sealed class PModel<S> {
     override fun toString() = "stateEvent: $event"
 }
 
-data class LoadingState<S>(override val bundle: S,
-                           override val event: BaseEvent<*>) : PModel<S>() {
+sealed class PEffect<S> : PModel<S>()
+
+data class LoadingEffect<S>(override val bundle: S,
+                            override val event: BaseEvent<*>) : PEffect<S>() {
     override fun toString() = "State: Loading, " + super.toString()
 }
 
-data class ErrorState<S>(val error: Throwable,
-                         val errorMessage: String,
-                         override val bundle: S,
-                         override val event: BaseEvent<*>) : PModel<S>() {
+data class ErrorEffect<S>(val error: Throwable,
+                          val errorMessage: String,
+                          override val bundle: S,
+                          override val event: BaseEvent<*>) : PEffect<S>() {
     override fun toString() = "State: Error, ${super.toString()}, Throwable: $error"
+}
+
+data class SuccessEffect<S>(override val bundle: S,
+                            override val event: BaseEvent<*> = EmptyEvent) : PEffect<S>() {
+    override fun toString() = "State: Success, ${super.toString()}, Bundle: $bundle"
 }
 
 data class SuccessState<S>(override val bundle: S,
                            override val event: BaseEvent<*> = EmptyEvent) : PModel<S>() {
-    override fun toString() = "State: Success, ${super.toString()},  Bundle: $bundle"
+    override fun toString() = "State: Success, ${super.toString()}, Bundle: $bundle"
 }

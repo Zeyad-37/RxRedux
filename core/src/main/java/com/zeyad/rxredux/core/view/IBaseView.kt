@@ -1,14 +1,11 @@
 package com.zeyad.rxredux.core.view
 
 import android.arch.lifecycle.LifecycleOwner
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.LiveDataReactiveStreams
 import android.os.Bundle
 import android.os.Parcelable
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
-import org.reactivestreams.Publisher
 
 const val P_MODEL = "viewState"
 
@@ -20,13 +17,13 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
 fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
         bundle.putParcelable(P_MODEL, viewState)
 
-fun <T> Publisher<T>.toLiveData(): LiveData<T> = LiveDataReactiveStreams.fromPublisher(this)
-
 fun <S : Parcelable, VM : IBaseViewModel<S>> vmStart(viewModel: VM, initialState: S,
                                                      events: Observable<BaseEvent<*>>,
                                                      view: BaseView<S>,
                                                      lifecycleOwner: LifecycleOwner) {
-    viewModel.store(events, initialState).toLiveData().observe(lifecycleOwner, PModObserver(view))
+    val (states, effects) = viewModel.store(events, initialState)
+    states.observe(lifecycleOwner, PStateObserver(view))
+    effects.observe(lifecycleOwner, PEffectObserver(view))
 }
 
 interface IBaseView<S : Parcelable, VM : IBaseViewModel<S>> : BaseView<S>, LifecycleOwner {

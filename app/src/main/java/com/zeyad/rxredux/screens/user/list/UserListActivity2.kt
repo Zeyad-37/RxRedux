@@ -3,6 +3,7 @@ package com.zeyad.rxredux.screens.user.list
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -23,9 +24,9 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.user.User
+import com.zeyad.rxredux.screens.user.detail.IntentBundleState
 import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
 import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
-import com.zeyad.rxredux.screens.user.detail.UserDetailState
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
@@ -45,8 +46,12 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
+
 class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
     : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
+    override fun applyEffect(successState: Any) {
+    }
+
     constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -62,6 +67,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         onCreateImpl(savedInstanceState)
+        Log.d("UserListActivity2", "we are here!")
     }
 
     override fun onStart() {
@@ -81,9 +87,6 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
 
     override fun initialize() {
         viewModel = getViewModel()
-        if (viewState == null) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
-        }
         viewState = EmptyState()
     }
 
@@ -95,13 +98,14 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
 
-    override fun events(): Observable<BaseEvent<*>> {
-        return eventObservable.mergeWith(postOnResumeEvents())
+    override fun onResume() {
+        super.onResume()
+        if (viewState is EmptyState) {
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+        }
     }
 
-    private fun postOnResumeEvents(): Observable<BaseEvent<*>> {
-        return postOnResumeEvents
-    }
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
         successState.callback.dispatchUpdatesTo(usersAdapter)
@@ -137,7 +141,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
                     toggleItemSelection(position)
                 } else if (itemInfo.getData<Any>() is User) {
                     val userModel = itemInfo.getData<User>()
-                    val userDetailState = UserDetailState(twoPane, userModel)
+                    val userDetailState = IntentBundleState(twoPane, userModel)
                     var pair: android.util.Pair<View, String>? = null
                     var secondPair: android.util.Pair<View, String>? = null
                     if (hasLollipop()) {
@@ -298,5 +302,9 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
 
     companion object {
         const val FIRED = "fired!"
+
+        fun getCallingIntent(context: Context): Intent {
+            return Intent(context, UserListActivity2::class.java)
+        }
     }
 }

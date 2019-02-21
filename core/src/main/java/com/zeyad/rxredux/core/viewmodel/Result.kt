@@ -6,10 +6,15 @@ sealed class Result<S> {
     abstract val event: BaseEvent<*>
 }
 
-data class LoadingResult(override val event: BaseEvent<*>) : Result<Nothing>()
+sealed class EffectResult<S> : Result<S>()
 
-data class ErrorResult(val error: Throwable,
-                       override val event: BaseEvent<*>) : Result<Nothing>()
+data class LoadingEffectResult(override val event: BaseEvent<*>) : EffectResult<Nothing>()
+
+data class ErrorEffectResult(val error: Throwable,
+                             override val event: BaseEvent<*>) : EffectResult<Nothing>()
+
+data class SuccessEffectResult<S>(val bundle: S,
+                                  override val event: BaseEvent<*>) : EffectResult<S>()
 
 data class SuccessResult<S>(val bundle: S,
                             override val event: BaseEvent<*>) : Result<S>()

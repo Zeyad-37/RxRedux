@@ -24,6 +24,7 @@ import com.zeyad.rxredux.screens.BaseFragment
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -34,8 +35,12 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
+    override fun applyEffect(successState: Any) {
+
+    }
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
+    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
         override fun onException(e: Exception,
@@ -66,7 +71,15 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
         viewState = arguments?.getParcelable(P_MODEL)!!
     }
 
-    override fun events(): Observable<BaseEvent<*>> = Observable.just(viewState?.user?.login?.let { GetReposEvent(it) })
+    override fun onResume() {
+        super.onResume()
+//        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
+        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
+    }
+
+    override fun events(): Observable<BaseEvent<*>> {
+        return postOnResumeEvents
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.user_detail, container, false)
@@ -84,28 +97,33 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
     }
 
     override fun renderSuccessState(successState: UserDetailState) {
-        repositoriesAdapter.setDataList(successState.repos, null)
-        val user = successState.user
-        if (successState.isTwoPane) {
-            (activity as UserListActivity2).let { activity ->
-                val appBarLayout = activity.findViewById<Toolbar>(R.id.toolbar)
-                if (appBarLayout != null) {
-                    appBarLayout.title = user.login
-                }
-                if (user.avatarUrl.isNotBlank()) {
-                    Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
-                            .into(activity.getImageViewAvatar())
+        when (successState) {
+            is FullDetailState -> {
+                repositoriesAdapter.setDataList(successState.repos, null)
+                val user = successState.user
+                if (successState.isTwoPane) {
+                    (activity as UserListActivity2).let { activity ->
+                        val appBarLayout = activity.findViewById<Toolbar>(R.id.toolbar)
+                        if (appBarLayout != null) {
+                            appBarLayout.title = user.login
+                        }
+                        if (user.avatarUrl.isNotBlank()) {
+                            Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
+                                    .into(activity.getImageViewAvatar())
+                        }
+                    }
+                } else {
+                    (activity as UserDetailActivity).let { activity ->
+                        val appBarLayout = activity.getCollapsingToolbarLayout()
+                        appBarLayout.title = user.login
+                        if (user.avatarUrl.isNotBlank()) {
+                            Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
+                                    .into(activity.getImageViewAvatar())
+                        }
+                    }
                 }
             }
-        } else {
-            (activity as UserDetailActivity).let { activity ->
-                val appBarLayout = activity.getCollapsingToolbarLayout()
-                appBarLayout.title = user.login
-                if (user.avatarUrl.isNotBlank()) {
-                    Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
-                            .into(activity.getImageViewAvatar())
-                }
-            }
+            is NavigateFromDetail -> startActivity(successState.intent)
         }
     }
 
