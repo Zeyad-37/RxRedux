@@ -1,5 +1,6 @@
 package com.zeyad.rxredux.core.viewmodel
 
+import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.jakewharton.rx.ReplayingShare
@@ -23,22 +24,17 @@ interface IBaseViewModel<S> {
     fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): String
 
     fun effectsMiddleware(it: PEffect<*>) {
-        when (it) {
-            is SuccessEffect, is LoadingEffect -> Log.d("IBaseViewModel", "PEffect: $it")
-            is ErrorEffect -> {
-                Log.d("IBaseViewModel", "PEffect: $it")
-                Log.e("IBaseViewModel", "Error", it.error)
-            }
-        }
+        Log.d("IBaseViewModel", "PEffect: $it")
+        if (it is ErrorEffect) Log.e("IBaseViewModel", "Error", it.error)
     }
 
     fun stateMiddleware(it: SuccessState<S>) = Log.d("IBaseViewModel", "PModel: $it")
 
-    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<MutableLiveData<SuccessState<S>>, MutableLiveData<PEffect<*>>> {
+    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<LiveData<SuccessState<S>>, LiveData<PEffect<*>>> {
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
                 .toResult()
                 .publish()
-                .autoConnect(0) // { disposable.add(it) }
+                .autoConnect(0)
         return Pair(statesLiveData(pModels, initialState), effectsLiveData(pModels))
     }
 

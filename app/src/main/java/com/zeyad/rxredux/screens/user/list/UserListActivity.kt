@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragListener, ActionMode.Callback {
-    override fun applyEffect(successState: Any) {
+    override fun applyEffect(effectBundle: Any) {
     }
 
     private lateinit var itemTouchHelper: ItemTouchHelper

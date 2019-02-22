@@ -54,8 +54,8 @@ class FirstActivityFragment : BaseFragment<FirstState, FirstVM>() {
         Log.d("FirstFragment", "Other State = ${successState.javaClass}")
     }
 
-    override fun applyEffect(successState: Any) {
-        startActivity(successState as Intent)
+    override fun applyEffect(effectBundle: Any) {
+        startActivity(effectBundle as Intent)
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {

@@ -35,7 +35,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
-    override fun applyEffect(successState: Any) {
+    override fun applyEffect(effectBundle: Any) {
 
     }
 
