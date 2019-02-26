@@ -22,6 +22,7 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.IntentBundleState
@@ -116,7 +117,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>) {
 //        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 

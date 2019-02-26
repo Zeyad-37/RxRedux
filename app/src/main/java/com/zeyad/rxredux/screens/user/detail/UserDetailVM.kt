@@ -4,6 +4,7 @@ import android.content.Intent
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
@@ -17,7 +18,9 @@ import io.realm.RealmQuery
 
 class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
-    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage!!
+
+    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =
+            Either.Left<String>(throwable.localizedMessage)
 
     override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState): UserDetailState {
         return when (currentStateBundle) {

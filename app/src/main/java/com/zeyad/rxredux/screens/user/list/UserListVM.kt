@@ -4,6 +4,7 @@ import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.UserDiffCallBack
@@ -21,7 +22,9 @@ import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
-    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage
+
+    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =
+            Either.Left<String>(throwable.localizedMessage)
 
     override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {
         val userListEvent = event as UserListEvents

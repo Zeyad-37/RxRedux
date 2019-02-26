@@ -17,6 +17,7 @@ import com.zeyad.gadapter.*
 import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.IntentBundleState
@@ -25,6 +26,7 @@ import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
+import com.zeyad.rxredux.utils.getErrorMessage
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -84,8 +86,8 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String, event: BaseEvent<*>) {
-        showErrorSnackBarWithAction(errorMessage, user_list, "Retry",
+    override fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>) {
+        showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
                 View.OnClickListener { postOnResumeEvents.onNext(event) })
     }
 

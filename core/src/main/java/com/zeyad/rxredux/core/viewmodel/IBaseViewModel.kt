@@ -21,7 +21,7 @@ interface IBaseViewModel<S> {
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): String
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Either<String, Int>
 
     fun effectsMiddleware(it: PEffect<*>) {
         Log.d("IBaseViewModel", "PEffect: $it")

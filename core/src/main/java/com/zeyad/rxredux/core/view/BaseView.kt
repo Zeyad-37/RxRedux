@@ -1,6 +1,7 @@
 package com.zeyad.rxredux.core.view
 
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import io.reactivex.Observable
 
 interface BaseView<S> {
@@ -50,7 +51,7 @@ interface BaseView<S> {
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun showError(errorMessage: String, event: BaseEvent<*>)
+    fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>)
 
     /**
      * Sets the viewState and the firing event on the implementing View.

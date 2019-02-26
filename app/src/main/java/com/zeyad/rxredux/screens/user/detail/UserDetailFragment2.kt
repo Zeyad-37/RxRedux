@@ -20,6 +20,7 @@ import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.Either
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity
@@ -140,7 +141,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: String, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
