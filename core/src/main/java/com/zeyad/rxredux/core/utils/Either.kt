@@ -23,3 +23,10 @@ fun Either<String, Int>.getErrorMessage(context: Context): String {
         is Either.Right<Int> -> context.getString(value)
     }
 }
+
+fun Either<String, Int>.getLeft(): String {
+    return when (this) {
+        is Either.Left<String> -> value
+        is Either.Right<Int> -> throw IllegalAccessException("This is the Right not left!")
+    }
+}
