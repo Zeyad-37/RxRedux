@@ -19,7 +19,7 @@ class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDe
     override var disposable: CompositeDisposable = CompositeDisposable()
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) = throwable.localizedMessage!!
 
-    override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState): UserDetailState {
+    override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserDetailState): UserDetailState {
         return when (currentStateBundle) {
             is IntentBundleState -> when (newResult) {
                 is Pair<*, *> -> NavigateFromDetail(newResult.first as Intent, newResult.second as Boolean)

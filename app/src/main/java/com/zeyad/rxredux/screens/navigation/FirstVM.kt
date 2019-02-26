@@ -12,7 +12,7 @@ import io.reactivex.disposables.CompositeDisposable
 class FirstVM : BaseViewModel<FirstState>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
 
-    override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: FirstState): FirstState {
+    override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: FirstState): FirstState {
         return when (newResult) {
             is Long -> FullFirstState
             else -> throw IllegalStateException("Wuut ?")

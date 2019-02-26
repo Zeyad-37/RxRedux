@@ -32,7 +32,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
         }
     }
 
-    override fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
+    override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
         val currentItemInfo = currentStateBundle.list.toMutableList()
         return when (currentStateBundle) {
             is EmptyState -> when (newResult) {

@@ -17,7 +17,7 @@ interface IBaseViewModel<S> {
 
     var disposable: CompositeDisposable
 
-    fun stateReducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
+    fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
@@ -82,7 +82,7 @@ interface IBaseViewModel<S> {
 
     private fun stateReducer(): BiFunction<SuccessState<S>, SuccessResult<*>, SuccessState<S>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(stateReducer(result.bundle!!, result.event, currentUIModel.bundle), result.event)
+                SuccessState(reducer(result.bundle!!, result.event, currentUIModel.bundle), result.event)
             }
 
     private fun effectReducer(): BiFunction<PEffect<*>, EffectResult<*>, PEffect<*>> =
