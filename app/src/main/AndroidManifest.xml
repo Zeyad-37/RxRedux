@@ -17,21 +17,21 @@
             android:name=".screens.navigation.FirstActivity"
             android:label="@string/title_activity_first"
             android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".screens.user.list.UserListActivity"
-            android:label="@string/title_user_list"
-            android:theme="@style/AppTheme.NoActionBar">
             <!--<intent-filter>-->
             <!--<action android:name="android.intent.action.MAIN" />-->
 
             <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
+        </activity>
+        <activity
+            android:name=".screens.user.list.UserListActivity"
+            android:label="@string/title_user_list"
+            android:theme="@style/AppTheme.NoActionBar">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".screens.user.detail.UserDetailActivity"
