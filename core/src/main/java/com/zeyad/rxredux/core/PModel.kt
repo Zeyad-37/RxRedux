@@ -1,5 +1,7 @@
 package com.zeyad.rxredux.core
 
+import com.zeyad.rxredux.core.utils.Either
+
 sealed class PModel<S> {
     abstract val event: BaseEvent<*>
     abstract val bundle: S

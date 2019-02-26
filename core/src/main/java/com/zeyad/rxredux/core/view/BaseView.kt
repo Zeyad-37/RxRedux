@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core.view
 
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.Either
+import com.zeyad.rxredux.core.utils.Either
 import io.reactivex.Observable
 
 interface BaseView<S> {

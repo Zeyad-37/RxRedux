@@ -20,7 +20,7 @@ import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.Either
+import com.zeyad.rxredux.core.utils.Either
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.user.list.UserListActivity

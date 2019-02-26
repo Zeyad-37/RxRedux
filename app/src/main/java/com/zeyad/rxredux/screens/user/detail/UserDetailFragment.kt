@@ -19,12 +19,12 @@ import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.Either
+import com.zeyad.rxredux.core.utils.Either
+import com.zeyad.rxredux.core.utils.getErrorMessage
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.BaseFragment
 import com.zeyad.rxredux.screens.user.list.UserListActivity
 import com.zeyad.rxredux.screens.user.list.UserListActivity2
-import com.zeyad.rxredux.utils.getErrorMessage
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*

@@ -17,7 +17,8 @@ import com.zeyad.gadapter.*
 import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.Either
+import com.zeyad.rxredux.core.utils.Either
+import com.zeyad.rxredux.core.utils.getErrorMessage
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.IntentBundleState
@@ -26,7 +27,6 @@ import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
 import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
-import com.zeyad.rxredux.utils.getErrorMessage
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers

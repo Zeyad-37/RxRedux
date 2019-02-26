@@ -5,6 +5,7 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
+import com.zeyad.rxredux.core.utils.Either
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
