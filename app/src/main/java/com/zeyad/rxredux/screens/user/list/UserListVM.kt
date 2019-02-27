@@ -20,7 +20,7 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState, UserListEffect>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
 
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =

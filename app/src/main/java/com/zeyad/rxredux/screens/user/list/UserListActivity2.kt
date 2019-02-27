@@ -49,8 +49,8 @@ import java.util.concurrent.TimeUnit
  */
 
 class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
-    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM>, OnStartDragListener, ActionMode.Callback {
-    override fun applyEffect(effectBundle: Any) {
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListEffect, UserListVM>, OnStartDragListener, ActionMode.Callback {
+    override fun applyEffect(effectBundle: UserListEffect) {
     }
 
     constructor() : this(null, null)

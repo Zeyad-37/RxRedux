@@ -36,9 +36,8 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
-    override fun applyEffect(effectBundle: Any) {
-
+class UserDetailFragment : BaseFragment<UserDetailState, UserDetailEffect, UserDetailVM>() {
+    override fun applyEffect(effectBundle: UserDetailEffect) {
     }
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
@@ -75,8 +74,8 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailVM>() {
 
     override fun onResume() {
         super.onResume()
-//        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
-        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
+        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
+//        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
     }
 
     override fun events(): Observable<BaseEvent<*>> {
