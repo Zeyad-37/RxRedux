@@ -1,7 +1,5 @@
 package com.zeyad.rxredux.core
 
-import com.zeyad.rxredux.core.utils.Either
-
 sealed class PModel<S> {
     abstract val event: BaseEvent<*>
     abstract val bundle: S
@@ -17,7 +15,7 @@ data class LoadingEffect<S>(override val bundle: S,
 }
 
 data class ErrorEffect<S>(val error: Throwable,
-                          val errorMessage: Either<String, Int>,
+                          val errorMessage: Message,
                           override val bundle: S,
                           override val event: BaseEvent<*>) : PEffect<S>() {
     override fun toString() = "State: Error, ${super.toString()}, Throwable: $error"

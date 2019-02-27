@@ -17,8 +17,8 @@ import com.zeyad.gadapter.*
 import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.utils.Either
-import com.zeyad.rxredux.core.utils.getErrorMessage
+import com.zeyad.rxredux.core.Message
+import com.zeyad.rxredux.core.getErrorMessage
 import com.zeyad.rxredux.screens.BaseActivity
 import com.zeyad.rxredux.screens.user.User
 import com.zeyad.rxredux.screens.user.detail.IntentBundleState
@@ -86,7 +86,7 @@ class UserListActivity : BaseActivity<UserListState, UserListVM>(), OnStartDragL
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
         showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
                 View.OnClickListener { postOnResumeEvents.onNext(event) })
     }

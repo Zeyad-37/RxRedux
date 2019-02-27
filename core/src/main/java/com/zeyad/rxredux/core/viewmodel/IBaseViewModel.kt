@@ -5,7 +5,6 @@ import android.arch.lifecycle.MutableLiveData
 import android.util.Log
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
-import com.zeyad.rxredux.core.utils.Either
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -22,7 +21,7 @@ interface IBaseViewModel<S> {
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Either<String, Int>
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Message
 
     fun effectsMiddleware(it: PEffect<*>) {
         Log.d("IBaseViewModel", "PEffect: $it")

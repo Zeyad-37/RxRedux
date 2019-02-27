@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core.view
 
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.utils.Either
+import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
 
 interface BaseView<S> {
@@ -47,11 +47,11 @@ interface BaseView<S> {
     fun toggleViews(isLoading: Boolean, event: BaseEvent<*>)
 
     /**
-     * Show an errorResult message
+     * Show an errorResult messageId
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun showError(errorMessage: Either<String, Int>, event: BaseEvent<*>)
+    fun showError(errorMessage: Message, event: BaseEvent<*>)
 
     /**
      * Sets the viewState and the firing event on the implementing View.

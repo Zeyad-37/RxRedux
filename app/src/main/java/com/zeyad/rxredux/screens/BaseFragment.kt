@@ -14,9 +14,9 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragmen
             Toast.makeText(context, message, duration).show()
 
     /**
-     * Shows a [android.support.design.widget.Snackbar] message.
+     * Shows a [android.support.design.widget.Snackbar] messageId.
      *
-     * @param message An string representing a message to be shown.
+     * @param message An string representing a messageId to be shown.
      */
     fun showSnackBarMessage(view: View, message: String, duration: Int) =
             SnackBarFactory.getSnackBar(SnackBarFactory.TYPE_INFO, view, message, duration).show()
@@ -38,9 +38,9 @@ abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragmen
             showSnackBarWithAction(typeSnackBar, view, message, getString(actionText), onClickListener)
 
     /**
-     * Shows a [android.support.design.widget.Snackbar] errorResult message.
+     * Shows a [android.support.design.widget.Snackbar] errorResult messageId.
      *
-     * @param message  An string representing a message to be shown.
+     * @param message  An string representing a messageId to be shown.
      * @param duration Visibility duration.
      */
     fun showErrorSnackBar(message: String, view: View, duration: Int) =
