@@ -4,7 +4,7 @@ import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
 
-interface BaseView<S> {
+interface BaseView<S, E> {
 
     /**
      * Initialize objects or any required dependencies.
@@ -37,7 +37,7 @@ interface BaseView<S> {
      *
      * @param effectBundle the model to be rendered.
      */
-    fun applyEffect(effectBundle: Any)
+    fun applyEffect(effectBundle: E)
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.

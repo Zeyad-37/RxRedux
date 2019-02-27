@@ -9,7 +9,7 @@ import com.zeyad.rxredux.core.view.BaseActivity
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
-abstract class BaseActivity<S : Parcelable, VM : BaseViewModel<S>> : BaseActivity<S, VM>() {
+abstract class BaseActivity<S : Parcelable, E, VM : BaseViewModel<S, E>> : BaseActivity<S, E, VM>() {
 
     /**
      * Adds a [Fragment] to this activity's layout.

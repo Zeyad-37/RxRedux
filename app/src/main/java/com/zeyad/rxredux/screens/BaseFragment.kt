@@ -7,7 +7,7 @@ import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
-abstract class BaseFragment<S : Parcelable, VM : BaseViewModel<S>> : BaseFragment<S, VM>() {
+abstract class BaseFragment<S : Parcelable, E, VM : BaseViewModel<S, E>> : BaseFragment<S, E, VM>() {
 
     @JvmOverloads
     fun showToastMessage(message: String, duration: Int = Toast.LENGTH_LONG) =

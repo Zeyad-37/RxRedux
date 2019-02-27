@@ -13,7 +13,7 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 
-interface IBaseViewModel<S> {
+interface IBaseViewModel<S, E> {
 
     var disposable: CompositeDisposable
 
@@ -30,12 +30,12 @@ interface IBaseViewModel<S> {
 
     fun stateMiddleware(it: SuccessState<S>) = Log.d("IBaseViewModel", "PModel: $it")
 
-    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<LiveData<SuccessState<S>>, LiveData<PEffect<*>>> {
+    fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<LiveData<SuccessState<S>>, LiveData<PEffect<E>>> {
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
                 .toResult()
                 .publish()
                 .autoConnect(0)
-        return Pair(statesLiveData(pModels, initialState), effectsLiveData(pModels))
+        return Pair(statesLiveData(pModels, initialState), effectsLiveData(pModels as Flowable<Result<E>>))
     }
 
     fun statesLiveData(pModels: Flowable<Result<*>>, initialState: S): MutableLiveData<SuccessState<S>> {
@@ -51,17 +51,17 @@ interface IBaseViewModel<S> {
         return liveState
     }
 
-    fun effectsLiveData(pModels: Flowable<Result<*>>): MutableLiveData<PEffect<*>> {
-        val liveEffects = MutableLiveData<PEffect<*>>()
-        val effects = PublishSubject.create<PEffect<*>>()
+    fun effectsLiveData(pModels: Flowable<Result<E>>): MutableLiveData<PEffect<E>> {
+        val liveEffects = MutableLiveData<PEffect<E>>()
+        val effects = PublishSubject.create<PEffect<E>>()
         pModels.filter { it is EffectResult }
                 .map { it as EffectResult }
-                .scan<PEffect<*>>(SuccessEffect(Unit, EmptyEvent), effectReducer())
-                .distinctUntilChanged { m1: PEffect<*>, m2: PEffect<*> -> m1 == m2 }
+                .scan<PEffect<E>>(SuccessEffect(Any() as E, EmptyEvent), effectReducer())
+                .distinctUntilChanged { m1: PEffect<E>, m2: PEffect<E> -> m1 == m2 }
                 .doAfterNext { effectsMiddleware(it) }
                 .toObservable()
                 .subscribe(effects)
-        disposable.add(effects.subscribe { effect: PEffect<*> -> liveEffects.postValue(effect) })
+        disposable.add(effects.subscribe { effect: PEffect<E> -> liveEffects.postValue(effect) })
         return liveEffects
     }
 
@@ -85,7 +85,7 @@ interface IBaseViewModel<S> {
                 SuccessState(reducer(result.bundle!!, result.event, currentUIModel.bundle), result.event)
             }
 
-    private fun effectReducer(): BiFunction<PEffect<*>, EffectResult<*>, PEffect<*>> =
+    private fun effectReducer(): BiFunction<PEffect<E>, EffectResult<E>, PEffect<E>> =
             BiFunction { currentUIModel, result ->
                 result.run {
                     when {
@@ -97,13 +97,13 @@ interface IBaseViewModel<S> {
                 }
             }
 
-    private fun SuccessEffectResult<*>.successEffect(currentUIModel: PEffect<*>): SuccessEffect<*> =
+    private fun SuccessEffectResult<E>.successEffect(currentUIModel: PEffect<*>): SuccessEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> SuccessEffect(bundle, event)
                 is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun ErrorEffectResult.errorState(currentUIModel: PEffect<*>): ErrorEffect<*> =
+    private fun ErrorEffectResult.errorState(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
                 is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)

@@ -6,8 +6,8 @@ import com.zeyad.rxredux.core.LoadingEffect
 import com.zeyad.rxredux.core.PEffect
 import com.zeyad.rxredux.core.SuccessEffect
 
-class PEffectObserver<V : BaseView<*>>(private val view: V) : Observer<PEffect<*>> {
-    override fun onChanged(uiModel: PEffect<*>?) {
+class PEffectObserver<E, V : BaseView<*, E>>(private val view: V) : Observer<PEffect<E>> {
+    override fun onChanged(uiModel: PEffect<E>?) {
         uiModel?.apply {
             view.toggleViews(this is LoadingEffect, event)
             when {
