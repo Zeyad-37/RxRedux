@@ -1,9 +1,10 @@
-package com.zeyad.rxredux.screens.user.detail
+package com.zeyad.rxredux.screens.detail
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
+import android.support.v4.app.Fragment
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
@@ -20,46 +21,45 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
-import com.zeyad.rxredux.core.getErrorMessage
+import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
-import com.zeyad.rxredux.screens.BaseFragment
-import com.zeyad.rxredux.screens.user.list.UserListActivity
-import com.zeyad.rxredux.screens.user.list.UserListActivity2
+import com.zeyad.rxredux.screens.list.UserListActivity
+import com.zeyad.rxredux.screens.list.UserListActivity2
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
 
 /**
  * A fragment representing a single Repository detail screen. This fragment is either contained in a
- * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
+ * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity2] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailState, UserDetailEffect, UserDetailVM>() {
-    override fun applyEffect(effectBundle: UserDetailEffect) {
+@SuppressLint("ValidFragment")
+class UserDetailFragment2(override var viewModel: UserDetailVM?,
+                          override var viewState: UserDetailState?) : Fragment(), IBaseFragment<UserDetailState, Unit, UserDetailVM> {
+    override fun applyEffect(effectBundle: Unit) {
     }
 
+    constructor() : this(null, null)
+
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
-        override fun onException(e: Exception,
-                                 model: String,
-                                 target: Target<GlideDrawable>,
-                                 isFirstResource: Boolean): Boolean =
-                glideRequestListenerCore()
+        override fun onException(e: Exception, model: String, target: Target<GlideDrawable>,
+                                 isFirstResource: Boolean): Boolean {
+            return glideRequestListenerCore()
+        }
 
-        override fun onResourceReady(resource: GlideDrawable,
-                                     model: String,
-                                     target: Target<GlideDrawable>,
-                                     isFromMemoryCache: Boolean,
-                                     isFirstResource: Boolean): Boolean =
-                glideRequestListenerCore()
+        override fun onResourceReady(resource: GlideDrawable, model: String, target: Target<GlideDrawable>,
+                                     isFromMemoryCache: Boolean, isFirstResource: Boolean): Boolean {
+            return glideRequestListenerCore()
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onCreateImpl(savedInstanceState)
         postponeEnterTransition()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
@@ -67,23 +67,26 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailEffect, UserD
         //        setSharedElementReturnTransition(null); // supply the correct element for return transition
     }
 
+    override fun onStart() {
+        super.onStart()
+        onStartImpl()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState)
+        super.onSaveInstanceState(outState)
+    }
+
     override fun initialize() {
         viewModel = getViewModel()
         viewState = arguments?.getParcelable(P_MODEL)!!
     }
 
-    override fun onResume() {
-        super.onResume()
-        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
-//        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
-    }
+    override fun events(): Observable<BaseEvent<*>> = Observable.just(GetReposEvent((viewState as IntentBundleState).user.login))
 
-    override fun events(): Observable<BaseEvent<*>> {
-        return postOnResumeEvents
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        return inflater.inflate(R.layout.user_detail, container, false)
     }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
-            inflater.inflate(R.layout.user_detail, container, false)
 
     override fun setupUI(isNew: Boolean) {
         recyclerView_repositories.layoutManager = LinearLayoutManager(context)
@@ -129,7 +132,7 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailEffect, UserD
     }
 
     internal fun glideRequestListenerCore(): Boolean {
-        requireActivity().supportStartPostponedEnterTransition()
+        activity?.supportStartPostponedEnterTransition()
         return false
     }
 
@@ -139,12 +142,12 @@ class UserDetailFragment : BaseFragment<UserDetailState, UserDetailEffect, UserD
     }
 
     override fun showError(errorMessage: Message, event: BaseEvent<*>) {
-        showErrorSnackBar(errorMessage.getErrorMessage(requireContext()), linear_layout_loader, Snackbar.LENGTH_LONG)
+//        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
     companion object {
 
-        fun newInstance(userDetailState: UserDetailState): UserDetailFragment =
-                UserDetailFragment().apply { arguments = Bundle().apply { putParcelable(P_MODEL, userDetailState) } }
+        fun newInstance(userDetailState: UserDetailState): UserDetailFragment2 =
+                UserDetailFragment2().apply { arguments = Bundle().apply { putParcelable(P_MODEL, userDetailState) } }
     }
 }

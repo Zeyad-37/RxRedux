@@ -9,7 +9,7 @@
     android:divider="?android:attr/dividerHorizontal"
     android:orientation="horizontal"
     android:showDividers="middle"
-    tools:context=".screens.user.list.UserListActivity">
+    tools:context=".screens.list.UserListActivity">
 
     <!-- This layout is a two-pane layout for the Users master/detail flow. -->
 

@@ -10,7 +10,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name=".screens.user.list.UserListActivity"
+            android:name=".screens.list.UserListActivity"
             android:label="@string/title_user_list"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
@@ -20,15 +20,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".screens.user.detail.UserDetailActivity"
-            android:parentActivityName=".screens.user.list.UserListActivity"
+            android:name=".screens.detail.UserDetailActivity"
+            android:parentActivityName=".screens.list.UserListActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".screens.user.list.UserListActivity" />
+                android:value=".screens.list.UserListActivity" />
         </activity>
         <activity
-            android:name=".screens.user.list.UserListActivity2"
+            android:name=".screens.list.UserListActivity2"
             android:label="@string/title_user_list"
             android:theme="@style/AppTheme.NoActionBar">
 
@@ -38,12 +38,12 @@
             <!-- </intent-filter> -->
         </activity>
         <activity
-            android:name=".screens.user.detail.UserDetailActivity2"
-            android:parentActivityName=".screens.user.list.UserListActivity2"
+            android:name=".screens.detail.UserDetailActivity2"
+            android:parentActivityName=".screens.list.UserListActivity2"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".screens.user.list.UserListActivity2" />
+                android:value=".screens.list.UserListActivity2" />
         </activity>
     </application>
 

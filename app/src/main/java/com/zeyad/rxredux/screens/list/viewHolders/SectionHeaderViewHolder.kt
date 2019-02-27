@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list.viewHolders
+package com.zeyad.rxredux.screens.list.viewHolders
 
 import android.view.View
 import com.zeyad.gadapter.GenericViewHolder

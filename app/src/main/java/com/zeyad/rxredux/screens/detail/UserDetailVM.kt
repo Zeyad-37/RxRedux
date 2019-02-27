@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.detail
+package com.zeyad.rxredux.screens.detail
 
 import android.content.Intent
 import com.zeyad.gadapter.ItemInfo
@@ -16,7 +16,7 @@ import io.reactivex.disposables.CompositeDisposable
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState, UserDetailEffect>() {
+class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailState, Unit>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
 
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =

@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user
+package com.zeyad.rxredux.screens
 
 import android.support.v7.util.DiffUtil
 
@@ -24,8 +24,4 @@ class UserDiffCallBack(private var newUsers: List<ItemInfo>,
                 .getData<User>()
     }
 
-    override fun getChangePayload(oldItemPosition: Int, newItemPosition: Int): Any? {
-        //you can return particular field for changed item.
-        return super.getChangePayload(oldItemPosition, newItemPosition)
-    }
 }

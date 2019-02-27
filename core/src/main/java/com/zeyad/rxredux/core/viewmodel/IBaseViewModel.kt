@@ -38,7 +38,7 @@ interface IBaseViewModel<S, E> {
         return Pair(statesLiveData(pModels, initialState), effectsLiveData(pModels as Flowable<Result<E>>))
     }
 
-    fun statesLiveData(pModels: Flowable<Result<*>>, initialState: S): MutableLiveData<SuccessState<S>> {
+    private fun statesLiveData(pModels: Flowable<Result<*>>, initialState: S): MutableLiveData<SuccessState<S>> {
         val liveState = MutableLiveData<SuccessState<S>>()
         disposable.add(pModels
                 .filter { it is SuccessResult }
@@ -51,7 +51,7 @@ interface IBaseViewModel<S, E> {
         return liveState
     }
 
-    fun effectsLiveData(pModels: Flowable<Result<E>>): MutableLiveData<PEffect<E>> {
+    private fun effectsLiveData(pModels: Flowable<Result<E>>): MutableLiveData<PEffect<E>> {
         val liveEffects = MutableLiveData<PEffect<E>>()
         val effects = PublishSubject.create<PEffect<E>>()
         pModels.filter { it is EffectResult }

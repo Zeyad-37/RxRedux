@@ -1,9 +1,9 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.screens.user.UserDiffCallBack
+import com.zeyad.rxredux.screens.UserDiffCallBack
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue

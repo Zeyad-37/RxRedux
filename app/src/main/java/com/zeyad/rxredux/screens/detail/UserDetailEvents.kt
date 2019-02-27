@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.detail
+package com.zeyad.rxredux.screens.detail
 
 import android.content.Intent
 import com.zeyad.rxredux.core.BaseEvent

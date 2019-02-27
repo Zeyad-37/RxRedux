@@ -1,9 +1,9 @@
-package com.zeyad.rxredux.screens.user.detail
+package com.zeyad.rxredux.screens.detail
 
 import android.content.Intent
 import android.os.Parcelable
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.screens.user.User
+import com.zeyad.rxredux.screens.User
 import kotlinx.android.parcel.Parcelize
 
 sealed class UserDetailState : Parcelable

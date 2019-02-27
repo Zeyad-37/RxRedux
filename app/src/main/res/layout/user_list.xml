@@ -10,7 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layoutManager="android.support.v7.widget.LinearLayoutManager"
-        tools:context=".screens.user.list.UserListActivity"
+        tools:context=".screens.list.UserListActivity"
         tools:listitem="@layout/user_list_content" />
 
     <!--<com.zeyad.gadapter.fastscroll.FastScroller-->

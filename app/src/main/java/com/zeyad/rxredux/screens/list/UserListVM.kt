@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
@@ -6,8 +6,8 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.StringMessage
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
-import com.zeyad.rxredux.screens.user.User
-import com.zeyad.rxredux.screens.user.UserDiffCallBack
+import com.zeyad.rxredux.screens.User
+import com.zeyad.rxredux.screens.UserDiffCallBack
 import com.zeyad.rxredux.utils.Constants.URLS.USER
 import com.zeyad.rxredux.utils.Constants.URLS.USERS
 import com.zeyad.usecases.api.IDataService

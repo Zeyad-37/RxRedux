@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list.viewHolders
+package com.zeyad.rxredux.screens.list.viewHolders
 
 import android.graphics.Color
 import android.view.View
@@ -6,7 +6,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.zeyad.gadapter.GenericViewHolder
-import com.zeyad.rxredux.screens.user.User
+import com.zeyad.rxredux.screens.User
 import kotlinx.android.synthetic.main.user_item_layout.view.*
 
 class UserViewHolder(itemView: View) : GenericViewHolder<User>(itemView) {

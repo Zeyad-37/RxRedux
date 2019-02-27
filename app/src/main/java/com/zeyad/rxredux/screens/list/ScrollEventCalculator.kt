@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import android.support.v7.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v7.widget.RecyclerViewScrollEvent

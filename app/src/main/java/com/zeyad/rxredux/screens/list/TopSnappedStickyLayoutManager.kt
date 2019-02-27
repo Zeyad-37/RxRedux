@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import android.content.Context
 import com.zeyad.gadapter.stickyheaders.StickyLayoutManager

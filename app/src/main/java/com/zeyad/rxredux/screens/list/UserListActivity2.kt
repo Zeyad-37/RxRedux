@@ -1,32 +1,36 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
+import android.content.Intent
+import android.os.Bundle
+import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
+import android.support.v7.app.AppCompatDelegate
 import android.support.v7.view.ActionMode
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.SearchView
 import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
+import android.util.Pair
 import android.view.*
 import android.widget.ImageView
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
-import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
-import com.zeyad.rxredux.core.getErrorMessage
-import com.zeyad.rxredux.screens.BaseActivity
-import com.zeyad.rxredux.screens.user.User
-import com.zeyad.rxredux.screens.user.detail.IntentBundleState
-import com.zeyad.rxredux.screens.user.detail.UserDetailActivity
-import com.zeyad.rxredux.screens.user.detail.UserDetailFragment
-import com.zeyad.rxredux.screens.user.list.viewHolders.EmptyViewHolder
-import com.zeyad.rxredux.screens.user.list.viewHolders.SectionHeaderViewHolder
-import com.zeyad.rxredux.screens.user.list.viewHolders.UserViewHolder
+import com.zeyad.rxredux.core.view.IBaseActivity
+import com.zeyad.rxredux.screens.User
+import com.zeyad.rxredux.screens.detail.IntentBundleState
+import com.zeyad.rxredux.screens.detail.UserDetailActivity
+import com.zeyad.rxredux.screens.detail.UserDetailFragment
+import com.zeyad.rxredux.screens.list.viewHolders.EmptyViewHolder
+import com.zeyad.rxredux.screens.list.viewHolders.SectionHeaderViewHolder
+import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -43,17 +47,44 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>(), OnStartDragListener, ActionMode.Callback {
+
+class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
+    : AppCompatActivity(), IBaseActivity<UserListState, UserListEffect, UserListVM>, OnStartDragListener, ActionMode.Callback {
     override fun applyEffect(effectBundle: UserListEffect) {
     }
+
+    constructor() : this(null, null)
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
-    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
+    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
+        onCreateImpl(savedInstanceState)
+        Log.d("UserListActivity2", "we are here!")
+    }
+
+    override fun onStart() {
+        super.onStart()
+        onStartImpl()
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle) {
+        super.onRestoreInstanceState(savedInstanceState)
+        onRestoreInstanceStateImpl(savedInstanceState)
+    }
 
     override fun initialize() {
         viewModel = getViewModel()
@@ -78,7 +109,7 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
     override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
-        usersAdapter.setDataList(successState.list, successState.callback)
+        successState.callback.dispatchUpdatesTo(usersAdapter)
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
@@ -87,15 +118,14 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
     }
 
     override fun showError(errorMessage: Message, event: BaseEvent<*>) {
-        showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
-                View.OnClickListener { postOnResumeEvents.onNext(event) })
+//        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
     private fun setupRecyclerView() {
         usersAdapter = object : GenericRecyclerViewAdapter(getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
                 return when (viewType) {
-                    SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
+                    ItemInfo.SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
                             .inflate(R.layout.section_header_layout, parent, false))
                     R.layout.empty_view -> EmptyViewHolder(layoutInflater
                             .inflate(R.layout.empty_view, parent, false))
@@ -133,12 +163,12 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
                     } else {
                         if (hasLollipop()) {
                             val options = ActivityOptions
-                                    .makeSceneTransitionAnimation(this@UserListActivity, pair,
+                                    .makeSceneTransitionAnimation(this@UserListActivity2, pair,
                                             secondPair).toBundle()
                             startActivity(UserDetailActivity
-                                    .getCallingIntent(this@UserListActivity, userDetailState), options)
+                                    .getCallingIntent(this@UserListActivity2, userDetailState), options)
                         } else {
-                            startActivity(UserDetailActivity.getCallingIntent(this@UserListActivity, userDetailState))
+                            startActivity(UserDetailActivity.getCallingIntent(this@UserListActivity2, userDetailState))
                         }
                     }
                 }
@@ -147,7 +177,7 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
         usersAdapter.setOnItemLongClickListener(object : OnItemLongClickListener {
             override fun onItemLongClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>): Boolean {
                 if (usersAdapter.isSelectionAllowed) {
-                    actionMode = startSupportActionMode(this@UserListActivity)
+                    actionMode = startSupportActionMode(this@UserListActivity2)
                     toggleItemSelection(position)
                 }
                 return true
@@ -155,7 +185,7 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
         })
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
                 .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
-                .doOnEach { Log.d("DeleteEvent", FIRED) })
+                .doOnEach { Log.d("DeleteEvent", UserListActivity.FIRED) })
         user_list.layoutManager = LinearLayoutManager(this)
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
@@ -170,20 +200,9 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
                 .filter { it.getPayLoad() != -1L }
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .doOnNext { Log.d("NextPageEvent", FIRED) })
+                .doOnNext { Log.d("NextPageEvent", UserListActivity.FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
-    }
-
-    private fun toggleItemSelection(position: Int) {
-        usersAdapter.toggleSelection(position)
-        val count = usersAdapter.selectedItemCount
-        if (count == 0) {
-            actionMode?.finish()
-        } else {
-            actionMode?.title = count.toString()
-            actionMode?.invalidate()
-        }
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -205,6 +224,17 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
         return super.onCreateOptionsMenu(menu)
     }
 
+    private fun toggleItemSelection(position: Int) {
+        usersAdapter.toggleSelection(position)
+        val count = usersAdapter.selectedItemCount
+        if (count == 0) {
+            actionMode?.finish()
+        } else {
+            actionMode?.title = count.toString()
+            actionMode?.invalidate()
+        }
+    }
+
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
@@ -222,7 +252,9 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
         return true
     }
 
-    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean = item.itemId == R.id.delete_item
+    override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+        return item.itemId == R.id.delete_item
+    }
 
     override fun onDestroyActionMode(mode: ActionMode) {
         try {
@@ -230,15 +262,50 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
         } catch (e: Exception) {
             Log.e("onDestroyActionMode", e.message, e)
         }
+
         actionMode = null
         toolbar.visibility = View.VISIBLE
     }
 
-    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) = itemTouchHelper.startDrag(viewHolder)
+    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) {
+        itemTouchHelper.startDrag(viewHolder)
+    }
 
     fun getImageViewAvatar(): ImageView = imageView_avatar
 
+    /**
+     * Adds a [Fragment] to this activity's layout.
+     *
+     * @param containerViewId The container view to where add the fragment.
+     * @param fragment        The fragment to be added.
+     */
+    @SafeVarargs
+    fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
+                    vararg sharedElements: Pair<View, String>) {
+        val fragmentTransaction = supportFragmentManager.beginTransaction()
+        for (pair in sharedElements) {
+            fragmentTransaction.addSharedElement(pair.first, pair.second)
+        }
+        if (currentFragTag == null || currentFragTag.isEmpty()) {
+            fragmentTransaction.addToBackStack(fragment.tag)
+        } else {
+            fragmentTransaction.addToBackStack(currentFragTag)
+        }
+        fragmentTransaction.add(containerViewId, fragment, fragment.tag).commit()
+    }
+
+    private fun removeFragment(tag: String) {
+        supportFragmentManager.findFragmentByTag(tag)?.let {
+            supportFragmentManager.beginTransaction().remove(it)
+                .commit()
+        }
+    }
+
     companion object {
         const val FIRED = "fired!"
+
+        fun getCallingIntent(context: Context): Intent {
+            return Intent(context, UserListActivity2::class.java)
+        }
     }
 }

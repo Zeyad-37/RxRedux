@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens.user.list
+package com.zeyad.rxredux.screens.list
 
 import com.zeyad.rxredux.core.BaseEvent
 

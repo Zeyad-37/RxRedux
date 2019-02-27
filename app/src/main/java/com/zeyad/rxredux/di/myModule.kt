@@ -3,8 +3,8 @@ package com.zeyad.rxredux.di
 import android.content.Context
 import android.util.Log
 import com.zeyad.rxredux.BuildConfig
-import com.zeyad.rxredux.screens.user.detail.UserDetailVM
-import com.zeyad.rxredux.screens.user.list.UserListVM
+import com.zeyad.rxredux.screens.detail.UserDetailVM
+import com.zeyad.rxredux.screens.list.UserListVM
 import com.zeyad.rxredux.utils.Constants.URLS.API_BASE_URL
 import com.zeyad.usecases.api.DataServiceConfig
 import com.zeyad.usecases.api.DataServiceFactory
