@@ -18,11 +18,7 @@ class RxReduxApplication : Application() {
         initializeRealm()
         startKoin(this, listOf(myModule))
         RxAndroidPlugins.setMainThreadSchedulerHandler { AndroidSchedulers.from(Looper.getMainLooper(), true) }
-        //        if (LeakCanary.isInAnalyzerProcess(this)) {
-        //            return;
-        //        }
         //        initializeStrictMode();
-        //        LeakCanary.install(this);
         //        Completable.fromAction(() -> {
         //            if (!checkAppTampering(this)) {
         //                throw new IllegalAccessException("App might be tampered with!");

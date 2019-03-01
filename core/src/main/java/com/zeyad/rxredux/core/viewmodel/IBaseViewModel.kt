@@ -90,7 +90,7 @@ interface IBaseViewModel<S, E> {
                 result.run {
                     when {
                         this is SuccessEffectResult -> successEffect(currentUIModel)
-                        this is ErrorEffectResult -> errorState(currentUIModel)
+                        this is ErrorEffectResult -> errorEffect(currentUIModel)
                         this is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
                         else -> throwIllegalStateException(currentUIModel, result)
                     }
@@ -103,7 +103,7 @@ interface IBaseViewModel<S, E> {
                 is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
             }
 
-    private fun ErrorEffectResult.errorState(currentUIModel: PEffect<E>): ErrorEffect<E> =
+    private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
                 is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)

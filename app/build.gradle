@@ -44,17 +44,11 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(path: ':core')
-    implementation Deps.kotlin_stdlib
-    implementation Deps.kotlin_all_open
     implementation Deps.koin_arch
-    implementation "androidx.core:core-ktx:0.3"
 
     implementation Deps.design_support
     implementation Deps.appcompat_v7
-    implementation Deps.support_v4
     implementation Deps.recycler_view
-    implementation Deps.card_view
-    implementation Deps.palette
     implementation Deps.constraint_layout
 
     implementation(Deps.use_cases) {
@@ -65,18 +59,14 @@ dependencies {
         exclude group: 'com.android.support'
         exclude group: 'io.reactivex.rxjava2'
     }
-
     // Network
     implementation Deps.glide
-    implementation "com.andrognito.flashbar:flashbar:1.0.2"
 
     // Rx
     implementation Deps.rx_binding_core
     implementation Deps.rx_binding_app_compat
-    implementation Deps.rx_binding_design
     implementation Deps.rx_binding_recycler_view
 
-    implementation 'com.android.support.constraint:constraint-layout:1.1.3'
     testImplementation Deps.junit
     androidTestImplementation Deps.esspresso_core
 }
