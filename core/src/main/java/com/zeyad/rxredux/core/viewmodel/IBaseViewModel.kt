@@ -28,7 +28,9 @@ interface IBaseViewModel<S, E> {
         if (it is ErrorEffect) Log.e("IBaseViewModel", "Error", it.error)
     }
 
-    fun stateMiddleware(it: SuccessState<S>) = Log.d("IBaseViewModel", "PModel: $it")
+    fun stateMiddleware(it: SuccessState<S>) {
+        Log.d("IBaseViewModel", "PModel: $it")
+    }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): Pair<LiveData<SuccessState<S>>, LiveData<PEffect<E>>> {
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
