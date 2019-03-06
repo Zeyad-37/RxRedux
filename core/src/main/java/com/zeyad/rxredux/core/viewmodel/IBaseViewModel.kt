@@ -67,7 +67,6 @@ interface IBaseViewModel<S, E> {
 
     private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> {
         return observeOn(Schedulers.computation())
-                .distinctUntilChanged { e1: BaseEvent<*>, e2: BaseEvent<*> -> e1 == e2 }
                 .concatMap { event ->
                     Flowable.just(event)
                             .concatMap { mapEventsToActions(it) }
