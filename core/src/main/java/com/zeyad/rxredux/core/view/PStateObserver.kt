@@ -7,8 +7,8 @@ class PStateObserver<V : BaseView<S, *>, S>(private val view: V) : Observer<Succ
     override fun onChanged(uiModel: SuccessState<S>?) {
         uiModel?.apply {
             view.setState(bundle)
-            view.toggleViews(false, event)
             view.renderSuccessState(bundle)
+            view.toggleViews(false, event)
         }
     }
 }
