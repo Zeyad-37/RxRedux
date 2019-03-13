@@ -46,7 +46,6 @@ interface IBaseViewModel<S, E> {
                 .filter { it is SuccessResult }
                 .map { it as SuccessResult }
                 .scan<SuccessState<S>>(SuccessState(initialState), stateReducer())
-                .distinctUntilChanged { m1: SuccessState<*>, m2: SuccessState<*> -> m1 == m2 }
                 .doAfterNext { stateMiddleware(it) }
                 .compose(ReplayingShare.instance())
                 .subscribe { successState: SuccessState<S> -> liveState.postValue(successState) })
