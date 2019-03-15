@@ -1,14 +1,23 @@
 package com.zeyad.rxredux.core.view
 
 import android.arch.lifecycle.Observer
-import com.zeyad.rxredux.core.SuccessState
+import android.util.Log
+import com.zeyad.rxredux.core.*
 
-class PStateObserver<V : BaseView<S, *>, S>(private val view: V) : Observer<SuccessState<S>> {
-    override fun onChanged(uiModel: SuccessState<S>?) {
+class PStateObserver<V : BaseView<S, E>, S, E>(private val view: V) : Observer<PModel<*>> {
+    override fun onChanged(uiModel: PModel<*>?) {
+        Log.d("IBaseViewModel", "PStateObserver -> PModel: $uiModel")
         uiModel?.apply {
-            view.setState(bundle)
-            view.renderSuccessState(bundle)
-            view.toggleViews(false, event)
+            view.toggleViews(this is LoadingEffect, event)
+            when (this) {
+                is ErrorEffect -> view.showError(errorMessage, event)
+                is SuccessEffect -> view.applyEffect(bundle as E)
+                is SuccessState -> {
+                    val successStateBundle = bundle as S
+                    view.setState(successStateBundle)
+                    view.renderSuccessState(successStateBundle)
+                }
+            }
         }
     }
 }

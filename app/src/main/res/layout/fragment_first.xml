@@ -7,6 +7,8 @@
     tools:context=".screens.navigation.FirstActivityFragment"
     tools:showIn="@layout/activity_first">
 
+    <include layout="@layout/view_progress" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"

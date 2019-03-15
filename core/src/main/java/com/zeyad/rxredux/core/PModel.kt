@@ -26,7 +26,13 @@ data class SuccessEffect<E>(override val bundle: E,
     override fun toString() = "Effect: Success, ${super.toString()}, Bundle: $bundle"
 }
 
+data class EmptySuccessEffect(override val bundle: Unit = Unit,
+                              override val event: BaseEvent<*> = EmptyEvent) : PEffect<Unit>()
+
 data class SuccessState<S>(override val bundle: S,
                            override val event: BaseEvent<*> = EmptyEvent) : PModel<S>() {
     override fun toString() = "State: Success, ${super.toString()}, Bundle: $bundle"
 }
+
+data class EmptySuccessState(override val bundle: Unit = Unit,
+                             override val event: BaseEvent<*> = EmptyEvent) : PModel<Unit>()

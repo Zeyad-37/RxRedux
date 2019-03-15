@@ -20,11 +20,8 @@ fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
 fun <S : Parcelable, E, VM : IBaseViewModel<S, E>> vmStart(viewModel: VM, initialState: S,
                                                            events: Observable<BaseEvent<*>>,
                                                            view: BaseView<S, E>,
-                                                           lifecycleOwner: LifecycleOwner) {
-    val (states, effects) = viewModel.store(events, initialState)
-    states.observe(lifecycleOwner, PStateObserver(view))
-    effects.observe(lifecycleOwner, PEffectObserver(view))
-}
+                                                           lifecycleOwner: LifecycleOwner) =
+        viewModel.store(events, initialState).observe(lifecycleOwner, PStateObserver(view))
 
 interface IBaseView<S : Parcelable, E, VM : IBaseViewModel<S, E>> : BaseView<S, E>, LifecycleOwner {
     var viewModel: VM?
