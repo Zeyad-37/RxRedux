@@ -32,7 +32,11 @@ class UserDetailActivity : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            val fragment = UserDetailFragment.newInstance(intent.getParcelableExtra(P_MODEL))
+            val fragment: Fragment = if (intent.getBooleanExtra(INTERFACE_KEY, false)) {
+                UserDetailFragment2.newInstance(intent.getParcelableExtra(P_MODEL))
+            } else {
+                UserDetailFragment.newInstance(intent.getParcelableExtra(P_MODEL))
+            }
             addFragment(R.id.user_detail_container, fragment, fragment.tag, null)
         }
     }
@@ -72,9 +76,13 @@ class UserDetailActivity : AppCompatActivity() {
 
     companion object {
 
-        fun getCallingIntent(context: Context, userDetailModel: UserDetailState): Intent {
-            return Intent(context, UserDetailActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        private const val INTERFACE_KEY = "IS_INTERFACE"
+
+        fun getCallingIntent(context: Context, userDetailModel: UserDetailState, isInterface: Boolean = true): Intent {
+            return Intent(context, UserDetailActivity::class.java)
+                    .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     .putExtra(P_MODEL, userDetailModel)
+                    .putExtra(INTERFACE_KEY, isInterface)
         }
     }
 }

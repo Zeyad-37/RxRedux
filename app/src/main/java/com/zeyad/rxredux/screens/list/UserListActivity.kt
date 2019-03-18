@@ -140,9 +140,10 @@ class UserListActivity : BaseActivity<UserListState, UserListEffect, UserListVM>
                                     .makeSceneTransitionAnimation(this@UserListActivity, pair,
                                             secondPair).toBundle()
                             startActivity(UserDetailActivity
-                                    .getCallingIntent(this@UserListActivity, userDetailState), options)
+                                    .getCallingIntent(this@UserListActivity, userDetailState, false), options)
                         } else {
-                            startActivity(UserDetailActivity.getCallingIntent(this@UserListActivity, userDetailState))
+                            startActivity(UserDetailActivity
+                                    .getCallingIntent(this@UserListActivity, userDetailState, false))
                         }
                     }
                 }

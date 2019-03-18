@@ -48,12 +48,11 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
-    : AppCompatActivity(), IBaseActivity<UserListState, UserListEffect, UserListVM>, OnStartDragListener, ActionMode.Callback {
-    override fun applyEffect(effectBundle: UserListEffect) {
-    }
+class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListState, UserListEffect, UserListVM>,
+        OnStartDragListener, ActionMode.Callback {
 
-    constructor() : this(null, null)
+    override var viewModel: UserListVM? = null
+    override var viewState: UserListState? = null
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
@@ -109,8 +108,10 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
-        successState.callback.dispatchUpdatesTo(usersAdapter)
+        usersAdapter.setDataList(successState.list, successState.callback)
     }
+
+    override fun applyEffect(effectBundle: UserListEffect) = Unit
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
         linear_layout_loader.bringToFront()
@@ -296,8 +297,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
 
     private fun removeFragment(tag: String) {
         supportFragmentManager.findFragmentByTag(tag)?.let {
-            supportFragmentManager.beginTransaction().remove(it)
-                .commit()
+            supportFragmentManager.beginTransaction().remove(it).commit()
         }
     }
 
