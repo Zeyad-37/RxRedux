@@ -11,7 +11,7 @@ import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
 import io.reactivex.Flowable
 import io.reactivex.disposables.CompositeDisposable
 
-class FirstVM(override var disposable: CompositeDisposable = CompositeDisposable()) : BaseViewModel<FirstState, FirstEffect>() {
+class FirstVM(override var disposable: CompositeDisposable = CompositeDisposable()) : BaseViewModel<Any, FirstState, FirstEffect>() {
 
     override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: FirstState): FirstState {
         return when (newResult) {

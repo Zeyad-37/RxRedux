@@ -28,7 +28,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A placeholder fragment containing a simple view.
  */
-class FirstActivityFragment : BaseFragment<FirstState, FirstEffect, FirstVM>() {
+class FirstActivityFragment : BaseFragment<Any, FirstState, FirstEffect, FirstVM>() {
 
     private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
     private val postOnResumeEvents: PublishSubject<BaseEvent<*>> = PublishSubject.create()

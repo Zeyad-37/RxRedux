@@ -3,6 +3,7 @@ package com.zeyad.rxredux.screens.detail
 import android.content.Intent
 import android.os.Parcelable
 import com.zeyad.gadapter.ItemInfo
+import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import kotlinx.android.parcel.Parcelize
 
@@ -17,5 +18,20 @@ data class FullDetailState(val isTwoPane: Boolean = false,
                            val user: User = User(),
                            val repos: List<ItemInfo> = emptyList()) : UserDetailState()
 
-@Parcelize
-data class NavigateFromDetail(val intent: Intent, val shouldFinish: Boolean) : UserDetailState()
+sealed class UserDetailEffect
+
+data class NavigateFromDetail(val intent: Intent, val shouldFinish: Boolean) : UserDetailEffect()
+
+sealed class UserDetailEvents<T> : BaseEvent<T>
+
+internal class GetReposEvent(private val login: String) : UserDetailEvents<String>() {
+    override fun getPayLoad(): String = login
+}
+
+class NavigateToEvent(private val intent: Intent) : UserDetailEvents<Intent>() {
+    override fun getPayLoad() = intent
+}
+
+sealed class UserDetailResult
+
+data class ListRepository(val repos: List<Repository>) : UserDetailResult()

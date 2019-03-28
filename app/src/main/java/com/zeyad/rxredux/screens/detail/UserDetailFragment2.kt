@@ -37,9 +37,8 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  */
 @SuppressLint("ValidFragment")
 class UserDetailFragment2(override var viewModel: UserDetailVM?,
-                          override var viewState: UserDetailState?) : Fragment(), IBaseFragment<UserDetailState, Unit, UserDetailVM> {
-    override fun applyEffect(effectBundle: Unit) {
-    }
+                          override var viewState: UserDetailState?
+) : Fragment(), IBaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
     constructor() : this(null, null)
 
@@ -127,8 +126,12 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
                     }
                 }
             }
-            is NavigateFromDetail -> startActivity(successState.intent)
         }
+    }
+
+    override fun applyEffect(effectBundle: UserDetailEffect) {
+        if (effectBundle is NavigateFromDetail)
+            startActivity(effectBundle.intent)
     }
 
     internal fun glideRequestListenerCore(): Boolean {

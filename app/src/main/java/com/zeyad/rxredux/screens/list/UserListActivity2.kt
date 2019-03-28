@@ -48,7 +48,7 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListState, UserListEffect, UserListVM>,
+class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
     override var viewModel: UserListVM? = null

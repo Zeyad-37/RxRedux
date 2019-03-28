@@ -17,13 +17,13 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
 fun <S : Parcelable> onSaveInstanceState(bundle: Bundle, viewState: S?) =
         bundle.putParcelable(P_MODEL, viewState)
 
-fun <S : Parcelable, E, VM : IBaseViewModel<S, E>> vmStart(viewModel: VM, initialState: S,
-                                                           events: Observable<BaseEvent<*>>,
-                                                           view: BaseView<S, E>,
-                                                           lifecycleOwner: LifecycleOwner) =
+fun <R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> vmStart(viewModel: VM, initialState: S,
+                                                                 events: Observable<BaseEvent<*>>,
+                                                                 view: BaseView<S, E>,
+                                                                 lifecycleOwner: LifecycleOwner) =
         viewModel.store(events, initialState).observe(lifecycleOwner, PStateObserver(view))
 
-interface IBaseView<S : Parcelable, E, VM : IBaseViewModel<S, E>> : BaseView<S, E>, LifecycleOwner {
+interface IBaseView<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : BaseView<S, E>, LifecycleOwner {
     var viewModel: VM?
     var viewState: S?
 

@@ -12,15 +12,16 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
-interface IBaseViewModel<S, E> {
+interface IBaseViewModel<R, S, E> {
 
     var disposable: CompositeDisposable
 
-    fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
+    fun reducer(newResult: R, event: BaseEvent<*>, currentStateBundle: S): S
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Message
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Message =
+            StringMessage(throwable.localizedMessage)
 
     fun middleware(it: PModel<*>) {
         Log.d("IBaseViewModel", "PModel: $it")
@@ -33,7 +34,7 @@ interface IBaseViewModel<S, E> {
                 .publish()
                 .autoConnect(0)
         val liveState = MutableLiveData<PModel<*>>()
-        val states = stateStream(pModels, initialState)
+        val states = stateStream(pModels as Flowable<Result<R>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E>>)
         disposable.add(Flowable.merge(states, effects)
                 .distinctUntilChanged()
@@ -42,10 +43,9 @@ interface IBaseViewModel<S, E> {
         return liveState
     }
 
-    private fun stateStream(pModels: Flowable<Result<*>>, initialState: S): Flowable<PModel<*>> {
+    private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> {
         var latestState: PModel<*>? = null
-        return pModels
-                .filter { it is SuccessResult }
+        return pModels.filter { it is SuccessResult }
                 .map { it as SuccessResult }
                 .scan<PModel<*>>(SuccessState(initialState), stateReducer())
                 .map {
@@ -82,19 +82,19 @@ interface IBaseViewModel<S, E> {
                 .distinctUntilChanged()
     }
 
-    private fun stateReducer(): BiFunction<PModel<*>, SuccessResult<*>, PModel<*>> =
+    private fun stateReducer(): BiFunction<PModel<*>, SuccessResult<R>, PModel<*>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle!!, result.event, currentUIModel.bundle as S), result.event)
+                SuccessState(reducer(result.bundle, result.event, currentUIModel.bundle as S), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
             BiFunction { currentUIModel, result ->
                 result.run {
                     when {
+                        this is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
                         this is SuccessEffectResult -> successEffect(currentUIModel as PEffect<*>)
                         this is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
-                        this is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
-                        else -> throwIllegalStateException(currentUIModel, result)
+                        else -> currentUIModel.throwIllegalStateException(result)
                     }
                 }
             }
@@ -102,15 +102,20 @@ interface IBaseViewModel<S, E> {
     private fun SuccessEffectResult<E>.successEffect(currentUIModel: PEffect<*>): SuccessEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> SuccessEffect(bundle, event)
-                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
+                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
 
     private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
-                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> throwIllegalStateException(currentUIModel, this)
+                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
-
-    private fun throwIllegalStateException(currentUIModel: PModel<*>, result: Result<*>): Nothing =
-            throw IllegalStateException("Can not reduce from $currentUIModel to ${currentUIModel::class.java.simpleName} with $result")
 }
+
+@Throws(IllegalStateException::class)
+inline fun <reified T : Any> throwIllegalStateException(newResult: Any): Nothing =
+        throw IllegalStateException("Can not reduce ${T::class.java.simpleName} with this result: $newResult!")
+
+@Throws(IllegalStateException::class)
+private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
+        throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")

@@ -37,9 +37,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailState, Unit, UserDetailVM>() {
-    override fun applyEffect(effectBundle: Unit) {
-    }
+class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
@@ -125,8 +123,12 @@ class UserDetailFragment : BaseFragment<UserDetailState, Unit, UserDetailVM>() {
                     }
                 }
             }
-            is NavigateFromDetail -> startActivity(successState.intent)
         }
+    }
+
+    override fun applyEffect(effectBundle: UserDetailEffect) {
+        if (effectBundle is NavigateFromDetail)
+            startActivity(effectBundle.intent)
     }
 
     internal fun glideRequestListenerCore(): Boolean {

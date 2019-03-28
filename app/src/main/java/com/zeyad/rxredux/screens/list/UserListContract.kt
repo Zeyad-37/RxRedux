@@ -3,6 +3,8 @@ package com.zeyad.rxredux.screens.list
 import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
+import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
@@ -38,3 +40,23 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
         this.callback = callback
     }
 }
+
+class UserListEffect
+
+sealed class UserListEvents<T> : BaseEvent<T>
+
+data class DeleteUsersEvent(private val selectedItemsIds: List<String>) : UserListEvents<List<String>>() {
+    override fun getPayLoad(): List<String> = selectedItemsIds
+}
+
+data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Long>() {
+    override fun getPayLoad(): Long = lastId
+}
+
+data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
+    override fun getPayLoad(): String = query
+}
+
+sealed class UserListResult
+
+data class UsersResult(val list: List<User>) : UserListResult()

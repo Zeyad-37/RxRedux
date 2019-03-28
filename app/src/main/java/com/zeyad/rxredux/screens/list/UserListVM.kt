@@ -20,7 +20,7 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListState, UserListEffect>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListResult, UserListState, UserListEffect>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
 
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =
@@ -35,22 +35,21 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
         }
     }
 
-    override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
+    override fun reducer(newResult: UserListResult, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
         val currentItemInfo = currentStateBundle.list.toMutableList()
         return when (currentStateBundle) {
             is EmptyState -> when (newResult) {
-                is List<*> -> {
-                    val pair = Flowable.fromIterable(newResult as List<User>)
+                is UsersResult -> {
+                    val pair = Flowable.fromIterable(newResult.list)
                             .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
                             .toList().toFlowable()
                             .calculateDiff(currentItemInfo)
                     GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                 }
-                else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
             }
             is GetState -> when (newResult) {
-                is List<*> -> {
-                    val pair = Flowable.fromIterable(newResult as List<User>)
+                is UsersResult -> {
+                    val pair = Flowable.fromIterable(newResult.list)
                             .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
                             .toList()
                             .map {
@@ -61,7 +60,6 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                             .calculateDiff(currentItemInfo)
                     GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
                 }
-                else -> throw IllegalStateException("Can not reduce GetState with this result: $newResult!")
             }
         }
     }
@@ -75,17 +73,18 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
             }.skip(1)
                     .blockingFirst()
 
-    private fun getUsers(lastId: Long): Flowable<List<User>> {
+    private fun getUsers(lastId: Long): Flowable<UsersResult> {
 //        return if (lastId == 0L)
 //            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
 //                    .url(String.format(USERS, lastId))
 //                    .build())
 //        else
-        return dataUseCase.getList(GetRequest.Builder(User::class.java, true)
+        return dataUseCase.getList<User>(GetRequest.Builder(User::class.java, true)
                 .url(String.format(USERS, lastId)).build())
+                .map { UsersResult(it) }
     }
 
-    private fun search(query: String): Flowable<List<User>> {
+    private fun search(query: String): Flowable<UsersResult> {
         return dataUseCase
                 .queryDisk(object : RealmQueryProvider<User> {
                     override fun create(realm: Realm): RealmQuery<User> =
@@ -100,7 +99,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                         { singleton, users ->
                             users.addAll(singleton)
                             users.asSequence().toSet().toList()
-                        })
+                        }).map { UsersResult(it) }
     }
 
     private fun deleteCollection(selectedItemsIds: List<String>): Flowable<List<String>> {
