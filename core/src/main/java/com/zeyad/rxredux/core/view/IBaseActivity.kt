@@ -14,4 +14,11 @@ interface IBaseActivity<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> : IBa
 
     fun onRestoreInstanceStateImpl(savedInstanceState: Bundle) =
             getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+
+    /**
+     * Setup the UI.
+     *
+     * @param isNew = savedInstanceState == null
+     */
+    fun setupUI(isNew: Boolean)
 }

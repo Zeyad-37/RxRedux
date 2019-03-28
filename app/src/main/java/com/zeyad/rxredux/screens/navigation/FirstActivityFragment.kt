@@ -42,7 +42,8 @@ class FirstActivityFragment : BaseFragment<Any, FirstState, FirstEffect, FirstVM
         return inflater.inflate(R.layout.fragment_first, container, false)
     }
 
-    override fun setupUI(isNew: Boolean) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         eventObservable = eventObservable.mergeWith(RxView.clicks(fab)
                 .map<BaseEvent<*>> { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) })
     }

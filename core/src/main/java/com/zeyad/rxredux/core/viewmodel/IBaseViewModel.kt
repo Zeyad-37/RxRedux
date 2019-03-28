@@ -113,9 +113,5 @@ interface IBaseViewModel<R, S, E> {
 }
 
 @Throws(IllegalStateException::class)
-inline fun <reified T : Any> throwIllegalStateException(newResult: Any): Nothing =
-        throw IllegalStateException("Can not reduce ${T::class.java.simpleName} with this result: $newResult!")
-
-@Throws(IllegalStateException::class)
 private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
         throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")

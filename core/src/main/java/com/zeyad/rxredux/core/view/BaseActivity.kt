@@ -37,4 +37,11 @@ abstract class BaseActivity<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> :
     override fun setState(bundle: S) {
         viewState = bundle
     }
+
+    /**
+     * Setup the UI.
+     *
+     * @param isNew = savedInstanceState == null
+     */
+    abstract fun setupUI(isNew: Boolean)
 }
