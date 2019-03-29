@@ -72,7 +72,7 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        onSaveInstanceStateImpl(outState)
+        onSaveInstanceStateImpl(outState, viewState)
         super.onSaveInstanceState(outState)
     }
 

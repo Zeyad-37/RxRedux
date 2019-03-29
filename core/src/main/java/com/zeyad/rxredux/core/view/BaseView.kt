@@ -1,10 +1,22 @@
 package com.zeyad.rxredux.core.view
 
+import android.os.Bundle
+import android.os.Parcelable
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
 
+const val P_MODEL = "viewState"
+
+fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
+        if (savedInstanceState != null && savedInstanceState.containsKey(P_MODEL))
+            savedInstanceState.getParcelable(P_MODEL)
+        else null
+
 interface BaseView<S, E> {
+
+    fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
+            bundle.putParcelable(P_MODEL, viewState)
 
     /**
      * Initialize objects or any required dependencies.

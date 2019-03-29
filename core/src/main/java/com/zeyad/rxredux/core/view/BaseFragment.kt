@@ -16,14 +16,19 @@ abstract class BaseFragment<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> :
         initialize()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        onSaveInstanceStateImpl(outState, viewState)
+        super.onSaveInstanceState(outState)
+    }
+
+    override fun onViewStateRestored(savedInstanceState: Bundle?) {
+        super.onViewStateRestored(savedInstanceState)
+        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+    }
+
     override fun onStart() {
         super.onStart()
         vmStart(viewModel, viewState!!, events(), this, this)
-    }
-
-    override fun onSaveInstanceState(outState: Bundle) {
-        outState.putParcelable(P_MODEL, viewState)
-        super.onSaveInstanceState(outState)
     }
 
     override fun setState(bundle: S) {

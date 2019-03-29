@@ -25,7 +25,7 @@ abstract class BaseActivity<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> :
     }
 
     override fun onSaveInstanceState(bundle: Bundle) {
-        onSaveInstanceState(bundle, viewState)
+        onSaveInstanceStateImpl(bundle, viewState)
         super.onSaveInstanceState(bundle)
     }
 

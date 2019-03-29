@@ -10,4 +10,8 @@ interface IBaseFragment<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> : IBa
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
     }
+
+    fun onViewStateRestoredImpl(savedInstanceState: Bundle?) {
+        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+    }
 }

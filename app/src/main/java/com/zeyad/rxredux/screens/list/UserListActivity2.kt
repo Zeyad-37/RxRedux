@@ -76,7 +76,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, Use
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        onSaveInstanceStateImpl(outState)
+        onSaveInstanceStateImpl(outState, viewState)
         super.onSaveInstanceState(outState)
     }
 
