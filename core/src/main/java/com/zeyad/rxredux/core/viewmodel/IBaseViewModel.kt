@@ -12,11 +12,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
-interface IBaseViewModel<R, S, E> {
+interface IBaseViewModel<S, E> {
 
     var disposable: CompositeDisposable
 
-    fun reducer(newResult: R, event: BaseEvent<*>, currentStateBundle: S): S
+    fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
