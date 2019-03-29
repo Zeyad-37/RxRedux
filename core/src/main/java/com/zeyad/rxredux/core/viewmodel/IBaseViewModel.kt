@@ -37,7 +37,6 @@ interface IBaseViewModel<R, S, E> {
         val states = stateStream(pModels as Flowable<Result<R>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E>>)
         disposable.add(Flowable.merge(states, effects)
-                .distinctUntilChanged()
                 .doAfterNext { middleware(it) }
                 .subscribe { t: PModel<*> -> liveState.postValue(t) })
         return liveState

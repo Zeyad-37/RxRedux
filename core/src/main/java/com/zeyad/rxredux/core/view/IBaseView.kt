@@ -10,7 +10,7 @@ fun <R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> vmStart(viewModel: VM, 
                                                                  events: Observable<BaseEvent<*>>,
                                                                  view: BaseView<S, E>,
                                                                  lifecycleOwner: LifecycleOwner) =
-        viewModel.store(events, initialState).observe(lifecycleOwner, PStateObserver(view))
+        viewModel.store(events, initialState).observe(lifecycleOwner, PModelObserver(view))
 
 interface IBaseView<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : BaseView<S, E>, LifecycleOwner {
     var viewModel: VM?

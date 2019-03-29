@@ -4,7 +4,7 @@ import android.arch.lifecycle.Observer
 import android.util.Log
 import com.zeyad.rxredux.core.*
 
-class PStateObserver<V : BaseView<S, E>, S, E>(private val view: V) : Observer<PModel<*>> {
+class PModelObserver<V : BaseView<S, E>, S, E>(private val view: V) : Observer<PModel<*>> {
     override fun onChanged(uiModel: PModel<*>?) {
         Log.d("IBaseViewModel", "PStateObserver -> PModel: $uiModel")
         uiModel?.apply {
