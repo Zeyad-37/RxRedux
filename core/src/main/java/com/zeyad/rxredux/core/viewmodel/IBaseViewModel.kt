@@ -2,6 +2,7 @@ package com.zeyad.rxredux.core.viewmodel
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.os.Parcelable
 import android.util.Log
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
@@ -12,11 +13,11 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
-interface IBaseViewModel<S, E> {
+interface IBaseViewModel<R, S : Parcelable, E> {
 
     var disposable: CompositeDisposable
 
-    fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: S): S
+    fun reducer(newResult: R, event: BaseEvent<*>, currentStateBundle: S): S
 
     fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
 
@@ -83,7 +84,7 @@ interface IBaseViewModel<S, E> {
 
     private fun stateReducer(): BiFunction<PModel<*>, SuccessResult<R>, PModel<*>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle, result.event, currentUIModel.bundle as S), result.event)
+                SuccessState(reducer(result.bundle, result.event as BaseEvent<*>, currentUIModel.bundle as S), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
@@ -106,11 +107,12 @@ interface IBaseViewModel<S, E> {
 
     private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
-                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event as BaseEvent<*>), currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
-}
 
-@Throws(IllegalStateException::class)
-private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
-        throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")
+    @Throws(IllegalStateException::class)
+    private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
+            throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")
+
+}

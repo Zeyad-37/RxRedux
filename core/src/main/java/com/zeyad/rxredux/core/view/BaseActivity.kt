@@ -4,9 +4,10 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
+import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 
-abstract class BaseActivity<S : Parcelable, E, VM : BaseViewModel<S, E>> : AppCompatActivity(), BaseView<S, E> {
+abstract class BaseActivity<R, S : Parcelable, E, VM : BaseViewModel<R, S, E>> : AppCompatActivity(), BaseView<S, E> {
 
     lateinit var viewModel: VM
     var viewState: S? = null

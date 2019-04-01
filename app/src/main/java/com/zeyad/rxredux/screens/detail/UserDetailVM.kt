@@ -16,7 +16,8 @@ import io.reactivex.disposables.CompositeDisposable
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserDetailVM(private val dataUseCase: IDataService) : BaseViewModel<UserDetailResult, UserDetailState, UserDetailEffect>() {
+class UserDetailVM(private val dataUseCase: IDataService) :
+        BaseViewModel<UserDetailResult, UserDetailState, UserDetailEffect>() {
     override var disposable: CompositeDisposable = CompositeDisposable()
 
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =

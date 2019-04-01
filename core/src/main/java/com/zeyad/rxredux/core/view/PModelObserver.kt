@@ -1,10 +1,11 @@
 package com.zeyad.rxredux.core.view
 
 import android.arch.lifecycle.Observer
+import android.os.Parcelable
 import android.util.Log
 import com.zeyad.rxredux.core.*
 
-class PModelObserver<V : BaseView<S, E>, S, E>(private val view: V) : Observer<PModel<*>> {
+class PModelObserver<V : BaseView<S, E>, S : Parcelable, E>(private val view: V) : Observer<PModel<*>> {
     override fun onChanged(uiModel: PModel<*>?) {
         Log.d("IBaseViewModel", "PStateObserver -> PModel: $uiModel")
         uiModel?.apply {
