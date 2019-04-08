@@ -20,7 +20,7 @@ class FirstVM(override var disposable: CompositeDisposable = CompositeDisposable
         }
     }
 
-    override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {
+    override fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: FirstState): Flowable<*> {
         return when (event) {
             is EmptyEvent -> Flowable.error<Any>(RuntimeException("Forced Error"))
             is NavigateToEvent -> Flowable.just(SuccessEffectResult(NavigateToEffect(event.getPayLoad()), event))

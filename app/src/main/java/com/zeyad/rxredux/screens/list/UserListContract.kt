@@ -6,6 +6,7 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
+import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import kotlinx.android.parcel.RawValue
@@ -41,7 +42,9 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
     }
 }
 
-class UserListEffect
+sealed class UserListEffect
+
+data class NavigateTo(val user: User, val viewHolder: UserViewHolder) : UserListEffect()
 
 sealed class UserListEvents<T> : BaseEvent<T>
 
@@ -55,6 +58,10 @@ data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Lon
 
 data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
     override fun getPayLoad(): String = query
+}
+
+data class UserClickedEvent(private val user: User, private val viewHolder: UserViewHolder) : UserListEvents<Pair<User, UserViewHolder>>() {
+    override fun getPayLoad() = user to viewHolder
 }
 
 sealed class UserListResult

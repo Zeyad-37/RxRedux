@@ -1,11 +1,13 @@
 package com.zeyad.rxredux.screens.list
 
 import android.support.v7.util.DiffUtil
+import android.util.Log
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.StringMessage
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import com.zeyad.rxredux.utils.Constants.URLS.USER
@@ -26,12 +28,14 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
     override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =
             StringMessage(throwable.localizedMessage)
 
-    override fun mapEventsToActions(event: BaseEvent<*>): Flowable<*> {
+    override fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: UserListState): Flowable<*> {
+        Log.d("UserListVM", "currentStateBundle: $currentStateBundle")
         val userListEvent = event as UserListEvents
         return when (userListEvent) {
             is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
             is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
             is SearchUsersEvent -> search(userListEvent.getPayLoad())
+            is UserClickedEvent -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad().first, userListEvent.getPayLoad().second), event))
         }
     }
 
