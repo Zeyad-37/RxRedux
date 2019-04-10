@@ -10,4 +10,5 @@
 .externalNativeBuild
 /.idea/sonarlint
 /buildSrc/build
+/.idea
 *.tab
