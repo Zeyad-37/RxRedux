@@ -12,12 +12,12 @@ import io.reactivex.Observable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.subjects.BehaviorSubject
 
-lateinit var currentState: Any
-lateinit var currentStateStream: PublishSubject<Any>
 
 interface IBaseViewModel<R, S : Parcelable, E> {
+
+    val currentStateStream: BehaviorSubject<S>
 
     var disposable: CompositeDisposable
 
@@ -34,7 +34,6 @@ interface IBaseViewModel<R, S : Parcelable, E> {
     }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): LiveData<PModel<*>> {
-        currentState = initialState
         currentStateStream.onNext(initialState)
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
                 .toResult()
@@ -60,7 +59,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                     if (it == latestState) { // currentState == it
                         EmptySuccessState()
                     } else {
-                        currentState = it.bundle
+                        currentStateStream.onNext(it.bundle)
                         latestState = it
                         it
                     }
@@ -79,8 +78,12 @@ interface IBaseViewModel<R, S : Parcelable, E> {
     private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> {
         return observeOn(Schedulers.computation())
                 .concatMap { event ->
+                    var currentState: S? = null
+                    currentStateStream.subscribe {
+                        currentState = it
+                    }.let { disposable.add(it) }
                     Log.d("IBaseViewModel", "Event: $event")
-                    mapEventsToActions(event, currentState as S)
+                    mapEventsToActions(event, currentState!!)
                             .map<Result<*>> {
                                 if (it is EffectResult<*>) it
                                 else SuccessResult(it, event)

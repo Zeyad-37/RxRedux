@@ -36,8 +36,7 @@ class UserDetailVM(private val dataUseCase: IDataService) :
     }
 
     override fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: UserDetailState): Flowable<*> {
-        val userDetailEvents = event as UserDetailEvents
-        return when (userDetailEvents) {
+        return when (val userDetailEvents = event as UserDetailEvents) {
             is GetReposEvent -> getRepositories(userDetailEvents.getPayLoad())
             is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(userDetailEvents.getPayLoad(), false), event))
         }
