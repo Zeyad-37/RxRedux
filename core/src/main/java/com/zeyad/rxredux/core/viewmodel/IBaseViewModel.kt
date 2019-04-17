@@ -13,6 +13,10 @@ import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 
+@Throws(IllegalStateException::class)
+inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
+        throw IllegalStateException("Can not reduce from $this to ${T::class.java.simpleName} with $result")
+
 interface IBaseViewModel<R, S : Parcelable, E> {
 
     var disposable: CompositeDisposable
@@ -25,8 +29,8 @@ interface IBaseViewModel<R, S : Parcelable, E> {
             StringMessage(throwable.localizedMessage)
 
     fun middleware(it: PModel<*>) {
-        Log.d("IBaseViewModel", "PModel: $it")
         if (it is ErrorEffect) Log.e("IBaseViewModel", "Error", it.error)
+        else Log.d("IBaseViewModel", "PModel: $it")
     }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): LiveData<PModel<*>> {
@@ -37,9 +41,10 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         val liveState = MutableLiveData<PModel<*>>()
         val states = stateStream(pModels as Flowable<Result<R>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E>>)
-        disposable.add(Flowable.merge(states, effects)
+        Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
-                .subscribe { t: PModel<*> -> liveState.postValue(t) })
+                .subscribe { t: PModel<*> -> liveState.postValue(t) }
+                .let { disposable.add(it) }
         return liveState
     }
 
@@ -47,7 +52,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         var latestState: PModel<*>? = null
         return pModels.filter { it is SuccessResult }
                 .map { it as SuccessResult }
-                .scan<PModel<*>>(SuccessState(initialState), stateReducer())
+                .scan<PModel<S>>(SuccessState(initialState), stateReducer())
                 .map {
                     if (it == latestState) {
                         EmptySuccessState()
@@ -71,8 +76,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         return observeOn(Schedulers.computation())
                 .concatMap { event ->
                     Log.d("IBaseViewModel", "Event: $event")
-                    Flowable.just(event)
-                            .concatMap { mapEventsToActions(it) }
+                    mapEventsToActions(event)
                             .map<Result<*>> {
                                 if (it is EffectResult<*>) it
                                 else SuccessResult(it, event)
@@ -82,24 +86,23 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 .distinctUntilChanged()
     }
 
-    private fun stateReducer(): BiFunction<PModel<*>, SuccessResult<R>, PModel<*>> =
+    private fun stateReducer(): BiFunction<PModel<S>, SuccessResult<R>, PModel<S>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle, result.event as BaseEvent<*>, currentUIModel.bundle as S), result.event)
+                SuccessState(reducer(result.bundle, result.event, currentUIModel.bundle), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
             BiFunction { currentUIModel, result ->
                 result.run {
-                    when {
-                        this is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
-                        this is SuccessEffectResult -> successEffect(currentUIModel as PEffect<*>)
-                        this is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
-                        else -> currentUIModel.throwIllegalStateException(result)
+                    when (this) {
+                        is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
+                        is SuccessEffectResult -> successEffect(currentUIModel as PEffect<E>)
+                        is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
                     }
                 }
             }
 
-    private fun SuccessEffectResult<E>.successEffect(currentUIModel: PEffect<*>): SuccessEffect<E> =
+    private fun SuccessEffectResult<E>.successEffect(currentUIModel: PEffect<E>): SuccessEffect<E> =
             when (currentUIModel) {
                 is LoadingEffect -> SuccessEffect(bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
@@ -107,12 +110,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
-                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event as BaseEvent<*>), currentUIModel.bundle, event)
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
-
-    @Throws(IllegalStateException::class)
-    private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
-            throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")
-
 }
