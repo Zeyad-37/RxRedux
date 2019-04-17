@@ -4,6 +4,8 @@ import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.LeafVertex
+import com.zeyad.rxredux.core.RootVertex
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
@@ -20,7 +22,7 @@ sealed class UserListState : Parcelable {
 @Parcelize
 data class EmptyState(override val list: List<ItemInfo> = emptyList(),
                       override val lastId: Long = 1
-) : UserListState(), Parcelable {
+) : UserListState(), Parcelable, RootVertex {
     @IgnoredOnParcel
     override var callback: @RawValue DiffUtil.DiffResult =
             DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
@@ -44,7 +46,7 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
 
 sealed class UserListEffect
 
-data class NavigateTo(val user: User, val viewHolder: UserViewHolder) : UserListEffect()
+data class NavigateTo(val user: User) : UserListEffect(), LeafVertex
 
 sealed class UserListEvents<T> : BaseEvent<T>
 
@@ -60,8 +62,8 @@ data class SearchUsersEvent(private val query: String) : UserListEvents<String>(
     override fun getPayLoad(): String = query
 }
 
-data class UserClickedEvent(private val user: User, private val viewHolder: UserViewHolder) : UserListEvents<Pair<User, UserViewHolder>>() {
-    override fun getPayLoad() = user to viewHolder
+data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
+    override fun getPayLoad() = user
 }
 
 sealed class UserListResult

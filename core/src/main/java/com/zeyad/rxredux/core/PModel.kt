@@ -36,3 +36,6 @@ data class SuccessState<S>(override val bundle: S,
 
 data class EmptySuccessState(override val bundle: Unit = Unit,
                              override val event: BaseEvent<*> = EmptyEvent) : PModel<Unit>()
+
+interface RootVertex
+interface LeafVertex

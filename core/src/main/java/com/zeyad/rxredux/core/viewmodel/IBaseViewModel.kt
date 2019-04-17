@@ -20,13 +20,13 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<R, S : Parcelable, E> {
 
-    val currentStateStream: BehaviorSubject<S>
+    val currentStateStream: BehaviorSubject<Any>
 
     var disposable: CompositeDisposable
 
-    fun reducer(newResult: R, event: BaseEvent<*>, currentStateBundle: S): S
+    fun reducer(newResult: R, currentStateBundle: S): S
 
-    fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: S): Flowable<*>
+    fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*>
 
     fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Message =
             StringMessage(throwable.localizedMessage)
@@ -53,7 +53,6 @@ interface IBaseViewModel<R, S : Parcelable, E> {
     }
 
     private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> {
-        var latestState: PModel<*>? = null
         return pModels.filter { it is SuccessResult }
                 .map { it as SuccessResult }
                 .scan<PModel<S>>(SuccessState(initialState), stateReducer())
@@ -74,17 +73,18 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 .scan<PModel<*>>(EmptySuccessEffect(), effectReducer())
                 .filter { t: PModel<*> -> t !is EmptySuccessEffect }
                 .distinctUntilChanged()
+                .doOnNext {
+                    if (it is SuccessEffectResult<*>) {
+                        currentStateStream.onNext(it.bundle!!)
+                    }
+                }
     }
 
     private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> {
         return observeOn(Schedulers.computation())
                 .concatMap { event ->
-                    var currentState: S? = null
-                    currentStateStream.subscribe {
-                        currentState = it
-                    }.let { disposable.add(it) }
                     Log.d("IBaseViewModel", "Event: $event")
-                    mapEventsToActions(event, currentState!!)
+                    reduceEventsToResults(event, currentStateStream.value!!)
                             .map<Result<*>> {
                                 if (it is EffectResult<*>) it
                                 else SuccessResult(it, event)

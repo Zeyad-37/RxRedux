@@ -57,10 +57,10 @@ class UserDetailActivity : AppCompatActivity() {
         fragmentTransaction.add(containerViewId, fragment, fragment.tag).commit()
     }
 
-    override fun onBackPressed() {
-        //        navigateUpTo(new Intent(this, UserListActivity.class));
-        supportFinishAfterTransition() // exit animation
-    }
+//    override fun onBackPressed() {
+//        navigateUpTo(new Intent(this, UserListActivity.class));
+//        supportFinishAfterTransition() // exit animation
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

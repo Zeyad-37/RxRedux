@@ -86,36 +86,42 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
         if (effectBundle is NavigateTo) {
             val userModel = effectBundle.user
             val userDetailState = IntentBundleState(twoPane, userModel)
-            var pair: android.util.Pair<View, String>? = null
-            var secondPair: android.util.Pair<View, String>? = null
-            if (hasLollipop()) {
-                val userViewHolder = effectBundle.viewHolder
-                val avatar = userViewHolder.getAvatar()
-                pair = android.util.Pair.create(avatar, avatar.transitionName)
-                val textViewTitle = userViewHolder.getTextViewTitle()
-                secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
-            }
-            if (twoPane) {
-                if (currentFragTag.isNotBlank()) {
-                    removeFragment(currentFragTag)
-                }
-                val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
-                currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
-                addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
-                        pair!!, secondPair!!)
-            } else {
-                if (hasLollipop()) {
-                    val options = ActivityOptions
-                            .makeSceneTransitionAnimation(this@UserListActivity, pair,
-                                    secondPair).toBundle()
-                    startActivity(UserDetailActivity
-                            .getCallingIntent(this@UserListActivity, userDetailState, false), options)
-                } else {
-                    startActivity(UserDetailActivity
-                            .getCallingIntent(this@UserListActivity, userDetailState, false))
-                }
-            }
+            startActivity(UserDetailActivity
+                    .getCallingIntent(this@UserListActivity, userDetailState, false))
         }
+//        if (effectBundle is NavigateTo) {
+//            val userModel = effectBundle.user
+//            val userDetailState = IntentBundleState(twoPane, userModel)
+//            var pair: android.util.Pair<View, String>? = null
+//            var secondPair: android.util.Pair<View, String>? = null
+//            if (hasLollipop()) {
+//                val userViewHolder = effectBundle.viewHolder
+//                val avatar = userViewHolder.getAvatar()
+//                pair = android.util.Pair.create(avatar, avatar.transitionName)
+//                val textViewTitle = userViewHolder.getTextViewTitle()
+//                secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+//            }
+//            if (twoPane) {
+//                if (currentFragTag.isNotBlank()) {
+//                    removeFragment(currentFragTag)
+//                }
+//                val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
+//                currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
+//                addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
+//                        pair!!, secondPair!!)
+//            } else {
+//                if (hasLollipop()) {
+//                    val options = ActivityOptions
+//                            .makeSceneTransitionAnimation(this@UserListActivity, pair,
+//                                    secondPair).toBundle()
+//                    startActivity(UserDetailActivity
+//                            .getCallingIntent(this@UserListActivity, userDetailState, false), options)
+//                } else {
+//                    startActivity(UserDetailActivity
+//                            .getCallingIntent(this@UserListActivity, userDetailState, false))
+//                }
+//            }
+//        }
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
@@ -148,38 +154,37 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
                 if (actionMode != null) {
                     toggleItemSelection(position)
                 } else if (itemInfo.getData<Any>() is User) {
-                    postOnResumeEvents.onNext(UserClickedEvent(itemInfo.getData(), holder as UserViewHolder))
-//                    val userModel = itemInfo.getData<User>()
-//                    val userDetailState = IntentBundleState(twoPane, userModel)
-//                    var pair: android.util.Pair<View, String>? = null
-//                    var secondPair: android.util.Pair<View, String>? = null
-//                    if (hasLollipop()) {
-//                        val userViewHolder = holder as UserViewHolder
-//                        val avatar = userViewHolder.getAvatar()
-//                        pair = android.util.Pair.create(avatar, avatar.transitionName)
-//                        val textViewTitle = userViewHolder.getTextViewTitle()
-//                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
-//                    }
-//                    if (twoPane) {
-//                        if (currentFragTag.isNotBlank()) {
-//                            removeFragment(currentFragTag)
-//                        }
-//                        val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
-//                        currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
-//                        addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
-//                                pair!!, secondPair!!)
-//                    } else {
-//                        if (hasLollipop()) {
-//                            val options = ActivityOptions
-//                                    .makeSceneTransitionAnimation(this@UserListActivity, pair,
-//                                            secondPair).toBundle()
-//                            startActivity(UserDetailActivity
-//                                    .getCallingIntent(this@UserListActivity, userDetailState, false), options)
-//                        } else {
-//                            startActivity(UserDetailActivity
-//                                    .getCallingIntent(this@UserListActivity, userDetailState, false))
-//                        }
-//                    }
+                    val userModel = itemInfo.getData<User>()
+                    val userDetailState = IntentBundleState(twoPane, userModel)
+                    var pair: android.util.Pair<View, String>? = null
+                    var secondPair: android.util.Pair<View, String>? = null
+                    if (hasLollipop()) {
+                        val userViewHolder = holder as UserViewHolder
+                        val avatar = userViewHolder.getAvatar()
+                        pair = android.util.Pair.create(avatar, avatar.transitionName)
+                        val textViewTitle = userViewHolder.getTextViewTitle()
+                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+                    }
+                    if (twoPane) {
+                        if (currentFragTag.isNotBlank()) {
+                            removeFragment(currentFragTag)
+                        }
+                        val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
+                        currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
+                        addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
+                                pair!!, secondPair!!)
+                    } else {
+                        if (hasLollipop()) {
+                            val options = ActivityOptions
+                                    .makeSceneTransitionAnimation(this@UserListActivity, pair,
+                                            secondPair).toBundle()
+                            startActivity(UserDetailActivity
+                                    .getCallingIntent(this@UserListActivity, userDetailState, false), options)
+                        } else {
+                            startActivity(UserDetailActivity
+                                    .getCallingIntent(this@UserListActivity, userDetailState, false))
+                        }
+                    }
                 }
             }
         })
@@ -192,6 +197,15 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
                 return true
             }
         })
+
+//        eventObservable = eventObservable.mergeWith(usersAdapter.itemClickObservable
+//                .map {
+//                    if (it.itemInfo.getData<Any>() is User)
+//                    UserClickedEvent(it.itemInfo.getData(), it.holder as UserViewHolder)
+//                    else if (actionMode != null) {
+//                        toggleItemSelection(it.position)
+//                    }
+//                })
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
                 .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })

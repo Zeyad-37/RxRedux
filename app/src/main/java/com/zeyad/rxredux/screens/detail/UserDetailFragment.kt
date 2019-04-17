@@ -1,6 +1,7 @@
 package com.zeyad.rxredux.screens.detail
 
 import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.support.design.widget.Snackbar
@@ -25,6 +26,7 @@ import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
+import com.zeyad.rxredux.screens.navigation.FirstActivity
 import com.zeyad.rxredux.utils.showErrorSnackBar
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -40,6 +42,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
+    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
     private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
@@ -78,9 +81,7 @@ class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserD
 //        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
     }
 
-    override fun events(): Observable<BaseEvent<*>> {
-        return postOnResumeEvents
-    }
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.user_detail, container, false)
@@ -96,6 +97,8 @@ class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserD
             }
         }
         recyclerView_repositories.adapter = repositoriesAdapter
+        eventObservable = eventObservable.mergeWith(repositoriesAdapter.itemClickObservable
+                .map { NavigateToEvent(Intent(requireContext(), FirstActivity::class.java)) })
     }
 
     override fun renderSuccessState(successState: UserDetailState) {

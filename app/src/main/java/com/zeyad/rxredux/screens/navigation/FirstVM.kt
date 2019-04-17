@@ -13,14 +13,14 @@ import io.reactivex.disposables.CompositeDisposable
 
 class FirstVM(override var disposable: CompositeDisposable = CompositeDisposable()) : BaseViewModel<Any, FirstState, FirstEffect>() {
 
-    override fun reducer(newResult: Any, event: BaseEvent<*>, currentStateBundle: FirstState): FirstState {
+    override fun reducer(newResult: Any, currentStateBundle: FirstState): FirstState {
         return when (newResult) {
             is Long -> FullFirstState
             else -> throw IllegalStateException("Wuut ?")
         }
     }
 
-    override fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: FirstState): Flowable<*> {
+    override fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*> {
         return when (event) {
             is EmptyEvent -> Flowable.error<Any>(RuntimeException("Forced Error"))
             is NavigateToEvent -> Flowable.just(SuccessEffectResult(NavigateToEffect(event.getPayLoad()), event))

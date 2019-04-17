@@ -5,41 +5,43 @@ import android.util.Log
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.StringMessage
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
+import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import com.zeyad.rxredux.utils.Constants.URLS.USER
 import com.zeyad.rxredux.utils.Constants.URLS.USERS
 import com.zeyad.usecases.api.IDataService
-import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
 import io.reactivex.Flowable
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.functions.BiFunction
-import io.realm.Realm
-import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListResult, UserListState, UserListEffect>() {
-    override var disposable: CompositeDisposable = CompositeDisposable()
 
-    override fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>) =
-            StringMessage(throwable.localizedMessage)
-
-    override fun mapEventsToActions(event: BaseEvent<*>, currentStateBundle: UserListState): Flowable<*> {
+    override fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentStateBundle")
-        val userListEvent = event as UserListEvents
-        return when (userListEvent) {
-            is GetPaginatedUsersEvent -> getUsers(userListEvent.getPayLoad())
-            is DeleteUsersEvent -> deleteCollection(userListEvent.getPayLoad())
-            is SearchUsersEvent -> search(userListEvent.getPayLoad())
-            is UserClickedEvent -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad().first, userListEvent.getPayLoad().second), event))
+        return when (val userListEvent = event as UserListEvents) {
+            is GetPaginatedUsersEvent -> when (currentStateBundle) {
+                is EmptyState, is GetState -> getUsers(userListEvent.getPayLoad())
+                else -> throwIllegalStateException(userListEvent)
+            }
+            is DeleteUsersEvent -> when (currentStateBundle) {
+                is GetState -> deleteCollection(userListEvent.getPayLoad())
+                else -> throwIllegalStateException(userListEvent)
+            }
+            is SearchUsersEvent -> when (currentStateBundle) {
+                is GetState -> search(userListEvent.getPayLoad())
+                else -> throwIllegalStateException(userListEvent)
+            }
+            is UserClickedEvent -> when (currentStateBundle) {
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad()), event))
+                else -> throwIllegalStateException(userListEvent)
+            }
         }
     }
 
-    override fun reducer(newResult: UserListResult, event: BaseEvent<*>, currentStateBundle: UserListState): UserListState {
+    override fun reducer(newResult: UserListResult, currentStateBundle: UserListState): UserListState {
         val currentItemInfo = currentStateBundle.list.toMutableList()
         return when (currentStateBundle) {
             is EmptyState -> when (newResult) {
@@ -89,21 +91,26 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
     }
 
     private fun search(query: String): Flowable<UsersResult> {
-        return dataUseCase
-                .queryDisk(object : RealmQueryProvider<User> {
-                    override fun create(realm: Realm): RealmQuery<User> =
-                            realm.where(User::class.java).beginsWith(User.LOGIN, query)
-                })
-                .zipWith(dataUseCase.getObject<User>(GetRequest.Builder(User::class.java, false)
-                        .url(String.format(USER, query)).build())
-                        .onErrorReturnItem(User())
-                        .filter { user -> user.id != 0L }
-                        .map { mutableListOf(it) },
-                        BiFunction<List<User>, MutableList<User>, List<User>>
-                        { singleton, users ->
-                            users.addAll(singleton)
-                            users.asSequence().toSet().toList()
-                        }).map { UsersResult(it) }
+        return dataUseCase.getObject<User>(GetRequest.Builder(User::class.java, false)
+                .url(String.format(USER, query)).build())
+                .onErrorReturnItem(User())
+                .filter { user -> user.id != 0L }
+                .map { UsersResult(listOf(it)) }
+//        return dataUseCase
+//                .queryDisk(object : RealmQueryProvider<User> {
+//                    override fun create(realm: Realm): RealmQuery<User> =
+//                            realm.where(User::class.java).beginsWith(User.LOGIN, query)
+//                })
+//                .zipWith(dataUseCase.getObject<User>(GetRequest.Builder(User::class.java, false)
+//                        .url(String.format(USER, query)).build())
+//                        .onErrorReturnItem(User())
+//                        .filter { user -> user.id != 0L }
+//                        .map { mutableListOf(it) },
+//                        BiFunction<List<User>, MutableList<User>, List<User>>
+//                        { singleton, users ->
+//                            users.addAll(singleton)
+//                            users.asSequence().toSet().toList()
+//                        }).map { UsersResult(it) }
     }
 
     private fun deleteCollection(selectedItemsIds: List<String>): Flowable<List<String>> {
