@@ -14,6 +14,9 @@ import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
 
+@Throws(IllegalStateException::class)
+inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
+        throw IllegalStateException("Can not reduce from $this to ${T::class.java.simpleName} with $result")
 
 interface IBaseViewModel<R, S : Parcelable, E> {
 
@@ -29,8 +32,8 @@ interface IBaseViewModel<R, S : Parcelable, E> {
             StringMessage(throwable.localizedMessage)
 
     fun middleware(it: PModel<*>) {
-        Log.d("IBaseViewModel", "PModel: $it")
         if (it is ErrorEffect) Log.e("IBaseViewModel", "Error", it.error)
+        else Log.d("IBaseViewModel", "PModel: $it")
     }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): LiveData<PModel<*>> {
@@ -41,12 +44,11 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 .autoConnect(0)
         val liveState = MutableLiveData<PModel<*>>()
         val states = stateStream(pModels as Flowable<Result<R>>, initialState)
-                .publish()
-                .autoConnect(0)
         val effects = effectStream(pModels as Flowable<Result<E>>)
-        disposable.add(Flowable.merge(states, effects)
+        Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
-                .subscribe { t: PModel<*> -> liveState.postValue(t) })
+                .subscribe { t: PModel<*> -> liveState.postValue(t) }
+                .let { disposable.add(it) }
         return liveState
     }
 
@@ -56,11 +58,10 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 .map { it as SuccessResult }
                 .scan<PModel<S>>(SuccessState(initialState), stateReducer())
                 .map {
-                    if (it == latestState) { // currentState == it
+                    if (currentStateStream.value == it.bundle) {
                         EmptySuccessState()
                     } else {
                         currentStateStream.onNext(it.bundle)
-                        latestState = it
                         it
                     }
                 }
@@ -95,17 +96,16 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     private fun stateReducer(): BiFunction<PModel<S>, SuccessResult<R>, PModel<S>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle, result.event, currentUIModel.bundle), result.event)
+                SuccessState(reducer(result.bundle, currentUIModel.bundle), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
             BiFunction { currentUIModel, result ->
                 result.run {
-                    when {
-                        this is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
-                        this is SuccessEffectResult -> successEffect(currentUIModel as PEffect<E>)
-                        this is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
-                        else -> currentUIModel.throwIllegalStateException(result)
+                    when (this) {
+                        is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
+                        is SuccessEffectResult -> successEffect(currentUIModel as PEffect<E>)
+                        is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
                     }
                 }
             }
@@ -121,9 +121,4 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
-
-    @Throws(IllegalStateException::class)
-    private fun PModel<*>.throwIllegalStateException(result: Result<*>): Nothing =
-            throw IllegalStateException("Can not reduce from $this to ${this::class.java.simpleName} with $result")
-
 }
