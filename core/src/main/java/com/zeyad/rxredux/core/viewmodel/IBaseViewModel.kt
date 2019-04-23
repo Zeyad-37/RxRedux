@@ -70,7 +70,6 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         return pModels.filter { it is EffectResult }
                 .map { it as EffectResult }
                 .scan<PModel<*>>(EmptySuccessEffect(), effectReducer())
-                .filter { t: PModel<*> -> t !is EmptySuccessEffect }
                 .distinctUntilChanged()
     }
 
