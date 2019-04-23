@@ -9,6 +9,7 @@ import com.zeyad.rxredux.core.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
@@ -43,13 +44,14 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         val effects = effectStream(pModels as Flowable<Result<E>>)
         Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
-                .subscribe { t: PModel<*> -> liveState.postValue(t) }
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { t: PModel<*> -> liveState.value = t }
                 .let { disposable.add(it) }
         return liveState
     }
 
     private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> {
-        var latestState: PModel<*>? = null
+        var latestState: PModel<S>? = null
         return pModels.filter { it is SuccessResult }
                 .map { it as SuccessResult }
                 .scan<PModel<S>>(SuccessState(initialState), stateReducer())
