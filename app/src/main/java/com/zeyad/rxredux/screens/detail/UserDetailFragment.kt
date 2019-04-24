@@ -28,8 +28,6 @@ import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
 import com.zeyad.rxredux.screens.navigation.FirstActivity
 import com.zeyad.rxredux.utils.showErrorSnackBar
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -42,8 +40,6 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
-    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
         override fun onException(e: Exception,
@@ -76,12 +72,9 @@ class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserD
 
     override fun onResume() {
         super.onResume()
-        if (viewState is IntentBundleState)
-            postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
+        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
 //        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
     }
-
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.user_detail, container, false)

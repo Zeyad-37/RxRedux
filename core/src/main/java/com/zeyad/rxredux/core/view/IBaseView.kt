@@ -7,14 +7,16 @@ import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 
 fun <R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> vmStart(viewModel: VM, initialState: S,
-                                                                                   events: Observable<BaseEvent<*>>,
-                                                                                   view: BaseView<S, E>,
-                                                                                   lifecycleOwner: LifecycleOwner) =
+                                                                 events: Observable<BaseEvent<*>>,
+                                                                 view: BaseView<S, E>,
+                                                                 lifecycleOwner: LifecycleOwner) =
         viewModel.store(events, initialState).observe(lifecycleOwner, PModelObserver(view))
 
 interface IBaseView<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : BaseView<S, E>, LifecycleOwner {
     var viewModel: VM?
     var viewState: S?
+
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     fun onStartImpl() {
         vmStart(viewModel!!, viewState!!, events(), this, this)

@@ -18,9 +18,7 @@ import com.zeyad.rxredux.screens.detail.NavigateToEvent
 import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
 import com.zeyad.rxredux.utils.showErrorSnackBar
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.fragment_first.*
 import kotlinx.android.synthetic.main.view_progress.*
 import java.util.concurrent.TimeUnit
@@ -30,8 +28,6 @@ import java.util.concurrent.TimeUnit
  */
 class FirstActivityFragment : BaseFragment<Any, FirstState, FirstEffect, FirstVM>() {
 
-    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
-    private val postOnResumeEvents: PublishSubject<BaseEvent<*>> = PublishSubject.create()
     override fun initialize() {
         viewModel = FirstVM()
         viewState = EmptyFirstState
@@ -65,8 +61,6 @@ class FirstActivityFragment : BaseFragment<Any, FirstState, FirstEffect, FirstVM
                     }, { it.printStackTrace() })
         }
     }
-
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: FirstState) {
         Log.d("FirstFragment", "Other State = ${successState.javaClass}")
