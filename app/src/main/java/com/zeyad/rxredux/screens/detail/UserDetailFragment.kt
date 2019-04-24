@@ -26,8 +26,6 @@ import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
 import com.zeyad.rxredux.utils.showErrorSnackBar
-import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -40,7 +38,6 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
         override fun onException(e: Exception,
@@ -75,10 +72,6 @@ class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserD
         super.onResume()
         postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
 //        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
-    }
-
-    override fun events(): Observable<BaseEvent<*>> {
-        return postOnResumeEvents
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =

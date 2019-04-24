@@ -26,6 +26,7 @@ import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
 import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -36,11 +37,12 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2(override var viewModel: UserDetailVM?,
-                          override var viewState: UserDetailState?
-) : Fragment(), IBaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
-    constructor() : this(null, null)
+    override var viewModel: UserDetailVM? = null
+    override var viewState: UserDetailState? = null
+    override val postOnResumeEvents: PublishSubject<BaseEvent<*>> = PublishSubject.create()
+    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty<BaseEvent<*>>()
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -79,9 +81,8 @@ class UserDetailFragment2(override var viewModel: UserDetailVM?,
     override fun initialize() {
         viewModel = getViewModel()
         viewState = arguments?.getParcelable(P_MODEL)!!
+        eventObservable = Observable.just(GetReposEvent((viewState as IntentBundleState).user.login))
     }
-
-    override fun events(): Observable<BaseEvent<*>> = Observable.just(GetReposEvent((viewState as IntentBundleState).user.login))
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
             inflater.inflate(R.layout.user_detail, container, false)

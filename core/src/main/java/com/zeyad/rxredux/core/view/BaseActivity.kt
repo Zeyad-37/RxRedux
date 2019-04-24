@@ -4,9 +4,15 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDelegate
+import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
+import io.reactivex.Observable
+import io.reactivex.subjects.PublishSubject
 
 abstract class BaseActivity<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : AppCompatActivity(), BaseView<S, E> {
+
+    override val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
+    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
 
     lateinit var viewModel: VM
     var viewState: S? = null
@@ -44,4 +50,6 @@ abstract class BaseActivity<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> 
      * @param isNew = savedInstanceState == null
      */
     abstract fun setupUI(isNew: Boolean)
+
+    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 }

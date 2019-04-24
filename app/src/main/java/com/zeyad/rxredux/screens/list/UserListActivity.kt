@@ -33,7 +33,6 @@ import com.zeyad.rxredux.utils.removeFragment
 import com.zeyad.rxredux.utils.showErrorSnackBarWithAction
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -53,8 +52,6 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
     private var actionMode: ActionMode? = null
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
-    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
 
     override fun initialize() {
         viewModel = getViewModel()
@@ -75,8 +72,6 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
             postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
         }
     }
-
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)

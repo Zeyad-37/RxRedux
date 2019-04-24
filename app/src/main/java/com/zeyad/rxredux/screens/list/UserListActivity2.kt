@@ -53,15 +53,13 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, Use
 
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
-
+    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+    override val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
-
-    private val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
-    private var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -104,8 +102,6 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, Use
             postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
         }
     }
-
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     override fun renderSuccessState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)
