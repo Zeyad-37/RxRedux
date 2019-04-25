@@ -13,6 +13,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
+import io.reactivex.subjects.BehaviorSubject
 
 @Throws(IllegalStateException::class)
 inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
@@ -20,13 +21,15 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<R, S : Parcelable, E> {
 
-    var disposable: CompositeDisposable
+    var disposables: CompositeDisposable
 
-    fun reducer(newResult: R, event: BaseEvent<*>, currentStateBundle: S): S
+    val currentStateStream: BehaviorSubject<Any>
 
-    fun mapEventsToActions(event: BaseEvent<*>): Flowable<*>
+    fun reducer(newResult: R, currentStateBundle: S): S
 
-    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>): Message =
+    fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*>
+
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>, currentStateBundle: PEffect<E>): Message =
             StringMessage(throwable.localizedMessage)
 
     fun middleware(it: PModel<*>) {
@@ -35,6 +38,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
     }
 
     fun store(events: Observable<BaseEvent<*>>, initialState: S): LiveData<PModel<*>> {
+        currentStateStream.onNext(initialState)
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
                 .toResult()
                 .publish()
@@ -46,50 +50,53 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t: PModel<*> -> liveState.value = t }
-                .let { disposable.add(it) }
+                .let { disposables.add(it) }
         return liveState
     }
 
-    private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> {
-        var latestState: PModel<S>? = null
-        return pModels.filter { it is SuccessResult }
-                .map { it as SuccessResult }
-                .scan<PModel<S>>(SuccessState(initialState), stateReducer())
-                .map {
-                    if (it == latestState) {
-                        EmptySuccessState()
-                    } else {
-                        latestState = it
-                        it
+    private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> =
+            pModels.filter { it is SuccessResult }
+                    .map { it as SuccessResult }
+                    .scan<PModel<S>>(SuccessState(initialState), stateReducer())
+                    .map {
+                        if (currentStateStream.value == it.bundle) {
+                            EmptySuccessState()
+                        } else {
+                            currentStateStream.onNext(it.bundle)
+                            it
+                        }
                     }
-                }
-                .compose(ReplayingShare.instance())
-    }
+                    .compose(ReplayingShare.instance())
 
-    private fun effectStream(pModels: Flowable<Result<E>>): Flowable<PModel<*>> {
-        return pModels.filter { it is EffectResult }
-                .map { it as EffectResult }
-                .scan<PModel<*>>(EmptySuccessEffect(), effectReducer())
-                .distinctUntilChanged()
-    }
+    private fun effectStream(pModels: Flowable<Result<E>>): Flowable<PModel<*>> =
+            pModels.filter { it is EffectResult }
+                    .map { it as EffectResult }
+                    .scan<PModel<*>>(EmptySuccessEffect(), effectReducer())
+                    .filter { t: PModel<*> -> t !is EmptySuccessEffect }
+                    .distinctUntilChanged()
+                    .doOnNext {
+                        if (it is SuccessEffectResult<*>) {
+                            currentStateStream.onNext(it.bundle!!)
+                        }
+                    }
 
-    private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> {
-        return observeOn(Schedulers.computation())
-                .concatMap { event ->
-                    Log.d("IBaseViewModel", "Event: $event")
-                    mapEventsToActions(event)
-                            .map<Result<*>> {
-                                if (it is EffectResult<*>) it
-                                else SuccessResult(it, event)
-                            }.onErrorReturn { ErrorEffectResult(it, event) }
-                            .startWith(LoadingEffectResult(event))
-                }
-                .distinctUntilChanged()
-    }
+
+    private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> =
+            observeOn(Schedulers.computation())
+                    .concatMap { event ->
+                        Log.d("IBaseViewModel", "Event: $event")
+                        reduceEventsToResults(event, currentStateStream.value!!)
+                                .map<Result<*>> {
+                                    if (it is EffectResult<*>) it
+                                    else SuccessResult(it, event)
+                                }.onErrorReturn { ErrorEffectResult(it, event) }
+                                .startWith(LoadingEffectResult(event))
+                    }
+                    .distinctUntilChanged()
 
     private fun stateReducer(): BiFunction<PModel<S>, SuccessResult<R>, PModel<S>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle, result.event, currentUIModel.bundle), result.event)
+                SuccessState(reducer(result.bundle, currentUIModel.bundle), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
@@ -111,7 +118,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
-                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event), currentUIModel.bundle, event)
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event, currentUIModel), currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
 }

@@ -41,7 +41,9 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
     }
 }
 
-class UserListEffect
+sealed class UserListEffect
+
+data class NavigateTo(val user: User) : UserListEffect()
 
 sealed class UserListEvents<T> : BaseEvent<T>
 
@@ -55,6 +57,10 @@ data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Lon
 
 data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
     override fun getPayLoad(): String = query
+}
+
+data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
+    override fun getPayLoad() = user
 }
 
 sealed class UserListResult
