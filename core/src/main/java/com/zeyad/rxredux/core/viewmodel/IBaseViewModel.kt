@@ -29,7 +29,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>, currentStateBundle: PEffect<E>): Message =
+    fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>, currentStateBundle: E): Message =
             StringMessage(throwable.localizedMessage)
 
     fun middleware(it: PModel<*>) {
@@ -118,7 +118,8 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     private fun ErrorEffectResult.errorEffect(currentUIModel: PEffect<E>): ErrorEffect<E> =
             when (currentUIModel) {
-                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event, currentUIModel), currentUIModel.bundle, event)
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, event, currentUIModel.bundle),
+                        currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
 }
