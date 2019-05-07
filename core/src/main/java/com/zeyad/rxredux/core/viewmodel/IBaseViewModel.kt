@@ -25,7 +25,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     val currentStateStream: BehaviorSubject<Any>
 
-    fun reducer(newResult: R, currentStateBundle: S): S
+    fun stateReducer(newResult: R, currentStateBundle: S): S
 
     fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*>
 
@@ -59,7 +59,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                     .map { it as SuccessResult }
                     .scan<PModel<S>>(SuccessState(initialState), stateReducer())
                     .map {
-                        if (currentStateStream.value == it.bundle) {
+                        if (currentStateStream.value == it.bundle && initialState != it.bundle) {
                             EmptySuccessState()
                         } else {
                             currentStateStream.onNext(it.bundle)
@@ -96,7 +96,7 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     private fun stateReducer(): BiFunction<PModel<S>, SuccessResult<R>, PModel<S>> =
             BiFunction { currentUIModel, result ->
-                SuccessState(reducer(result.bundle, currentUIModel.bundle), result.event)
+                SuccessState(stateReducer(result.bundle, currentUIModel.bundle), result.event)
             }
 
     private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
