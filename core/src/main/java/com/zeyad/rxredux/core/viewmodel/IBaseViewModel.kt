@@ -25,9 +25,9 @@ interface IBaseViewModel<R, S : Parcelable, E> {
 
     val currentStateStream: BehaviorSubject<Any>
 
-    fun stateReducer(newResult: R, currentStateBundle: S): S
+    fun stateReducer(newResult: R, currentState: S): S
 
-    fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*>
+    fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*>
 
     fun errorMessageFactory(throwable: Throwable, event: BaseEvent<*>, currentStateBundle: E): Message =
             StringMessage(throwable.localizedMessage)

@@ -5,6 +5,7 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
+import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
 import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.requests.GetRequest
@@ -14,19 +15,19 @@ import io.reactivex.Observable
 class UserDetailVM(private val dataUseCase: IDataService) :
         BaseViewModel<UserDetailResult, UserDetailState, UserDetailEffect>() {
 
-    override fun reducer(newResult: UserDetailResult, currentStateBundle: UserDetailState): UserDetailState {
-        return when (currentStateBundle) {
+    override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
+        return when (currentState) {
             is IntentBundleState -> when (newResult) {
-                is ListRepository -> FullDetailState(currentStateBundle.isTwoPane, currentStateBundle.user,
+                is ListRepository -> FullDetailState(currentState.isTwoPane, currentState.user,
                         Observable.fromIterable(newResult.repos)
                                 .map { ItemInfo(it, R.layout.repo_item_layout) }
                                 .toList(newResult.repos.size).blockingGet())
             }
-            is FullDetailState -> throw IllegalStateException("Can not reduce ${currentStateBundle.javaClass} with this result: $newResult!")
+            is FullDetailState -> throwIllegalStateException(newResult)
         }
     }
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*> {
+    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
         return when (val userDetailEvents = event as UserDetailEvents) {
             is GetReposEvent -> getRepositories(userDetailEvents.getPayLoad())
             is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(userDetailEvents.getPayLoad(), false), event))
