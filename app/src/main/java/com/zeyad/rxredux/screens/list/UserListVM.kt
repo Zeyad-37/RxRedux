@@ -4,6 +4,7 @@ import android.support.v7.util.DiffUtil
 import android.util.Log
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
+import com.zeyad.rxredux.annotations.Transition
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
@@ -23,32 +24,33 @@ import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentStateBundle: Any): Flowable<*> {
-        Log.d("UserListVM", "currentStateBundle: $currentStateBundle")
+    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
+        Log.d("UserListVM", "currentStateBundle: $currentState")
         return when (val userListEvent = event as UserListEvents) {
-            is GetPaginatedUsersEvent -> when (currentStateBundle) {
+            is GetPaginatedUsersEvent -> when (currentState) {
                 is EmptyState, is GetState -> getUsers(userListEvent.getPayLoad())
                 else -> throwIllegalStateException(userListEvent)
             }
-            is DeleteUsersEvent -> when (currentStateBundle) {
+            is DeleteUsersEvent -> when (currentState) {
                 is GetState -> deleteCollection(userListEvent.getPayLoad())
                 else -> throwIllegalStateException(userListEvent)
             }
-            is SearchUsersEvent -> when (currentStateBundle) {
+            is SearchUsersEvent -> when (currentState) {
                 is GetState -> search(userListEvent.getPayLoad())
                 else -> throwIllegalStateException(userListEvent)
             }
-            is UserClickedEvent -> when (currentStateBundle) {
+            is UserClickedEvent -> when (currentState) {
                 is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad()), event))
                 else -> throwIllegalStateException(userListEvent)
             }
         }
     }
 
-    override fun stateReducer(newResult: UserListResult, currentStateBundle: UserListState): UserListState {
-        val currentItemInfo = currentStateBundle.list.toMutableList()
-        return when (currentStateBundle) {
+    override fun stateReducer(newResult: UserListResult, currentState: UserListState): UserListState {
+        val currentItemInfo = currentState.list.toMutableList()
+        return when (currentState) {
             is EmptyState -> when (newResult) {
+                is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
                             .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
@@ -58,12 +60,13 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 }
             }
             is GetState -> when (newResult) {
+                is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
                             .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
                             .toList()
                             .map {
-                                val list = currentStateBundle.list.toMutableList()
+                                val list = currentState.list.toMutableList()
                                 list.addAll(it)
                                 list.toSet().toMutableList()
                             }.toFlowable()
@@ -83,7 +86,8 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
             }.skip(1)
                     .blockingFirst()
 
-    private fun getUsers(lastId: Long): Flowable<UsersResult> {
+    @Transition(results = [EmptyResult::class, UsersResult::class])
+    private fun getUsers(lastId: Long): Flowable<*> {
 //        return if (lastId == 0L)
 //            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)
 //                    .url(String.format(USERS, lastId))
@@ -91,7 +95,12 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
 //        else
         return dataUseCase.getList<User>(GetRequest.Builder(User::class.java, true)
                 .url(String.format(USERS, lastId)).build())
-                .map { UsersResult(it) }
+                .map {
+                    when (it.isEmpty()) {
+                        true -> EmptyResult
+                        false -> UsersResult(it)
+                    }
+                }
     }
 
     private fun search(query: String): Flowable<UsersResult> {

@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.screens.list
 
-import android.app.ActivityOptions
 import android.app.SearchManager
 import android.content.Context
 import android.support.v7.view.ActionMode
@@ -28,7 +27,6 @@ import com.zeyad.rxredux.screens.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.addFragment
-import com.zeyad.rxredux.utils.hasLollipop
 import com.zeyad.rxredux.utils.removeFragment
 import com.zeyad.rxredux.utils.showErrorSnackBarWithAction
 import io.reactivex.Observable
@@ -78,6 +76,22 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
     }
 
     override fun applyEffect(effectBundle: UserListEffect) {
+        when (effectBundle) {
+            is NavigateTo -> {
+                val userDetailState = IntentBundleState(twoPane, effectBundle.user)
+                if (twoPane) {
+                    if (currentFragTag.isNotBlank()) {
+                        removeFragment(currentFragTag)
+                    }
+                    val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
+                    currentFragTag = orderDetailFragment.javaClass.simpleName + effectBundle.user.id
+                    addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag)
+                } else {
+                    startActivity(UserDetailActivity
+                            .getCallingIntent(this@UserListActivity, userDetailState, false))
+                }
+            }
+        }
     }
 
     override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
@@ -110,37 +124,7 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
                 if (actionMode != null) {
                     toggleItemSelection(position)
                 } else if (itemInfo.getData<Any>() is User) {
-                    val userModel = itemInfo.getData<User>()
-                    val userDetailState = IntentBundleState(twoPane, userModel)
-                    var pair: android.util.Pair<View, String>? = null
-                    var secondPair: android.util.Pair<View, String>? = null
-                    if (hasLollipop()) {
-                        val userViewHolder = holder as UserViewHolder
-                        val avatar = userViewHolder.getAvatar()
-                        pair = android.util.Pair.create(avatar, avatar.transitionName)
-                        val textViewTitle = userViewHolder.getTextViewTitle()
-                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
-                    }
-                    if (twoPane) {
-                        if (currentFragTag.isNotBlank()) {
-                            removeFragment(currentFragTag)
-                        }
-                        val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
-                        currentFragTag = orderDetailFragment.javaClass.simpleName + userModel.id
-                        addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag,
-                                pair!!, secondPair!!)
-                    } else {
-                        if (hasLollipop()) {
-                            val options = ActivityOptions
-                                    .makeSceneTransitionAnimation(this@UserListActivity, pair,
-                                            secondPair).toBundle()
-                            startActivity(UserDetailActivity
-                                    .getCallingIntent(this@UserListActivity, userDetailState, false), options)
-                        } else {
-                            startActivity(UserDetailActivity
-                                    .getCallingIntent(this@UserListActivity, userDetailState, false))
-                        }
-                    }
+                    postOnResumeEvents.onNext(UserClickedEvent(itemInfo.getData()))
                 }
             }
         })

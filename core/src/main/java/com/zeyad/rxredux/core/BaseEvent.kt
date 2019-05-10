@@ -7,3 +7,6 @@ interface BaseEvent<T> {
 object EmptyEvent : BaseEvent<Unit> {
     override fun getPayLoad() = Unit
 }
+
+interface RootVertex
+interface LeafVertex
