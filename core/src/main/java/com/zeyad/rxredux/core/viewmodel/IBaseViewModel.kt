@@ -84,7 +84,6 @@ interface IBaseViewModel<R, S : Parcelable, E> {
     private fun Flowable<BaseEvent<*>>.toResult(): Flowable<Result<*>> =
             observeOn(Schedulers.computation())
                     .concatMap { event ->
-                        Log.d("IBaseViewModel", "Event: $event")
                         reduceEventsToResults(event, currentStateStream.value!!)
                                 .map<Result<*>> {
                                     if (it is EffectResult<*>) it
