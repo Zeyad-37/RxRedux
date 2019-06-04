@@ -5,8 +5,6 @@ import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.annotations.LeafVertex
 import com.zeyad.rxredux.annotations.RootVertex
-import com.zeyad.rxredux.screens.User
-import com.zeyad.rxredux.screens.UserDiffCallBack
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 

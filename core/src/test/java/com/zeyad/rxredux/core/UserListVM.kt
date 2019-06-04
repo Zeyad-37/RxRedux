@@ -6,8 +6,6 @@ import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
-import com.zeyad.rxredux.screens.User
-import com.zeyad.rxredux.screens.UserDiffCallBack
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest

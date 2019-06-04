@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens
+package com.zeyad.rxredux.core
 
 import android.os.Parcelable
 import com.google.gson.annotations.SerializedName

@@ -4,7 +4,6 @@ import android.support.v7.util.DiffUtil
 import android.util.Log
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.annotations.Transition
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
@@ -86,7 +85,6 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
             }.skip(1)
                     .blockingFirst()
 
-    @Transition(results = [EmptyResult::class, UsersResult::class])
     private fun getUsers(lastId: Long): Flowable<*> {
 //        return if (lastId == 0L)
 //            dataUseCase.getListOffLineFirst(GetRequest.Builder(User::class.java, true)

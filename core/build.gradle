@@ -129,5 +129,4 @@ dependencies {
     androidTestImplementation(Deps.esspresso_core, {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    testImplementation project(path: ':processor')
 }

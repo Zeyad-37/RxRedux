@@ -3,8 +3,8 @@ package com.zeyad.rxredux.screens.list
 import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.annotations.Event
-import com.zeyad.rxredux.annotations.Vertex
+import com.zeyad.rxredux.annotations.LeafVertex
+import com.zeyad.rxredux.annotations.RootVertex
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
@@ -18,7 +18,7 @@ sealed class UserListState : Parcelable {
 }
 
 @Parcelize
-@Vertex([EmptyState::class, GetState::class], [EmptyResult::class, UsersResult::class], root = true)
+@RootVertex
 data class EmptyState(override val list: List<ItemInfo> = emptyList(),
                       override val lastId: Long = 1
 ) : UserListState(), Parcelable {
@@ -28,7 +28,6 @@ data class EmptyState(override val list: List<ItemInfo> = emptyList(),
 }
 
 @Parcelize
-@Vertex([EmptyState::class, GetState::class, NavigateTo::class], [EmptyResult::class, UsersResult::class, UserClickedResult::class])
 data class GetState(override val list: List<ItemInfo> = emptyList(),
                     override val lastId: Long = 1
 ) : UserListState(), Parcelable {
@@ -45,7 +44,7 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
 }
 
 sealed class UserListEffect
-@Vertex(leaf = true)
+@LeafVertex
 data class NavigateTo(val user: User) : UserListEffect()
 
 sealed class UserListEvents<T> : BaseEvent<T>
@@ -54,7 +53,6 @@ data class DeleteUsersEvent(private val selectedItemsIds: List<String>) : UserLi
     override fun getPayLoad(): List<String> = selectedItemsIds
 }
 
-@Event([EmptyState::class, GetState::class], [EmptyResult::class, UsersResult::class])
 data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Long>() {
     override fun getPayLoad(): Long = lastId
 }
@@ -63,7 +61,6 @@ data class SearchUsersEvent(private val query: String) : UserListEvents<String>(
     override fun getPayLoad(): String = query
 }
 
-@Event([GetState::class], [UserClickedResult::class])
 data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
     override fun getPayLoad() = user
 }
@@ -72,4 +69,3 @@ sealed class UserListResult
 
 object EmptyResult : UserListResult()
 data class UsersResult(val list: List<User>) : UserListResult()
-data class UserClickedResult(val user: User)

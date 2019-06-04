@@ -1,4 +1,4 @@
-package com.zeyad.rxredux.screens
+package com.zeyad.rxredux.core
 
 import android.support.v7.util.DiffUtil
 

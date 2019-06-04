@@ -1,7 +1,6 @@
 package com.zeyad.rxredux.core.viewmodel
 
 import com.zeyad.rxredux.core.*
-import com.zeyad.rxredux.screens.User
 import com.zeyad.usecases.api.IDataService
 import junit.framework.TestCase.assertTrue
 import org.junit.Before
