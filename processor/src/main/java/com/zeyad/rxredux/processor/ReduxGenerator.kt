@@ -24,7 +24,7 @@ class ReduxGenerator : AbstractProcessor() {
         val eventElements = env.getElementsAnnotatedWith(Event::class.java)
         val viewModelElements = env.getElementsAnnotatedWith(ViewModel::class.java)
 
-
+        val x = GraphVerifier()
 
         env.getElementsAnnotatedWith(Vertex::class.java).map {
 

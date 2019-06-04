@@ -3,110 +3,126 @@ package com.zeyad.rxredux.core.viewmodel
 import android.os.Build.VERSION_CODES.N
 import android.os.Parcelable
 import android.support.annotation.RequiresApi
+import com.zeyad.rxredux.annotations.LeafVertex
+import com.zeyad.rxredux.annotations.RootVertex
 import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.LeafVertex
-import com.zeyad.rxredux.core.RootVertex
 import java.util.*
 import kotlin.collections.LinkedHashSet
+import kotlin.reflect.KClass
 
-class GraphVerifier<R, S : Parcelable, E : Any, VM : IBaseViewModel<R, S, E>>(private val vm: VM) {
+class GraphVerifier {
 
     @RequiresApi(N)
-    fun verify(events: List<BaseEvent<*>>, states: List<S>, effects: List<E>, results: List<R>): Boolean {
+    fun <R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<R, S, E>,
+                                            events: List<BaseEvent<*>>,
+                                            states: List<S>,
+                                            effects: List<E>,
+                                            results: List<R>): Boolean {
         return Graph().run {
-            fill(events, states, effects, results)
+            fill(vm, events, states, effects, results)
             validate(states, effects)
         }
     }
 
     @RequiresApi(N)
-    private fun Graph.fill(events: List<BaseEvent<*>>, states: List<S>, effects: List<E>, results: List<R>) {
-        fillByReducingEventsWithStates(events, states)
-        fillByReducingEventsWithEffects(events, effects)
-        fillByReducingStatesWithResults(states, results)
+    private fun <R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<R, S, E>,
+                                                        events: List<BaseEvent<*>>,
+                                                        states: List<S>,
+                                                        effects: List<E>,
+                                                        results: List<R>) {
+        fillByReducingEventsWithStates(vm, events, states)
+        fillByReducingEventsWithEffects(vm, events, effects)
+        fillByReducingStatesWithResults(vm, states, results)
     }
 
     @RequiresApi(N)
-    private fun Graph.fillByReducingStatesWithResults(states: List<S>, results: List<R>) {
-        val graphStates = mutableListOf<Vertex>()
+    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<R, S, E>,
+                                                                                   states: List<S>,
+                                                                                   results: List<R>) {
+        val graphStates = mutableListOf<KClass<*>>()
         for (state in states) {
             for (result in results) {
                 try {
-                    graphStates.add(Vertex(vm.stateReducer(result, state)))
+                    graphStates.add(vm.stateReducer(result, state)::class)
                 } catch (exception: Exception) {
                     continue
                 }
             }
-            insertWisely(Vertex(state), graphStates)
+            insertWisely(state::class, graphStates)
         }
     }
 
     @RequiresApi(N)
-    private fun Graph.fillByReducingEventsWithEffects(events: List<BaseEvent<*>>, effects: List<E>) {
-        val graphEffects: MutableList<Vertex> = mutableListOf()
+    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<R, S, E>,
+                                                                                   events: List<BaseEvent<*>>,
+                                                                                   effects: List<E>) {
+        val graphEffects: MutableList<KClass<*>> = mutableListOf()
         for (effect in effects) {
             for (event in events) {
-                reduceEvents(event, effect, graphEffects)
+                reduceEvents(vm, event, effect, graphEffects)
             }
-            insertWisely(Vertex(effect), graphEffects)
+            insertWisely(effect::class, graphEffects)
         }
     }
 
     @RequiresApi(N)
-    private fun Graph.fillByReducingEventsWithStates(events: List<BaseEvent<*>>, states: List<S>) {
-        val graphEffects: MutableList<Vertex> = mutableListOf()
+    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<R, S, E>,
+                                                                                  events: List<BaseEvent<*>>,
+                                                                                  states: List<S>) {
+        val graphEffects: MutableList<KClass<*>> = mutableListOf()
         for (state in states) {
             for (event in events) {
-                reduceEvents(event, state, graphEffects)
+                reduceEvents(vm, event, state, graphEffects)
             }
-            insertWisely(Vertex(state), graphEffects)
+            insertWisely(state::class, graphEffects)
         }
     }
 
-    private fun reduceEvents(event: BaseEvent<*>, effect: Any, graphEffects: MutableList<Vertex>) {
+    private fun <R, S : Parcelable, E : Any> reduceEvents(vm: IBaseViewModel<R, S, E>,
+                                                          event: BaseEvent<*>,
+                                                          effect: Any,
+                                                          graphEffects: MutableList<KClass<*>>) {
         val result = try {
             vm.reduceEventsToResults(event, effect).blockingFirst()
         } catch (exception: Exception) {
             return
         }
         if (result is SuccessEffectResult<*>) {
-            graphEffects.add(Vertex(result.bundle!!))
+            graphEffects.add(result.bundle!!::class)
         }
     }
 
     @RequiresApi(N)
-    private fun Graph.insertWisely(key: Vertex, graphEffects: MutableList<Vertex>) {
-        if (adjVertices.containsKey(key)) {
-            adjVertices.replace(key, graphEffects.plus(getAdjVerticesFor(key).asIterable()))
+    private fun Graph.insertWisely(vertex: KClass<*>, neighbours: MutableList<KClass<*>>) {
+        if (adjVertices.containsKey(vertex)) {
+            adjVertices.replace(vertex, neighbours.plus(getAdjVerticesFor(vertex).asIterable()))
         } else {
-            adjVertices.putIfAbsent(key, graphEffects.toList())
+            adjVertices.putIfAbsent(vertex, neighbours.toList())
         }
-        graphEffects.clear()
+        neighbours.clear()
     }
 
-    private fun Graph.validate(states: List<S>, effects: List<E>): Boolean {
-        val roots = states.filter { it is RootVertex }.map { Vertex(it) }
-        val leaves = states.filter { it is LeafVertex }.map { Vertex(it) }
-                .plus(effects.filter { it is LeafVertex }.map { Vertex(it as Any) })
+    private fun <S : Parcelable, E : Any> Graph.validate(states: List<S>, effects: List<E>): Boolean {
+        val roots =
+                states.filter { it.javaClass.isAnnotationPresent(RootVertex::class.java) }.map { it::class }
+        val leaves =
+                states.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class }
+                .plus(effects.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class })
         return roots.all { validateCore(it, leaves) }
     }
 
-    private fun Graph.validateCore(root: Vertex, leaves: List<Vertex>): Boolean {
+    private fun Graph.validateCore(root: KClass<*>, leaves: List<KClass<*>>): Boolean {
         val calculatedLeaves =
-                depthFirstTraversal(root).filter { it.state is LeafVertex }.toList()
-        val leafTypes = leaves.map { it::class.java }
-        val calculatedLeavesTypes = calculatedLeaves.map { it::class.java }
-        return calculatedLeavesTypes.containsAll(leafTypes) && calculatedLeaves.size == leaves.size
+                depthFirstTraversal(root).filter { it.java.isAnnotationPresent(LeafVertex::class.java) }.toList()
+        return calculatedLeaves.containsAll(leaves) && calculatedLeaves.size == leaves.size
     }
 }
 
-data class Vertex(val state: Any)
+data class Graph(val adjVertices: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()) {
 
-data class Graph(val adjVertices: MutableMap<Vertex, List<Vertex>> = mutableMapOf()) {
-
-    fun depthFirstTraversal(root: Vertex): Set<Vertex> {
-        val visited = LinkedHashSet<Vertex>()
-        val stack = Stack<Vertex>()
+    fun depthFirstTraversal(root: KClass<*>): Set<KClass<*>> {
+        val visited = LinkedHashSet<KClass<*>>()
+        val stack = Stack<KClass<*>>()
         stack.push(root)
         while (!stack.isEmpty()) {
             val vertex = stack.pop()
@@ -121,9 +137,9 @@ data class Graph(val adjVertices: MutableMap<Vertex, List<Vertex>> = mutableMapO
         return visited
     }
 
-    fun getAdjVerticesFor(key: Vertex): List<Vertex> {
+    fun getAdjVerticesFor(key: KClass<*>): List<KClass<*>> {
         return try {
-            adjVertices[key] ?: adjVertices[Vertex(key.state::class.java.newInstance())]!!
+            adjVertices[key]!!
         } catch (e: Exception) {
             emptyList()
         }
