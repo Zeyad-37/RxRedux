@@ -32,7 +32,7 @@ interface BaseView<S : Parcelable, E> {
      *
      * @return [Observable].
      */
-    fun events(): Observable<BaseEvent<*>>
+    fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
 
     /**
      * Renders the model of the view

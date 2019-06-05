@@ -44,8 +44,6 @@ abstract class BaseActivity<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> 
         viewState = bundle
     }
 
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
-
     /**
      * Setup the UI.
      *

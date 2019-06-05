@@ -16,8 +16,6 @@ interface IBaseView<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : BaseVi
     var viewModel: VM?
     var viewState: S?
 
-    override fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
-
     fun onStartImpl() {
         vmStart(viewModel!!, viewState!!, events(), this, this)
     }
