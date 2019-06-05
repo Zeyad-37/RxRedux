@@ -1,8 +1,6 @@
 package com.zeyad.rxredux.core.viewmodel
 
-import android.os.Build.VERSION_CODES.N
 import android.os.Parcelable
-import android.support.annotation.RequiresApi
 import com.zeyad.rxredux.annotations.LeafVertex
 import com.zeyad.rxredux.annotations.RootVertex
 import com.zeyad.rxredux.core.BaseEvent
@@ -12,7 +10,6 @@ import kotlin.reflect.KClass
 
 class GraphVerifier {
 
-    @RequiresApi(N)
     fun <R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<R, S, E>,
                                             events: List<BaseEvent<*>>,
                                             states: List<S>,
@@ -24,7 +21,6 @@ class GraphVerifier {
         }
     }
 
-    @RequiresApi(N)
     private fun <R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<R, S, E>,
                                                         events: List<BaseEvent<*>>,
                                                         states: List<S>,
@@ -35,7 +31,6 @@ class GraphVerifier {
         fillByReducingStatesWithResults(vm, states, results)
     }
 
-    @RequiresApi(N)
     private fun <R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<R, S, E>,
                                                                                    states: List<S>,
                                                                                    results: List<R>) {
@@ -52,7 +47,6 @@ class GraphVerifier {
         }
     }
 
-    @RequiresApi(N)
     private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<R, S, E>,
                                                                                    events: List<BaseEvent<*>>,
                                                                                    effects: List<E>) {
@@ -65,7 +59,6 @@ class GraphVerifier {
         }
     }
 
-    @RequiresApi(N)
     private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<R, S, E>,
                                                                                   events: List<BaseEvent<*>>,
                                                                                   states: List<S>) {
@@ -92,12 +85,11 @@ class GraphVerifier {
         }
     }
 
-    @RequiresApi(N)
     private fun Graph.insertWisely(vertex: KClass<*>, neighbours: MutableList<KClass<*>>) {
         if (adjVertices.containsKey(vertex)) {
-            adjVertices.replace(vertex, neighbours.plus(getAdjVerticesFor(vertex).asIterable()))
+            adjVertices[vertex] = neighbours.plus(getAdjVerticesFor(vertex).asIterable())
         } else {
-            adjVertices.putIfAbsent(vertex, neighbours.toList())
+            adjVertices[vertex] = neighbours.toList()
         }
         neighbours.clear()
     }
@@ -107,7 +99,7 @@ class GraphVerifier {
                 states.filter { it.javaClass.isAnnotationPresent(RootVertex::class.java) }.map { it::class }
         val leaves =
                 states.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class }
-                .plus(effects.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class })
+                        .plus(effects.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class })
         return roots.all { validateCore(it, leaves) }
     }
 
