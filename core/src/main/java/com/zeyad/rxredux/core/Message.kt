@@ -15,3 +15,10 @@ fun Message.getErrorMessage(context: Context): String {
         is IntMessage -> context.getString(messageId)
     }
 }
+
+fun Message.getString(): String {
+    return when (this) {
+        is StringMessage -> message
+        is IntMessage -> throw IllegalAccessException("This is the String resource id!")
+    }
+}
