@@ -15,7 +15,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
 import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.getErrorMessage
 import com.zeyad.rxredux.core.view.BaseActivity
@@ -43,7 +42,8 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEffect, UserListVM>(), OnStartDragListener, ActionMode.Callback {
+class UserListActivity : BaseActivity<UserListEvents, UserListResult, UserListState, UserListEffect, UserListVM>(),
+        OnStartDragListener, ActionMode.Callback {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
@@ -94,12 +94,12 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
         }
     }
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Message, event: UserListEvents) {
         showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
                 View.OnClickListener { postOnResumeEvents.onNext(event) })
     }
@@ -151,7 +151,7 @@ class UserListActivity : BaseActivity<UserListResult, UserListState, UserListEff
                                 viewState!!.lastId
                             else -1)
                 }
-                .filter { it.getPayLoad() != -1L }
+                .filter { it.lastId != -1L }
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .doOnNext { Log.d("NextPageEvent", FIRED) })

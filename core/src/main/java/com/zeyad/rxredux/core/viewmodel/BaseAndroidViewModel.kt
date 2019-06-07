@@ -6,8 +6,8 @@ import android.os.Parcelable
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
-abstract class BaseAndroidViewModel<R, S : Parcelable, E>(app: Application) :
-        AndroidViewModel(app), IBaseViewModel<R, S, E> {
+abstract class BaseAndroidViewModel<I, R, S : Parcelable, E>(app: Application) :
+        AndroidViewModel(app), IBaseViewModel<I, R, S, E> {
 
     override var disposables: CompositeDisposable = CompositeDisposable()
 

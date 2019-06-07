@@ -5,7 +5,6 @@ import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.annotations.LeafVertex
 import com.zeyad.rxredux.annotations.RootVertex
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -47,23 +46,15 @@ sealed class UserListEffect
 @LeafVertex
 data class NavigateTo(val user: User) : UserListEffect()
 
-sealed class UserListEvents<T> : BaseEvent<T>
+sealed class UserListEvents
 
-data class DeleteUsersEvent(private val selectedItemsIds: List<String>) : UserListEvents<List<String>>() {
-    override fun getPayLoad(): List<String> = selectedItemsIds
-}
+data class DeleteUsersEvent(val selectedItemsIds: List<String>) : UserListEvents()
 
-data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Long>() {
-    override fun getPayLoad(): Long = lastId
-}
+data class GetPaginatedUsersEvent(val lastId: Long) : UserListEvents()
 
-data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
-    override fun getPayLoad(): String = query
-}
+data class SearchUsersEvent(val query: String) : UserListEvents()
 
-data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
-    override fun getPayLoad() = user
-}
+data class UserClickedEvent(val user: User) : UserListEvents()
 
 sealed class UserListResult
 

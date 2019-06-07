@@ -3,15 +3,11 @@ package com.zeyad.rxredux.screens.list
 import android.support.v7.util.DiffUtil
 import android.util.Log
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
-import com.zeyad.rxredux.utils.Constants.URLS.USER
-import com.zeyad.rxredux.utils.Constants.URLS.USERS
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
@@ -21,26 +17,26 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListResult, UserListState, UserListEffect>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents, UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
+    override fun reduceEventsToResults(event: UserListEvents, currentState: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")
-        return when (val userListEvent = event as UserListEvents) {
+        return when (event) {
             is GetPaginatedUsersEvent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is EmptyState, is GetState -> getUsers(event.lastId)
+                else -> throwIllegalStateException(event)
             }
             is DeleteUsersEvent -> when (currentState) {
-                is GetState -> deleteCollection(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> deleteCollection(event.selectedItemsIds)
+                else -> throwIllegalStateException(event)
             }
             is SearchUsersEvent -> when (currentState) {
-                is GetState -> search(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> search(event.query)
+                else -> throwIllegalStateException(event)
             }
             is UserClickedEvent -> when (currentState) {
-                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad()), event))
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.user), event))
+                else -> throwIllegalStateException(event)
             }
         }
     }
@@ -52,7 +48,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
-                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
+                            .map { ItemInfo(it, com.zeyad.rxredux.core.R.layout.abc_action_menu_item_layout, it.id) }
                             .toList().toFlowable()
                             .calculateDiff(currentItemInfo)
                     GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
@@ -62,7 +58,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
-                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
+                            .map { ItemInfo(it, com.zeyad.rxredux.core.R.layout.abc_action_menu_item_layout, it.id) }
                             .toList()
                             .map {
                                 val list = currentState.list.toMutableList()
@@ -125,5 +121,10 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 .idColumnName(User.LOGIN, String::class.java).cache()
                 .build())
                 .map { selectedItemsIds }
+    }
+
+    companion object {
+        const val USERS = "users?since=%s"
+        const val USER = "users/%s"
     }
 }

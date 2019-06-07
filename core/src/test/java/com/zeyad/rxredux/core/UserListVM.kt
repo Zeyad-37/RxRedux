@@ -15,26 +15,26 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListResult, UserListState, UserListEffect>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents, UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
+    override fun reduceEventsToResults(event: UserListEvents, currentState: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")
-        return when (val userListEvent = event as UserListEvents) {
+        return when (event) {
             is GetPaginatedUsersEvent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is EmptyState, is GetState -> getUsers(event.lastId)
+                else -> throwIllegalStateException(event)
             }
             is DeleteUsersEvent -> when (currentState) {
-                is GetState -> deleteCollection(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> deleteCollection(event.selectedItemsIds)
+                else -> throwIllegalStateException(event)
             }
             is SearchUsersEvent -> when (currentState) {
-                is GetState -> search(userListEvent.getPayLoad())
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> search(event.query)
+                else -> throwIllegalStateException(event)
             }
             is UserClickedEvent -> when (currentState) {
-                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(userListEvent.getPayLoad()), event))
-                else -> throwIllegalStateException(userListEvent)
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.user), event))
+                else -> throwIllegalStateException(event)
             }
         }
     }

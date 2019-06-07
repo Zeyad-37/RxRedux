@@ -18,7 +18,6 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.getErrorMessage
 import com.zeyad.rxredux.core.view.BaseFragment
@@ -35,7 +34,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
+class UserDetailFragment : BaseFragment<UserDetailEvents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -130,12 +129,12 @@ class UserDetailFragment : BaseFragment<UserDetailResult, UserDetailState, UserD
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Message, event: UserDetailEvents) {
         showErrorSnackBar(errorMessage.getErrorMessage(requireContext()), linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

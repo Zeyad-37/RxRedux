@@ -3,37 +3,36 @@ package com.zeyad.rxredux.core.viewmodel
 import android.os.Parcelable
 import com.zeyad.rxredux.annotations.LeafVertex
 import com.zeyad.rxredux.annotations.RootVertex
-import com.zeyad.rxredux.core.BaseEvent
 import java.util.*
 import kotlin.collections.LinkedHashSet
 import kotlin.reflect.KClass
 
 class GraphVerifier {
 
-    fun <R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<R, S, E>,
-                                            events: List<BaseEvent<*>>,
-                                            states: List<S>,
-                                            effects: List<E>,
-                                            results: List<R>): Boolean {
+    fun <I, R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<I, R, S, E>,
+                                               events: List<I>,
+                                               states: List<S>,
+                                               effects: List<E>,
+                                               results: List<R>): Boolean {
         return Graph().run {
             fill(vm, events, states, effects, results)
             validate(states, effects)
         }
     }
 
-    private fun <R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<R, S, E>,
-                                                        events: List<BaseEvent<*>>,
-                                                        states: List<S>,
-                                                        effects: List<E>,
-                                                        results: List<R>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<I, R, S, E>,
+                                                           events: List<I>,
+                                                           states: List<S>,
+                                                           effects: List<E>,
+                                                           results: List<R>) {
         fillByReducingEventsWithStates(vm, events, states)
         fillByReducingEventsWithEffects(vm, events, effects)
         fillByReducingStatesWithResults(vm, states, results)
     }
 
-    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<R, S, E>,
-                                                                                   states: List<S>,
-                                                                                   results: List<R>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<I, R, S, E>,
+                                                                                      states: List<S>,
+                                                                                      results: List<R>) {
         val graphStates = mutableListOf<KClass<*>>()
         for (state in states) {
             for (result in results) {
@@ -47,9 +46,9 @@ class GraphVerifier {
         }
     }
 
-    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<R, S, E>,
-                                                                                   events: List<BaseEvent<*>>,
-                                                                                   effects: List<E>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<I, R, S, E>,
+                                                                                      events: List<I>,
+                                                                                      effects: List<E>) {
         val graphEffects: MutableList<KClass<*>> = mutableListOf()
         for (effect in effects) {
             for (event in events) {
@@ -59,9 +58,9 @@ class GraphVerifier {
         }
     }
 
-    private fun <R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<R, S, E>,
-                                                                                  events: List<BaseEvent<*>>,
-                                                                                  states: List<S>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<I, R, S, E>,
+                                                                                     events: List<I>,
+                                                                                     states: List<S>) {
         val graphEffects: MutableList<KClass<*>> = mutableListOf()
         for (state in states) {
             for (event in events) {
@@ -71,16 +70,16 @@ class GraphVerifier {
         }
     }
 
-    private fun <R, S : Parcelable, E : Any> reduceEvents(vm: IBaseViewModel<R, S, E>,
-                                                          event: BaseEvent<*>,
-                                                          effect: Any,
-                                                          graphEffects: MutableList<KClass<*>>) {
+    private fun <I, R, S : Parcelable, E : Any> reduceEvents(vm: IBaseViewModel<I, R, S, E>,
+                                                             event: I,
+                                                             effect: Any,
+                                                             graphEffects: MutableList<KClass<*>>) {
         val result = try {
             vm.reduceEventsToResults(event, effect).blockingFirst()
         } catch (exception: Exception) {
             return
         }
-        if (result is SuccessEffectResult<*>) {
+        if (result is SuccessEffectResult<*, *>) {
             graphEffects.add(result.bundle!!::class)
         }
     }
@@ -100,7 +99,7 @@ class GraphVerifier {
         val leaves =
                 states.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class }
                         .plus(effects.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class })
-        return roots.all { validateCore(it, leaves) }
+        return roots.isNotEmpty() && leaves.isNotEmpty() && roots.all { validateCore(it, leaves) }
     }
 
     private fun Graph.validateCore(root: KClass<*>, leaves: List<KClass<*>>): Boolean {

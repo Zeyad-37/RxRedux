@@ -2,7 +2,6 @@ package com.zeyad.rxredux.screens.detail
 
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
@@ -13,7 +12,7 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 
 class UserDetailVM(private val dataUseCase: IDataService) :
-        BaseViewModel<UserDetailResult, UserDetailState, UserDetailEffect>() {
+        BaseViewModel<UserDetailEvents, UserDetailResult, UserDetailState, UserDetailEffect>() {
 
     override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
         return when (currentState) {
@@ -27,10 +26,10 @@ class UserDetailVM(private val dataUseCase: IDataService) :
         }
     }
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
-        return when (val userDetailEvents = event as UserDetailEvents) {
-            is GetReposEvent -> getRepositories(userDetailEvents.getPayLoad())
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(userDetailEvents.getPayLoad(), false), event))
+    override fun reduceEventsToResults(event: UserDetailEvents, currentState: Any): Flowable<*> {
+        return when (event) {
+            is GetReposEvent -> getRepositories(event.login)
+            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(event.intent, false), event))
         }
     }
 
