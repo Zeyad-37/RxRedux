@@ -54,13 +54,13 @@ interface IBaseViewModel<R, S : Parcelable, E> {
         return liveState
     }
 
-    private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<*>> =
+    private fun stateStream(pModels: Flowable<Result<R>>, initialState: S): Flowable<PModel<S>> =
             pModels.filter { it is SuccessResult }
                     .map { it as SuccessResult }
                     .scan<PModel<S>>(SuccessState(initialState), stateReducer())
-                    .map {
+                    .map<PModel<S>> {
                         if (currentStateStream.value == it.bundle && initialState != it.bundle) {
-                            EmptySuccessState()
+                            EmptySuccessState() as PModel<S>
                         } else {
                             currentStateStream.onNext(it.bundle)
                             it
@@ -68,11 +68,11 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                     }
                     .compose(ReplayingShare.instance())
 
-    private fun effectStream(pModels: Flowable<Result<E>>): Flowable<PModel<*>> =
+    private fun effectStream(pModels: Flowable<Result<E>>): Flowable<PEffect<E>> =
             pModels.filter { it is EffectResult }
                     .map { it as EffectResult }
-                    .scan<PModel<*>>(EmptySuccessEffect(), effectReducer())
-                    .filter { t: PModel<*> -> t !is EmptySuccessEffect }
+                    .scan<PEffect<E>>(EmptySuccessEffect() as PEffect<E>, effectReducer())
+                    .filter { t: PEffect<*> -> t !is EmptySuccessEffect }
                     .distinctUntilChanged()
                     .doOnNext {
                         if (it is SuccessEffectResult<*>) {
@@ -98,13 +98,13 @@ interface IBaseViewModel<R, S : Parcelable, E> {
                 SuccessState(stateReducer(result.bundle, currentUIModel.bundle), result.event)
             }
 
-    private fun effectReducer(): BiFunction<PModel<*>, in EffectResult<E>, PModel<*>> =
+    private fun effectReducer(): BiFunction<PEffect<E>, in EffectResult<E>, PEffect<E>> =
             BiFunction { currentUIModel, result ->
                 result.run {
                     when (this) {
                         is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, event)
-                        is SuccessEffectResult -> successEffect(currentUIModel as PEffect<E>)
-                        is ErrorEffectResult -> errorEffect(currentUIModel as PEffect<E>)
+                        is SuccessEffectResult -> successEffect(currentUIModel)
+                        is ErrorEffectResult -> errorEffect(currentUIModel)
                     }
                 }
             }

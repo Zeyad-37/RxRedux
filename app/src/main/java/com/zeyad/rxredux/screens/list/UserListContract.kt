@@ -3,8 +3,6 @@ package com.zeyad.rxredux.screens.list
 import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.annotations.LeafVertex
-import com.zeyad.rxredux.annotations.RootVertex
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
@@ -18,7 +16,6 @@ sealed class UserListState : Parcelable {
 }
 
 @Parcelize
-@RootVertex
 data class EmptyState(override val list: List<ItemInfo> = emptyList(),
                       override val lastId: Long = 1
 ) : UserListState(), Parcelable {
@@ -44,7 +41,6 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
 }
 
 sealed class UserListEffect
-@LeafVertex
 data class NavigateTo(val user: User) : UserListEffect()
 
 sealed class UserListEvents<T> : BaseEvent<T>

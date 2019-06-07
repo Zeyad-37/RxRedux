@@ -1,11 +1,9 @@
-package com.zeyad.rxredux.core.viewmodel
+package com.zeyad.rxredux.core.verification
 
 import android.os.Parcelable
-import com.zeyad.rxredux.annotations.LeafVertex
-import com.zeyad.rxredux.annotations.RootVertex
 import com.zeyad.rxredux.core.BaseEvent
-import java.util.*
-import kotlin.collections.LinkedHashSet
+import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
+import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import kotlin.reflect.KClass
 
 class GraphVerifier {
@@ -96,44 +94,17 @@ class GraphVerifier {
 
     private fun <S : Parcelable, E : Any> Graph.validate(states: List<S>, effects: List<E>): Boolean {
         val roots =
-                states.filter { it.javaClass.isAnnotationPresent(RootVertex::class.java) }.map { it::class }
+                states.filter { it.javaClass.interfaces.contains(Root::class.java) }.map { it::class }
         val leaves =
-                states.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class }
-                        .plus(effects.filter { it.javaClass.isAnnotationPresent(LeafVertex::class.java) }.map { it::class })
-        return roots.all { validateCore(it, leaves) }
+                states.filter { it.javaClass.interfaces.contains(Leaf::class.java) }.map { it::class }
+                        .plus(effects.filter { it.javaClass.interfaces.contains(Leaf::class.java) }.map { it::class })
+        return roots.isNotEmpty() && leaves.isNotEmpty() && roots.all { validateCore(it, leaves) }
     }
 
     private fun Graph.validateCore(root: KClass<*>, leaves: List<KClass<*>>): Boolean {
         val calculatedLeaves =
-                depthFirstTraversal(root).filter { it.java.isAnnotationPresent(LeafVertex::class.java) }.toList()
+                depthFirstTraversal(root).filter { it.java.interfaces.contains(Leaf::class.java) }.toList()
         return calculatedLeaves.containsAll(leaves) && calculatedLeaves.size == leaves.size
     }
 }
 
-data class Graph(val adjVertices: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()) {
-
-    fun depthFirstTraversal(root: KClass<*>): Set<KClass<*>> {
-        val visited = LinkedHashSet<KClass<*>>()
-        val stack = Stack<KClass<*>>()
-        stack.push(root)
-        while (!stack.isEmpty()) {
-            val vertex = stack.pop()
-            if (!visited.contains(vertex)) {
-                visited.add(vertex)
-                val adjList = getAdjVerticesFor(vertex)
-                for (v in adjList) {
-                    stack.push(v)
-                }
-            }
-        }
-        return visited
-    }
-
-    fun getAdjVerticesFor(key: KClass<*>): List<KClass<*>> {
-        return try {
-            adjVertices[key]!!
-        } catch (e: Exception) {
-            emptyList()
-        }
-    }
-}
