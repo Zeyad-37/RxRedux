@@ -151,7 +151,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
                                 viewState!!.lastId
                             else -1)
                 }
-                .filter { it.lastId != -1L }
+                .filter { it.getPayLoad() != -1L }
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .doOnNext { Log.d("NextPageEvent", FIRED) })

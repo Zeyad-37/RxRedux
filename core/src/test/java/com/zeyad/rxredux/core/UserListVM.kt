@@ -21,19 +21,19 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
         Log.d("UserListVM", "currentStateBundle: $currentState")
         return when (event) {
             is GetPaginatedUsersEvent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(event.lastId)
+                is EmptyState, is GetState -> getUsers(event.getPayLoad())
                 else -> throwIllegalStateException(event)
             }
             is DeleteUsersEvent -> when (currentState) {
-                is GetState -> deleteCollection(event.selectedItemsIds)
+                is GetState -> deleteCollection(event.getPayLoad())
                 else -> throwIllegalStateException(event)
             }
             is SearchUsersEvent -> when (currentState) {
-                is GetState -> search(event.query)
+                is GetState -> search(event.getPayLoad())
                 else -> throwIllegalStateException(event)
             }
             is UserClickedEvent -> when (currentState) {
-                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.user), event))
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.getPayLoad()), event))
                 else -> throwIllegalStateException(event)
             }
         }
