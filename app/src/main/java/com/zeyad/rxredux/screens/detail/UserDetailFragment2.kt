@@ -19,7 +19,6 @@ import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
@@ -37,12 +36,12 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
-    override val postOnResumeEvents: PublishSubject<BaseEvent<*>> = PublishSubject.create()
-    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty<BaseEvent<*>>()
+    override val postOnResumeEvents: PublishSubject<UserDetailEvents<*>> = PublishSubject.create()
+    override var eventObservable: Observable<UserDetailEvents<*>> = Observable.empty()
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -140,12 +139,12 @@ class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailResult, UserDeta
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Message, event: UserDetailEvents<*>) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

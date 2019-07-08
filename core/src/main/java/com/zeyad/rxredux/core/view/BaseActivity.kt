@@ -9,10 +9,10 @@ import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-abstract class BaseActivity<R, S : Parcelable, E, VM : IBaseViewModel<R, S, E>> : AppCompatActivity(), BaseView<S, E> {
+abstract class BaseActivity<I : BaseEvent<*>, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : AppCompatActivity(), BaseView<I, S, E> {
 
-    override val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
-    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
+    override val postOnResumeEvents = PublishSubject.create<I>()
+    override var eventObservable: Observable<I> = Observable.empty()
 
     lateinit var viewModel: VM
     var viewState: S? = null

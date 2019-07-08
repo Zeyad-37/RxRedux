@@ -21,7 +21,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.User
@@ -48,13 +47,13 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, UserListState, UserListEffect, UserListVM>,
+class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
-    override var eventObservable: Observable<BaseEvent<*>> = Observable.empty()
-    override val postOnResumeEvents = PublishSubject.create<BaseEvent<*>>()
+    override var eventObservable: Observable<UserListEvents<*>> = Observable.empty()
+    override val postOnResumeEvents = PublishSubject.create<UserListEvents<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -109,12 +108,12 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, Use
 
     override fun applyEffect(effectBundle: UserListEffect) = Unit
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
+    override fun showError(errorMessage: Message, event: UserListEvents<*>) {
 //        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
@@ -140,14 +139,14 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListResult, Use
                 } else if (itemInfo.getData<Any>() is User) {
                     val userModel = itemInfo.getData<User>()
                     val userDetailState = IntentBundleState(twoPane, userModel)
-                    var pair: android.util.Pair<View, String>? = null
-                    var secondPair: android.util.Pair<View, String>? = null
+                    var pair: Pair<View, String>? = null
+                    var secondPair: Pair<View, String>? = null
                     if (hasLollipop()) {
                         val userViewHolder = holder as UserViewHolder
                         val avatar = userViewHolder.getAvatar()
-                        pair = android.util.Pair.create(avatar, avatar.transitionName)
+                        pair = Pair.create(avatar, avatar.transitionName)
                         val textViewTitle = userViewHolder.getTextViewTitle()
-                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+                        secondPair = Pair.create(textViewTitle, textViewTitle.transitionName)
                     }
                     if (twoPane) {
                         if (currentFragTag.isNotBlank()) {

@@ -14,10 +14,10 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
             savedInstanceState.getParcelable(P_MODEL)
         else null
 
-interface BaseView<S : Parcelable, E> {
+interface BaseView<I : BaseEvent<*>, S : Parcelable, E> {
 
-    val postOnResumeEvents: PublishSubject<BaseEvent<*>>
-    var eventObservable: Observable<BaseEvent<*>>
+    val postOnResumeEvents: PublishSubject<I>
+    var eventObservable: Observable<I>
 
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
@@ -32,7 +32,7 @@ interface BaseView<S : Parcelable, E> {
      *
      * @return [Observable].
      */
-    fun events(): Observable<BaseEvent<*>> = eventObservable.mergeWith(postOnResumeEvents)
+    fun events(): Observable<I> = eventObservable.mergeWith(postOnResumeEvents)
 
     /**
      * Renders the model of the view
@@ -53,14 +53,14 @@ interface BaseView<S : Parcelable, E> {
      *
      * @param isLoading whether to show or hide the loading view.
      */
-    fun toggleViews(isLoading: Boolean, event: BaseEvent<*>)
+    fun toggleViews(isLoading: Boolean, event: I?)
 
     /**
      * Show an errorResult messageId
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun showError(errorMessage: Message, event: BaseEvent<*>)
+    fun showError(errorMessage: Message, event: I)
 
     /**
      * Sets the viewState and the firing event on the implementing View.

@@ -29,7 +29,7 @@ internal class GetReposEvent(private val login: String) : UserDetailEvents<Strin
 }
 
 class NavigateToEvent(private val intent: Intent) : UserDetailEvents<Intent>() {
-    override fun getPayLoad() = intent
+    override fun getPayLoad(): Intent = intent
 }
 
 sealed class UserDetailResult

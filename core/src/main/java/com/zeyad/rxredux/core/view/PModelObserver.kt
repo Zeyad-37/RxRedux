@@ -4,8 +4,8 @@ import android.arch.lifecycle.Observer
 import android.os.Parcelable
 import com.zeyad.rxredux.core.*
 
-class PModelObserver<V : BaseView<S, E>, S : Parcelable, E>(private val view: V) : Observer<PModel<*>> {
-    override fun onChanged(uiModel: PModel<*>?) {
+class PModelObserver<I : BaseEvent<*>, V : BaseView<I, S, E>, S : Parcelable, E>(private val view: V) : Observer<PModel<*, I>> {
+    override fun onChanged(uiModel: PModel<*, I>?) {
         uiModel?.apply {
             view.toggleViews(this is LoadingEffect, event)
             when (this) {

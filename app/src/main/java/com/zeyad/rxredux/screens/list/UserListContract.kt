@@ -58,7 +58,7 @@ data class SearchUsersEvent(private val query: String) : UserListEvents<String>(
 }
 
 data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
-    override fun getPayLoad() = user
+    override fun getPayLoad(): User = user
 }
 
 sealed class UserListResult
