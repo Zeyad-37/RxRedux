@@ -57,7 +57,7 @@ interface IBaseViewModel<I : BaseEvent<*>, R, S : Parcelable, E> {
     private fun stateStream(pModels: Flowable<Result<R, I>>, initialState: S): Flowable<PModel<S, I>> =
             pModels.filter { it is SuccessResult }
                     .map { it as SuccessResult }
-                    .scan(SuccessState(initialState, EmptyEvent) as PModel<S, I>, stateReducer())
+                    .scan(SuccessState(initialState, null) as PModel<S, I>, stateReducer())
                     .map {
                         if (currentStateStream.value == it.bundle && initialState != it.bundle) {
                             EmptySuccessState() as PModel<S, I>
@@ -85,7 +85,7 @@ interface IBaseViewModel<I : BaseEvent<*>, R, S : Parcelable, E> {
                     .concatMap { event ->
                         reduceEventsToResults(event, currentStateStream.value!!)
                                 .map<Result<*, I>> {
-                                    if (it is EffectResult<*, *>) it as Result<*, I>
+                                    if (it is EffectResult<*, *>) it as EffectResult<*, I>
                                     else SuccessResult(it, event)
                                 }.onErrorReturn { ErrorEffectResult(it, event) }
                                 .startWith(LoadingEffectResult(event))

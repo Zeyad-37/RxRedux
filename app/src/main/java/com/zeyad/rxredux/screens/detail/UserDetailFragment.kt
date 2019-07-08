@@ -129,7 +129,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }

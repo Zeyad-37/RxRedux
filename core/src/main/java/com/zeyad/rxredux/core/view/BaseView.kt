@@ -53,7 +53,7 @@ interface BaseView<I : BaseEvent<*>, S : Parcelable, E> {
      *
      * @param isLoading whether to show or hide the loading view.
      */
-    fun toggleViews(isLoading: Boolean, event: I)
+    fun toggleViews(isLoading: Boolean, event: I?)
 
     /**
      * Show an errorResult messageId

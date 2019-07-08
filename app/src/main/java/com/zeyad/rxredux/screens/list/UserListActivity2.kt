@@ -108,7 +108,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
 
     override fun applyEffect(effectBundle: UserListEffect) = Unit
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
@@ -139,14 +139,14 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
                 } else if (itemInfo.getData<Any>() is User) {
                     val userModel = itemInfo.getData<User>()
                     val userDetailState = IntentBundleState(twoPane, userModel)
-                    var pair: android.util.Pair<View, String>? = null
-                    var secondPair: android.util.Pair<View, String>? = null
+                    var pair: Pair<View, String>? = null
+                    var secondPair: Pair<View, String>? = null
                     if (hasLollipop()) {
                         val userViewHolder = holder as UserViewHolder
                         val avatar = userViewHolder.getAvatar()
-                        pair = android.util.Pair.create(avatar, avatar.transitionName)
+                        pair = Pair.create(avatar, avatar.transitionName)
                         val textViewTitle = userViewHolder.getTextViewTitle()
-                        secondPair = android.util.Pair.create(textViewTitle, textViewTitle.transitionName)
+                        secondPair = Pair.create(textViewTitle, textViewTitle.transitionName)
                     }
                     if (twoPane) {
                         if (currentFragTag.isNotBlank()) {

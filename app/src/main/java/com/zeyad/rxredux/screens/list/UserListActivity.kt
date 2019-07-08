@@ -94,7 +94,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         }
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }

@@ -66,7 +66,7 @@ class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstE
         Log.d("FirstFragment", "Other State = ${successState.javaClass}")
     }
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>?) {
         Log.d("FirstFragment", "Loading $isLoading")
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE

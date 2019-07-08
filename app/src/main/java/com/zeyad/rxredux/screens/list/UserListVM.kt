@@ -3,6 +3,7 @@ package com.zeyad.rxredux.screens.list
 import android.support.v7.util.DiffUtil
 import android.util.Log
 import com.zeyad.gadapter.ItemInfo
+import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
@@ -48,7 +49,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
-                            .map { ItemInfo(it, com.zeyad.rxredux.core.R.layout.abc_action_menu_item_layout, it.id) }
+                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
                             .toList().toFlowable()
                             .calculateDiff(currentItemInfo)
                     GetState(pair.first, pair.first[pair.first.size - 1].id, pair.second)
@@ -58,7 +59,7 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
                 is EmptyResult -> EmptyState()
                 is UsersResult -> {
                     val pair = Flowable.fromIterable(newResult.list)
-                            .map { ItemInfo(it, com.zeyad.rxredux.core.R.layout.abc_action_menu_item_layout, it.id) }
+                            .map { ItemInfo(it, R.layout.user_item_layout, it.id) }
                             .toList()
                             .map {
                                 val list = currentState.list.toMutableList()
