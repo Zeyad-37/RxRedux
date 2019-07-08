@@ -28,8 +28,8 @@ class UserDetailVM(private val dataUseCase: IDataService) :
 
     override fun reduceEventsToResults(event: UserDetailEvents<*>, currentState: Any): Flowable<*> {
         return when (event) {
-            is GetReposEvent -> getRepositories(event.login)
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(event.intent, false), event))
+            is GetReposEvent -> getRepositories(event.getPayLoad())
+            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(event.getPayLoad(), false), event))
         }
     }
 

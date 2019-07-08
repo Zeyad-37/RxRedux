@@ -24,11 +24,11 @@ data class NavigateFromDetail(val intent: Intent, val shouldFinish: Boolean) : U
 
 sealed class UserDetailEvents<T> : BaseEvent<T>
 
-internal class GetReposEvent(val login: String) : UserDetailEvents<String>() {
+internal class GetReposEvent(private val login: String) : UserDetailEvents<String>() {
     override fun getPayLoad(): String = login
 }
 
-class NavigateToEvent(val intent: Intent) : UserDetailEvents<Intent>() {
+class NavigateToEvent(private val intent: Intent) : UserDetailEvents<Intent>() {
     override fun getPayLoad(): Intent = intent
 }
 
