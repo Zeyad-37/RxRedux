@@ -3,8 +3,8 @@ package com.zeyad.rxredux.core
 import android.os.Parcelable
 import android.support.v7.util.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.annotations.LeafVertex
-import com.zeyad.rxredux.annotations.RootVertex
+import com.zeyad.rxredux.core.verification.Leaf
+import com.zeyad.rxredux.core.verification.Root
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -15,10 +15,9 @@ sealed class UserListState : Parcelable {
 }
 
 @Parcelize
-@RootVertex
 data class EmptyState(override val list: List<ItemInfo> = emptyList(),
                       override val lastId: Long = 1
-) : UserListState(), Parcelable {
+) : UserListState(), Parcelable, Root {
     @IgnoredOnParcel
     override var callback: DiffUtil.DiffResult =
             DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
@@ -41,8 +40,7 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
 }
 
 sealed class UserListEffect
-@LeafVertex
-data class NavigateTo(val user: User) : UserListEffect()
+data class NavigateTo(val user: User) : UserListEffect(), Leaf
 
 sealed class UserListEvents
 

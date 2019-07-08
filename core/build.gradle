@@ -109,7 +109,6 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation project(path: ':annotations')
     implementation Deps.kotlin_stdlib
     api Deps.appcompat_v7
 
@@ -120,7 +119,6 @@ dependencies {
     implementation Deps.recycler_view
 
     testImplementation Deps.generic_recycler_review
-    testImplementation project(path: ':annotations')
     testImplementation Deps.junit
     testImplementation Deps.kotlin_all_open
     testImplementation Deps.use_cases
