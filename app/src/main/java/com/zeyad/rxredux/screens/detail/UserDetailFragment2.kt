@@ -36,12 +36,12 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
-    override val postOnResumeEvents: PublishSubject<UserDetailEvents> = PublishSubject.create()
-    override var eventObservable: Observable<UserDetailEvents> = Observable.empty<UserDetailEvents>()
+    override val postOnResumeEvents: PublishSubject<UserDetailEvents<*>> = PublishSubject.create()
+    override var eventObservable: Observable<UserDetailEvents<*>> = Observable.empty()
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -139,12 +139,12 @@ class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents, UserDeta
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents) {
+    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserDetailEvents) {
+    override fun showError(errorMessage: Message, event: UserDetailEvents<*>) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

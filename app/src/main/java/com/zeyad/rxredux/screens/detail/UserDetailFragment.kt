@@ -34,7 +34,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailEvents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
+class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -129,12 +129,12 @@ class UserDetailFragment : BaseFragment<UserDetailEvents, UserDetailResult, User
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents) {
+    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserDetailEvents) {
+    override fun showError(errorMessage: Message, event: UserDetailEvents<*>) {
         showErrorSnackBar(errorMessage.getErrorMessage(requireContext()), linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

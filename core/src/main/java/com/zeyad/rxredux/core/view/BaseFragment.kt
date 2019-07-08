@@ -3,11 +3,12 @@ package com.zeyad.rxredux.core.view
 import android.os.Bundle
 import android.os.Parcelable
 import android.support.v4.app.Fragment
+import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
 
-abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : Fragment(), BaseView<I, S, E> {
+abstract class BaseFragment<I : BaseEvent<*>, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : Fragment(), BaseView<I, S, E> {
 
     override val postOnResumeEvents = PublishSubject.create<I>()
     override var eventObservable: Observable<I> = Observable.empty()

@@ -17,9 +17,9 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents, UserListResult, UserListState, UserListEffect>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents<*>, UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceEventsToResults(event: UserListEvents, currentState: Any): Flowable<*> {
+    override fun reduceEventsToResults(event: UserListEvents<*>, currentState: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")
         return when (event) {
             is GetPaginatedUsersEvent -> when (currentState) {

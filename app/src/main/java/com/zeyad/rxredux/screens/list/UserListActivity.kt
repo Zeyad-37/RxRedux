@@ -42,7 +42,7 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity : BaseActivity<UserListEvents, UserListResult, UserListState, UserListEffect, UserListVM>(),
+class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>(),
         OnStartDragListener, ActionMode.Callback {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -94,12 +94,12 @@ class UserListActivity : BaseActivity<UserListEvents, UserListResult, UserListSt
         }
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserListEvents) {
+    override fun showError(errorMessage: Message, event: UserListEvents<*>) {
         showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
                 View.OnClickListener { postOnResumeEvents.onNext(event) })
     }

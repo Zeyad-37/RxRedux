@@ -2,6 +2,7 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
+import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -13,7 +14,7 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
             savedInstanceState.getParcelable(P_MODEL)
         else null
 
-interface BaseView<I, S : Parcelable, E> {
+interface BaseView<I : BaseEvent<*>, S : Parcelable, E> {
 
     val postOnResumeEvents: PublishSubject<I>
     var eventObservable: Observable<I>

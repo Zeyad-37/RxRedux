@@ -19,7 +19,7 @@ import io.reactivex.subjects.BehaviorSubject
 inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
         throw IllegalStateException("Can not reduce from $this to ${T::class.java.simpleName} with $result")
 
-interface IBaseViewModel<I : BaseEvent<I>, R, S : Parcelable, E> {
+interface IBaseViewModel<I : BaseEvent<*>, R, S : Parcelable, E> {
 
     var disposables: CompositeDisposable
 
@@ -57,8 +57,8 @@ interface IBaseViewModel<I : BaseEvent<I>, R, S : Parcelable, E> {
     private fun stateStream(pModels: Flowable<Result<R, I>>, initialState: S): Flowable<PModel<S, I>> =
             pModels.filter { it is SuccessResult }
                     .map { it as SuccessResult }
-                    .scan<PModel<S, I>>(SuccessState(initialState, EmptyEvent) as PModel<S, I>, stateReducer())
-                    .map<PModel<S, I>> {
+                    .scan(SuccessState(initialState, EmptyEvent) as PModel<S, I>, stateReducer())
+                    .map {
                         if (currentStateStream.value == it.bundle && initialState != it.bundle) {
                             EmptySuccessState() as PModel<S, I>
                         } else {
@@ -71,7 +71,7 @@ interface IBaseViewModel<I : BaseEvent<I>, R, S : Parcelable, E> {
     private fun effectStream(pModels: Flowable<Result<E, I>>): Flowable<PEffect<E, I>> =
             pModels.filter { it is EffectResult }
                     .map { it as EffectResult }
-                    .scan<PEffect<E, I>>(EmptySuccessEffect() as PEffect<E, I>, effectReducer())
+                    .scan(EmptySuccessEffect() as PEffect<E, I>, effectReducer())
                     .filter { t: PEffect<E, I> -> t !is EmptySuccessEffect }
                     .distinctUntilChanged()
                     .doOnNext {

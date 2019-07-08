@@ -47,13 +47,13 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents, UserListResult, UserListState, UserListEffect, UserListVM>,
+class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
-    override var eventObservable: Observable<UserListEvents> = Observable.empty()
-    override val postOnResumeEvents = PublishSubject.create<UserListEvents>()
+    override var eventObservable: Observable<UserListEvents<*>> = Observable.empty()
+    override val postOnResumeEvents = PublishSubject.create<UserListEvents<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -108,12 +108,12 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents, Use
 
     override fun applyEffect(effectBundle: UserListEffect) = Unit
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents) {
+    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserListEvents) {
+    override fun showError(errorMessage: Message, event: UserListEvents<*>) {
 //        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 

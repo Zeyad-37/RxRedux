@@ -10,6 +10,8 @@ import android.view.View
 import android.view.ViewGroup
 import com.jakewharton.rxbinding2.view.RxView
 import com.zeyad.rxredux.R
+import com.zeyad.rxredux.core.BaseEvent
+import com.zeyad.rxredux.core.EmptyEvent
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.screens.detail.NavigateToEvent
@@ -24,7 +26,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A placeholder fragment containing a simple view.
  */
-class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, FirstVM>() {
+class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstEffect, FirstVM>() {
 
     override fun initialize() {
         viewModel = FirstVM()
@@ -39,7 +41,7 @@ class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, Fi
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         eventObservable = eventObservable.mergeWith(RxView.clicks(fab)
-                .map<Any> { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) })
+                .map<BaseEvent<*>> { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) })
     }
 
     @SuppressLint("RxLeakedSubscription", "CheckResult")
@@ -53,7 +55,7 @@ class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, Fi
                         if (isSecond)
                             postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
                         else {
-                            postOnResumeEvents.onNext(Any())
+                            postOnResumeEvents.onNext(EmptyEvent)
                             isSecond = true
                         }
                     }, { it.printStackTrace() })
@@ -64,7 +66,7 @@ class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, Fi
         Log.d("FirstFragment", "Other State = ${successState.javaClass}")
     }
 
-    override fun toggleViews(isLoading: Boolean, event: Any) {
+    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
         Log.d("FirstFragment", "Loading $isLoading")
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
@@ -74,7 +76,7 @@ class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, Fi
         startActivity((effectBundle as NavigateToEffect).intent)
     }
 
-    override fun showError(errorMessage: Message, event: Any) {
+    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
         showErrorSnackBar("Oops", fab, Snackbar.LENGTH_INDEFINITE)
     }
 }
