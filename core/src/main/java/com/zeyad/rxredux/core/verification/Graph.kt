@@ -7,7 +7,7 @@ import kotlin.reflect.KClass
 interface Root
 interface Leaf
 
-data class Graph(val adjVertices: MutableMap<KClass<*>, List<KClass<*>>> = mutableMapOf()) {
+data class Graph(val adjVertices: MutableMap<KClass<*>, Set<KClass<*>>> = mutableMapOf()) {
 
     fun depthFirstTraversal(root: KClass<*>): Set<KClass<*>> {
         val visited = LinkedHashSet<KClass<*>>()
@@ -26,11 +26,11 @@ data class Graph(val adjVertices: MutableMap<KClass<*>, List<KClass<*>>> = mutab
         return visited
     }
 
-    fun getAdjVerticesFor(key: KClass<*>): List<KClass<*>> {
+    fun getAdjVerticesFor(key: KClass<*>): Set<KClass<*>> {
         return try {
             adjVertices[key]!!
         } catch (e: Exception) {
-            emptyList()
+            emptySet()
         }
     }
 }

@@ -32,7 +32,7 @@ class GraphVerifier {
     private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<I, R, S, E>,
                                                                                                      states: List<S>,
                                                                                                      results: List<R>) {
-        val graphStates = mutableListOf<KClass<*>>()
+        val graphStates = mutableSetOf<KClass<*>>()
         for (state in states) {
             for (result in results) {
                 try {
@@ -48,7 +48,7 @@ class GraphVerifier {
     private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<I, R, S, E>,
                                                                                                      events: List<I>,
                                                                                                      effects: List<E>) {
-        val graphEffects: MutableList<KClass<*>> = mutableListOf()
+        val graphEffects: MutableSet<KClass<*>> = mutableSetOf()
         for (effect in effects) {
             for (event in events) {
                 reduceEvents(vm, event, effect, graphEffects)
@@ -60,7 +60,7 @@ class GraphVerifier {
     private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<I, R, S, E>,
                                                                                                     events: List<I>,
                                                                                                     states: List<S>) {
-        val graphEffects: MutableList<KClass<*>> = mutableListOf()
+        val graphEffects: MutableSet<KClass<*>> = mutableSetOf()
         for (state in states) {
             for (event in events) {
                 reduceEvents(vm, event, state, graphEffects)
@@ -72,7 +72,7 @@ class GraphVerifier {
     private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> reduceEvents(vm: IBaseViewModel<I, R, S, E>,
                                                                             event: I,
                                                                             effect: Any,
-                                                                            graphEffects: MutableList<KClass<*>>) {
+                                                                            graphEffects: MutableSet<KClass<*>>) {
         val result = try {
             vm.reduceEventsToResults(event, effect).blockingFirst()
         } catch (exception: Exception) {
@@ -83,11 +83,11 @@ class GraphVerifier {
         }
     }
 
-    private fun Graph.insertWisely(vertex: KClass<*>, neighbours: MutableList<KClass<*>>) {
+    private fun Graph.insertWisely(vertex: KClass<*>, neighbours: MutableSet<KClass<*>>) {
         if (adjVertices.containsKey(vertex)) {
             adjVertices[vertex] = neighbours.plus(getAdjVerticesFor(vertex).asIterable())
         } else {
-            adjVertices[vertex] = neighbours.toList()
+            adjVertices[vertex] = neighbours.toSet()
         }
         neighbours.clear()
     }
