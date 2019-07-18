@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core.view
 
-import android.arch.lifecycle.Observer
 import android.os.Parcelable
+import androidx.lifecycle.Observer
 import com.zeyad.rxredux.core.*
 
 class PModelObserver<I : BaseEvent<*>, V : BaseView<I, S, E>, S : Parcelable, E>(private val view: V) : Observer<PModel<*, I>> {

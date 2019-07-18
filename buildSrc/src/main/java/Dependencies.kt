@@ -4,7 +4,7 @@ object Versions {
     const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
-    val kotlin = "1.3.20"
+    val kotlin = "1.3.41"
 
     // Realm
     val realm = "4.2.0"
@@ -23,12 +23,12 @@ object Versions {
     // - Support
     val support_lib = "28.0.0"
     val contraint_layout = "1.1.3"
-    val archComp = "1.1.1"
+    val archComp = "2.0.0"
 
     // - Network
     val retrofit = "2.5.0"
     val glide = "3.8.0"
-    val okhttpVersion = "3.12.1"
+    val okhttpVersion = "3.12.3"
 
     // - Reactive
     val rxjava = "2.2.6"

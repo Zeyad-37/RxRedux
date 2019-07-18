@@ -1,11 +1,11 @@
 package com.zeyad.rxredux.snackbar
 
 import android.graphics.Color
-import android.support.annotation.ColorInt
-import android.support.annotation.StringRes
-import android.support.design.widget.Snackbar
-import android.support.design.widget.Snackbar.LENGTH_INDEFINITE
 import android.view.View
+import androidx.annotation.ColorInt
+import androidx.annotation.StringRes
+import com.google.android.material.snackbar.Snackbar
+import com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE
 
 object SnackBarFactory {
 

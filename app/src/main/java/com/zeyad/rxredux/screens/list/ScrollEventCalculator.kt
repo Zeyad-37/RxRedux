@@ -1,6 +1,5 @@
 package com.zeyad.rxredux.screens.list
 
-import android.support.v7.widget.LinearLayoutManager
 import com.jakewharton.rxbinding2.support.v7.widget.RecyclerViewScrollEvent
 
 internal object ScrollEventCalculator {
@@ -13,7 +12,7 @@ internal object ScrollEventCalculator {
     fun isAtScrollEnd(recyclerViewScrollEvent: RecyclerViewScrollEvent): Boolean {
         val layoutManager = recyclerViewScrollEvent.view().layoutManager
         return when (layoutManager) {
-            is LinearLayoutManager -> layoutManager.itemCount <= layoutManager.findLastVisibleItemPosition() + 2
+            is androidx.recyclerview.widget.LinearLayoutManager -> layoutManager.itemCount <= layoutManager.findLastVisibleItemPosition() + 2
             else -> false
         }
     }

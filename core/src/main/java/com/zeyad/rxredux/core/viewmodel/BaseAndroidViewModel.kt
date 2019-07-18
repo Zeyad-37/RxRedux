@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.core.viewmodel
 
 import android.app.Application
-import android.arch.lifecycle.AndroidViewModel
 import android.os.Parcelable
+import androidx.lifecycle.AndroidViewModel
 import com.zeyad.rxredux.core.BaseEvent
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject

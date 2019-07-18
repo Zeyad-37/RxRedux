@@ -1,10 +1,10 @@
 package com.zeyad.rxredux.utils
 
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
 import android.util.Pair
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import com.zeyad.rxredux.snackbar.SnackBarFactory
 
 /**
@@ -15,7 +15,7 @@ import com.zeyad.rxredux.snackbar.SnackBarFactory
  */
 @SafeVarargs
 fun AppCompatActivity.addFragment(containerViewId: Int,
-                                  fragment: Fragment,
+                                  fragment: androidx.fragment.app.Fragment,
                                   currentFragTag: String?,
                                   vararg sharedElements: Pair<View, String>) {
     val fragmentTransaction = supportFragmentManager.beginTransaction()

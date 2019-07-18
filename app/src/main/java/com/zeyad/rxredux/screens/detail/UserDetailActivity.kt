@@ -3,14 +3,13 @@ package com.zeyad.rxredux.screens.detail
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.CollapsingToolbarLayout
-import android.support.v4.app.Fragment
-import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.util.Pair
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
+import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.view.P_MODEL
 import kotlinx.android.synthetic.main.activity_user_detail.*
@@ -32,7 +31,7 @@ class UserDetailActivity : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            val fragment: Fragment = if (intent.getBooleanExtra(INTERFACE_KEY, false)) {
+            val fragment: androidx.fragment.app.Fragment = if (intent.getBooleanExtra(INTERFACE_KEY, false)) {
                 UserDetailFragment2.newInstance(intent.getParcelableExtra(P_MODEL))
             } else {
                 UserDetailFragment.newInstance(intent.getParcelableExtra(P_MODEL))
@@ -41,7 +40,7 @@ class UserDetailActivity : AppCompatActivity() {
         }
     }
 
-    private fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
+    private fun addFragment(containerViewId: Int, fragment: androidx.fragment.app.Fragment, currentFragTag: String?,
                             sharedElements: List<Pair<View, String>>?) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         if (sharedElements != null) {

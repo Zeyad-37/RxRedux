@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core.view
 
-import android.arch.lifecycle.LifecycleOwner
 import android.os.Parcelable
+import androidx.lifecycle.LifecycleOwner
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable

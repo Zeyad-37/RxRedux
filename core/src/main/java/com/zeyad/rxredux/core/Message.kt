@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core
 
 import android.content.Context
-import android.support.annotation.StringRes
+import androidx.annotation.StringRes
 
 sealed class Message
 

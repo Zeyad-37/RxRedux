@@ -3,17 +3,16 @@ package com.zeyad.rxredux.screens.detail
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
+import com.google.android.material.snackbar.Snackbar
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.gadapter.ItemInfo
@@ -78,7 +77,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView_repositories.layoutManager = LinearLayoutManager(context)
+        recyclerView_repositories.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         repositoriesAdapter = object : GenericRecyclerViewAdapter(
                 requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
                 ArrayList<ItemInfo>()) {

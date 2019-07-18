@@ -1,8 +1,8 @@
 package com.zeyad.rxredux.snackbar
 
-import android.support.annotation.ColorInt
-import android.support.design.widget.Snackbar
 import android.view.View
+import androidx.annotation.ColorInt
+import com.google.android.material.snackbar.Snackbar
 
 object ColoredSnackBar {
 

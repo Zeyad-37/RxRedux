@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.screens.list
 
-import android.support.v7.util.DiffUtil
 import android.util.Log
+import androidx.recyclerview.widget.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel

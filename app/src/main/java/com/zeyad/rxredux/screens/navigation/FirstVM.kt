@@ -19,7 +19,7 @@ class FirstVM(override var disposables: CompositeDisposable = CompositeDisposabl
 
     override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
         return when (event) {
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(NavigateToEffect(event.intent), event))
+            is NavigateToEvent -> Flowable.just(SuccessEffectResult(NavigateToEffect(event.getPayLoad()), event))
             is GetPaginatedUsersEvent -> Flowable.just(event.getPayLoad())
             else -> Flowable.error<Any>(RuntimeException("Forced Error"))
         }

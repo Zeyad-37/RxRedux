@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.screens.list
 
 import android.os.Parcelable
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User

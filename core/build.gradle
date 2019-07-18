@@ -15,7 +15,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -110,13 +110,14 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Deps.kotlin_stdlib
-    api Deps.appcompat_v7
+    api "androidx.appcompat:appcompat:1.0.2"
 
     api Deps.rx_android
     api Deps.rx_java
 
+    implementation "android.arch.lifecycle:extensions:${Versions.archComp}"
     implementation Deps.rx_replay_share
-    implementation Deps.recycler_view
+    implementation "androidx.recyclerview:recyclerview:1.0.0"
 
     testImplementation Deps.generic_recycler_review
     testImplementation Deps.junit

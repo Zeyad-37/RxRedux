@@ -2,14 +2,12 @@ package com.zeyad.rxredux.screens.list
 
 import android.app.SearchManager
 import android.content.Context
-import android.support.v7.view.ActionMode
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.SearchView
-import android.support.v7.widget.helper.ItemTouchHelper
 import android.util.Log
 import android.view.*
 import android.widget.ImageView
+import androidx.appcompat.view.ActionMode
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.ItemTouchHelper
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
@@ -140,7 +138,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
                 .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })
-        user_list.layoutManager = LinearLayoutManager(this)
+        user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler);
@@ -218,7 +216,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         toolbar.visibility = View.VISIBLE
     }
 
-    override fun onStartDrag(viewHolder: RecyclerView.ViewHolder) = itemTouchHelper.startDrag(viewHolder)
+    override fun onStartDrag(viewHolder: androidx.recyclerview.widget.RecyclerView.ViewHolder) = itemTouchHelper.startDrag(viewHolder)
 
     fun getImageViewAvatar(): ImageView = imageView_avatar
 

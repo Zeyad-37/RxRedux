@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
-import android.support.v4.app.Fragment
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.Toolbar
 import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
@@ -36,7 +34,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
@@ -88,7 +86,7 @@ class UserDetailFragment2 : Fragment(), IBaseFragment<UserDetailEvents<*>, UserD
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView_repositories.layoutManager = LinearLayoutManager(context)
+        recyclerView_repositories.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(context)
         repositoriesAdapter = object : GenericRecyclerViewAdapter(
                 requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater,
                 ArrayList<ItemInfo>()) {

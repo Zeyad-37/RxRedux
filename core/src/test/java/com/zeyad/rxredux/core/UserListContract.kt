@@ -1,7 +1,7 @@
 package com.zeyad.rxredux.core
 
 import android.os.Parcelable
-import android.support.v7.util.DiffUtil
+import androidx.recyclerview.widget.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.core.verification.Leaf
 import com.zeyad.rxredux.core.verification.Root

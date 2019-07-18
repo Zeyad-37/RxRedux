@@ -1,9 +1,9 @@
 package com.zeyad.rxredux.core.viewmodel
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import android.os.Parcelable
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
 import io.reactivex.BackpressureStrategy
