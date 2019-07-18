@@ -3,7 +3,7 @@
 # RxRedux
 A library that manages state using RxJava 2 and Architecture Components.
 
-Medium Post: https://goo.gl/7oH1B1
+Medium Post: <https://goo.gl/7oH1B1>
 
 # Getting Started
 Project root build.gradle
@@ -18,20 +18,23 @@ allprojects {
 Module build.gradle
 ```
 dependencies {
-    implementation 'com.github.Zeyad-37:RxRedux:2.x.x'
+    implementation 'com.github.Zeyad-37:RxRedux:3.x.x'
 } 
 ```
 # Step1
 
-ViewModels must extend BaseViewModel\<S\>. S is your UIModel. There are two abstract methods that
-you will need to implement.
-First, an
- stateReducer method that manages the transition between your success states, by
+ViewModels must extend BaseViewModel\<I, R, S, E>. <br />
+I are your events, <br />
+R are your Results, <br />
+S is your UIModel, <br />
+E are your Effects. <br />
+There are two abstract methods that you will need to implement.
+First, a stateReducer method that manages the transition between your success states, by
  implementing StateReducer interface.
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
-override fun stateReducer(): (newResult: Any, event: BaseEvent<*>, currentStateBundle: UserListState) -> UserListState {
-        return { newResult, event, currentStateBundle ->
+override fun stateReducer(newResult: R, currentState: S): S {
+        return { newResult, currentStateBundle ->
             val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
             return when (currentStateBundle) {
                 is EmptyState -> when (newResult) {
@@ -52,15 +55,25 @@ Its a good practice to have a type for every state for your view.
 
 Secondly, mapEventsToActions.
 ```
-override fun mapEventsToActions(): Function<BaseEvent<*>, Flowable<*>> {
-    return Function { event ->
-        when (event) {
-            is GetPaginatedUsersEvent -> getUsers(event.getPayLoad())
-            is DeleteUsersEvent -> deleteCollection(event.getPayLoad())
-            is SearchUsersEvent -> search(event.getPayLoad())
-            else -> throw IllegalStateException("Can not map $event to an action")
+override fun reduceEventsToResults(event: I, currentState: Any): Flowable<*>
+    return when (event) {
+            is GetPaginatedUsersEvent -> when (currentState) {
+                is EmptyState, is GetState -> getUsers(event.getPayLoad())
+                else -> throwIllegalStateException(event)
+            }
+            is DeleteUsersEvent -> when (currentState) {
+                is GetState -> deleteCollection(event.getPayLoad())
+                else -> throwIllegalStateException(event)
+            }
+            is SearchUsersEvent -> when (currentState) {
+                is GetState -> search(event.getPayLoad())
+                else -> throwIllegalStateException(event)
+            }
+            is UserClickedEvent -> when (currentState) {
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.getPayLoad()), event))
+                else -> throwIllegalStateException(event)
+            }
         }
-    }
 }
 ```
 This is a simple mapping function that links every Event with its corresponding action
@@ -207,7 +220,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-   http://www.apache.org/licenses/LICENSE-2.0
+   <http://www.apache.org/licenses/LICENSE-2.0>
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
