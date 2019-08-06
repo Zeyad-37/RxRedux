@@ -19,7 +19,7 @@ import io.reactivex.subjects.BehaviorSubject
 inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
         throw IllegalStateException("Can not reduce from $this to ${T::class.java.simpleName} with $result")
 
-interface IBaseViewModel<I : BaseEvent<*>, R, S : Parcelable, E> {
+interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     var disposables: CompositeDisposable
 

@@ -3,11 +3,10 @@ package com.zeyad.rxredux.core.viewmodel
 import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
-import com.zeyad.rxredux.core.BaseEvent
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
 
-abstract class BaseAndroidViewModel<I : BaseEvent<*>, R, S : Parcelable, E>(app: Application) :
+abstract class BaseAndroidViewModel<I, R, S : Parcelable, E>(app: Application) :
         AndroidViewModel(app), IBaseViewModel<I, R, S, E> {
 
     override var disposables: CompositeDisposable = CompositeDisposable()
