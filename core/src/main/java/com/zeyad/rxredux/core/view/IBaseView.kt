@@ -16,7 +16,13 @@ interface IBaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : 
     var viewState: S?
 
     fun onStartImpl() {
-        vmStart(viewModel!!, viewState!!, events(), this, this)
+        viewModel?.let { vm ->
+            viewState?.let { vs ->
+                vmStart(vm, vs, events(), this, this)
+            } ?: run { throw KotlinNullPointerException("ViewState is null!") }
+        } ?: run {
+            throw KotlinNullPointerException("ViewModel is null!")
+        }
     }
 
     override fun setState(bundle: S) {
