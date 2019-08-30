@@ -36,7 +36,9 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
 
     override fun onStart() {
         super.onStart()
-        vmStart(viewModel, viewState!!, events(), this, this)
+        viewState?.let { vs ->
+            vmStart(viewModel, vs, events(), this, this)
+        } ?: run { throw IllegalArgumentException("ViewState is not initialized") }
     }
 
     override fun setState(bundle: S) {
