@@ -120,15 +120,6 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
             }
         }
         usersAdapter.setAreItemsClickable(true)
-        usersAdapter.setOnItemClickListener(object : OnItemClickListener {
-            override fun onItemClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>) {
-                if (actionMode != null) {
-                    toggleItemSelection(position)
-                } else if (itemInfo.data is User) {
-                    postOnResumeEvents.onNext(UserClickedEvent(itemInfo.data as User))
-                }
-            }
-        })
         usersAdapter.setOnItemLongClickListener(object : OnItemLongClickListener {
             override fun onItemLongClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>): Boolean {
                 if (usersAdapter.isSelectionAllowed) {
@@ -138,9 +129,18 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
                 return true
             }
         })
-        eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
-                .doOnEach { Log.d("DeleteEvent", FIRED) })
+        eventObservable = eventObservable
+                .mergeWith(usersAdapter.itemClickObservable.flatMap {
+                    if (actionMode != null) {
+                        toggleItemSelection(it.position)
+                        Observable.empty()
+                    } else {
+                        Observable.just(UserClickedEvent(it.itemInfo.data as User))
+                    }
+                })
+                .mergeWith(usersAdapter.itemSwipeObservable
+                        .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
+                        .doOnEach { Log.d("DeleteEvent", FIRED) })
         user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)

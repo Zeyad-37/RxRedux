@@ -39,10 +39,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     fun store(events: Observable<I>, initialState: S): LiveData<PModel<*, I>> {
         currentStateStream.onNext(initialState)
-        val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
-                .toResult()
-                .publish()
-                .autoConnect(0)
+        val pModels = events.toResult()
         val liveState = MutableLiveData<PModel<*, I>>()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
@@ -80,8 +77,9 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                         }
                     }
 
-    private fun Flowable<I>.toResult(): Flowable<Result<*, I>> =
-            observeOn(Schedulers.computation())
+    private fun Observable<I>.toResult(): Flowable<Result<*, I>> =
+            toFlowable(BackpressureStrategy.BUFFER)
+                    .observeOn(Schedulers.computation())
                     .concatMap { event ->
                         reduceEventsToResults(event, currentStateStream.value!!)
                                 .map<Result<*, I>> {
@@ -91,6 +89,8 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                                 .startWith(LoadingEffectResult(event))
                     }
                     .distinctUntilChanged()
+                    .publish()
+                    .autoConnect(0)
 
     private fun stateReducer(): BiFunction<PModel<S, I>, SuccessResult<R, I>, PModel<S, I>> =
             BiFunction { currentUIModel, result ->
