@@ -7,7 +7,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.util.Pair
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
@@ -18,6 +21,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
+import com.zeyad.gadapter.GenericAdapter.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.IBaseActivity
@@ -116,10 +120,10 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     }
 
     private fun setupRecyclerView() {
-        usersAdapter = object : GenericRecyclerViewAdapter(getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
+        usersAdapter = object : GenericRecyclerViewAdapter() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
                 return when (viewType) {
-                    ItemInfo.SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
+                    SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
                             .inflate(R.layout.section_header_layout, parent, false))
                     R.layout.empty_view -> EmptyViewHolder(layoutInflater
                             .inflate(R.layout.empty_view, parent, false))
@@ -131,11 +135,11 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         }
         usersAdapter.setAreItemsClickable(true)
         usersAdapter.setOnItemClickListener(object : OnItemClickListener {
-            override fun onItemClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>) {
+            override fun onItemClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>) {
                 if (actionMode != null) {
                     toggleItemSelection(position)
-                } else if (itemInfo.getData<Any>() is User) {
-                    val userModel = itemInfo.getData<User>()
+                } else if (itemInfo.data is User) {
+                    val userModel = itemInfo.data as User
                     val userDetailState = IntentBundleState(twoPane, userModel)
                     var pair: Pair<View, String>? = null
                     var secondPair: Pair<View, String>? = null
@@ -169,7 +173,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
             }
         })
         usersAdapter.setOnItemLongClickListener(object : OnItemLongClickListener {
-            override fun onItemLongClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>): Boolean {
+            override fun onItemLongClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>): Boolean {
                 if (usersAdapter.isSelectionAllowed) {
                     actionMode = startSupportActionMode(this@UserListActivity2)
                     toggleItemSelection(position)
@@ -178,7 +182,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
             }
         })
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
+                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", UserListActivity.FIRED) })
         user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
@@ -233,7 +237,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
             postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
-                    .map<String> { itemInfo -> itemInfo.getData<User>().login }.toList()
+                    .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true
         }

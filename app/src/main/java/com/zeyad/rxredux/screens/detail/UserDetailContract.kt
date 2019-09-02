@@ -16,7 +16,7 @@ data class IntentBundleState(val isTwoPane: Boolean = false,
 @Parcelize
 data class FullDetailState(val isTwoPane: Boolean = false,
                            val user: User = User(),
-                           val repos: List<ItemInfo> = emptyList()) : UserDetailState()
+                           val repos: List<ItemInfo<Repository>> = emptyList()) : UserDetailState()
 
 sealed class UserDetailEffect
 

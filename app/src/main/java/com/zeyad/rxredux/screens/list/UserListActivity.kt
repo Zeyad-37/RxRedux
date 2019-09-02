@@ -3,7 +3,10 @@ package com.zeyad.rxredux.screens.list
 import android.app.SearchManager
 import android.content.Context
 import android.util.Log
-import android.view.*
+import android.view.Menu
+import android.view.MenuItem
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
@@ -11,7 +14,7 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
-import com.zeyad.gadapter.ItemInfo.Companion.SECTION_HEADER
+import com.zeyad.gadapter.GenericAdapter.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.getErrorMessage
@@ -103,7 +106,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
     }
 
     private fun setupRecyclerView() {
-        usersAdapter = object : GenericRecyclerViewAdapter(getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater) {
+        usersAdapter = object : GenericRecyclerViewAdapter() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GenericViewHolder<*> {
                 return when (viewType) {
                     SECTION_HEADER -> SectionHeaderViewHolder(layoutInflater
@@ -118,16 +121,16 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         }
         usersAdapter.setAreItemsClickable(true)
         usersAdapter.setOnItemClickListener(object : OnItemClickListener {
-            override fun onItemClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>) {
+            override fun onItemClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>) {
                 if (actionMode != null) {
                     toggleItemSelection(position)
-                } else if (itemInfo.getData<Any>() is User) {
-                    postOnResumeEvents.onNext(UserClickedEvent(itemInfo.getData()))
+                } else if (itemInfo.data is User) {
+                    postOnResumeEvents.onNext(UserClickedEvent(itemInfo.data as User))
                 }
             }
         })
         usersAdapter.setOnItemLongClickListener(object : OnItemLongClickListener {
-            override fun onItemLongClicked(position: Int, itemInfo: ItemInfo, holder: GenericViewHolder<*>): Boolean {
+            override fun onItemLongClicked(position: Int, itemInfo: ItemInfo<*>, holder: GenericViewHolder<*>): Boolean {
                 if (usersAdapter.isSelectionAllowed) {
                     actionMode = startSupportActionMode(this@UserListActivity)
                     toggleItemSelection(position)
@@ -136,7 +139,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
             }
         })
         eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.getData<Any>() as User).login)) }
+                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
                 .doOnEach { Log.d("DeleteEvent", FIRED) })
         user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
@@ -191,7 +194,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
             postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
-                    .map<String> { itemInfo -> itemInfo.getData<User>().login }.toList()
+                    .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true
         }

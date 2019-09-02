@@ -55,7 +55,7 @@ object Versions {
     val restMock = "0.2.2"
     val junit = "4.12"
 
-    val genericRecyclerViewAdapter = "2.0.1"
+    val genericRecyclerViewAdapter = "2.3.0"
     val appId = "com.remotegen.app"
 }
 

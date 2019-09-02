@@ -10,13 +10,13 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
 sealed class UserListState : Parcelable {
-    abstract val list: List<ItemInfo>
+    abstract val list: List<ItemInfo<User>>
     abstract val lastId: Long
     abstract val callback: DiffUtil.DiffResult
 }
 
 @Parcelize
-data class EmptyState(override val list: List<ItemInfo> = emptyList(),
+data class EmptyState(override val list: List<ItemInfo<User>> = emptyList(),
                       override val lastId: Long = 1
 ) : UserListState(), Parcelable {
     @IgnoredOnParcel
@@ -25,14 +25,14 @@ data class EmptyState(override val list: List<ItemInfo> = emptyList(),
 }
 
 @Parcelize
-data class GetState(override val list: List<ItemInfo> = emptyList(),
+data class GetState(override val list: List<ItemInfo<User>> = emptyList(),
                     override val lastId: Long = 1
 ) : UserListState(), Parcelable {
     @IgnoredOnParcel
     override var callback: DiffUtil.DiffResult =
             DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
 
-    constructor(list: List<ItemInfo> = emptyList(), lastId: Long = 1,
+    constructor(list: List<ItemInfo<User>> = emptyList(), lastId: Long = 1,
                 callback: DiffUtil.DiffResult =
                         DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))
     ) : this(list, lastId) {

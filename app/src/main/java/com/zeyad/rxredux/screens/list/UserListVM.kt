@@ -73,9 +73,9 @@ class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserList
         }
     }
 
-    private fun Flowable<MutableList<ItemInfo>>.calculateDiff(initialList: MutableList<ItemInfo>)
-            : Pair<MutableList<ItemInfo>, DiffUtil.DiffResult> =
-            scan<Pair<MutableList<ItemInfo>, DiffUtil.DiffResult>>(Pair(initialList,
+    private fun Flowable<MutableList<ItemInfo<User>>>.calculateDiff(initialList: MutableList<ItemInfo<User>>)
+            : Pair<MutableList<ItemInfo<User>>, DiffUtil.DiffResult> =
+            scan<Pair<MutableList<ItemInfo<User>>, DiffUtil.DiffResult>>(Pair(initialList,
                     DiffUtil.calculateDiff(UserDiffCallBack(mutableListOf(), mutableListOf()))))
             { pair1, next ->
                 Pair(next, DiffUtil.calculateDiff(UserDiffCallBack(pair1.first, next)))
