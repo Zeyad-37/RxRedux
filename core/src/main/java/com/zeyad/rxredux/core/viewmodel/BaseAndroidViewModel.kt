@@ -4,7 +4,6 @@ import android.app.Application
 import android.os.Parcelable
 import androidx.lifecycle.AndroidViewModel
 import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.disposables.SerialDisposable
 import io.reactivex.subjects.BehaviorSubject
 
 abstract class BaseAndroidViewModel<I, R, S : Parcelable, E>(app: Application) :
