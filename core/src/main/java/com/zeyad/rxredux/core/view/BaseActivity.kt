@@ -37,6 +37,8 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onStart() {
         super.onStart()
         viewState?.let { vs ->
+            //TODO considered move this call to onCreate() to bind the events only once.
+            viewModel.disposables.clear()
             vmStart(viewModel, vs, events(), this, this)
         } ?: run { throw IllegalArgumentException("ViewState is not initialized") }
     }

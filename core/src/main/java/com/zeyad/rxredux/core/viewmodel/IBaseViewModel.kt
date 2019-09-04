@@ -38,6 +38,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
     }
 
     fun store(events: Observable<I>, initialState: S): LiveData<PModel<*, I>> {
+        disposables.clear()
         currentStateStream.onNext(initialState)
         val pModels = events.toFlowable(BackpressureStrategy.BUFFER)
                 .toResult()
