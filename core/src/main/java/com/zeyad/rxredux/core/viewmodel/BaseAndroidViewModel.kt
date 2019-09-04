@@ -10,7 +10,7 @@ import io.reactivex.subjects.BehaviorSubject
 abstract class BaseAndroidViewModel<I, R, S : Parcelable, E>(app: Application) :
         AndroidViewModel(app), IBaseViewModel<I, R, S, E> {
 
-    override var disposables: SerialDisposable = SerialDisposable()
+    override var disposables: CompositeDisposable = CompositeDisposable()
 
     override val currentStateStream: BehaviorSubject<Any> = BehaviorSubject.create()
 
