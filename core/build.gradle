@@ -114,6 +114,8 @@ dependencies {
 
     api Deps.rx_android
     api Deps.rx_java
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.0'
+    api 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.3.0'
 
     implementation "android.arch.lifecycle:extensions:${Versions.archComp}"
     implementation Deps.rx_replay_share
