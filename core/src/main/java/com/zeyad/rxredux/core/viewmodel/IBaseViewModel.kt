@@ -11,6 +11,7 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.SerialDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -21,7 +22,7 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<I, R, S : Parcelable, E> {
 
-    var disposables: CompositeDisposable
+    var disposables: SerialDisposable
 
     val currentStateStream: BehaviorSubject<Any>
 
@@ -50,7 +51,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t: PModel<*, I> -> liveState.value = t }
-                .let { disposables.add(it) }
+                .let { disposables.replace(it) }
         return liveState
     }
 
