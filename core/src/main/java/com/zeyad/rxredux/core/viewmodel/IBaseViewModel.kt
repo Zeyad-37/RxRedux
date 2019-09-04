@@ -51,7 +51,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t: PModel<*, I> -> liveState.value = t }
-                .let { disposables.replace(it) }
+                .let { disposables.set(it) }
         return liveState
     }
 
