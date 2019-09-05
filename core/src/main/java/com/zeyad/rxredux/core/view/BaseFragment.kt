@@ -32,7 +32,6 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onStart() {
         super.onStart()
         //TODO considered move this call to onCreate() to bind the events only once.
-        viewModel.disposables.clear()
         vmStart(viewModel, viewState!!, events(), this, this)
     }
 

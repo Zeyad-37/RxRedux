@@ -18,7 +18,6 @@ interface IBaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : 
     fun onStartImpl() {
         viewModel?.let { vm ->
             viewState?.let { vs ->
-                vm.disposables.clear()
                 vmStart(vm, vs, events(), this, this)
             } ?: run { throw KotlinNullPointerException("ViewState is null!") }
         } ?: run {
