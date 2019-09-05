@@ -21,7 +21,7 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<I, R, S : Parcelable, E> {
 
-    var disposable: SerialDisposable
+    var disposables: SerialDisposable
 
     val currentStateStream: BehaviorSubject<Any>
 
@@ -47,7 +47,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t: PModel<*, I> -> liveState.value = t }
-                .let { disposable.set(it) }
+                .let { disposables.set(it) }
         return liveState
     }
 
@@ -89,8 +89,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                                 .startWith(LoadingEffectResult(event))
                     }
                     .distinctUntilChanged()
-                    .publish()
-                    .autoConnect(0)
+                    .share()
 
     private fun stateReducer(): BiFunction<PModel<S, I>, SuccessResult<R, I>, PModel<S, I>> =
             BiFunction { currentUIModel, result ->

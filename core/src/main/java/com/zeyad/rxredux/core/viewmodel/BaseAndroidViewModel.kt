@@ -9,12 +9,12 @@ import io.reactivex.subjects.BehaviorSubject
 abstract class BaseAndroidViewModel<I, R, S : Parcelable, E>(app: Application) :
         AndroidViewModel(app), IBaseViewModel<I, R, S, E> {
 
-    override var disposable: SerialDisposable = SerialDisposable()
+    override var disposables: SerialDisposable = SerialDisposable()
 
     override val currentStateStream: BehaviorSubject<Any> = BehaviorSubject.create()
 
     override fun onCleared() {
         super.onCleared()
-        disposable.dispose()
+        disposables.dispose()
     }
 }
