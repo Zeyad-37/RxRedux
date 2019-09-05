@@ -21,7 +21,7 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<I, R, S : Parcelable, E> {
 
-    var disposables: SerialDisposable
+    var disposable: SerialDisposable
 
     val currentStateStream: BehaviorSubject<Any>
 
@@ -40,14 +40,14 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
     fun store(events: Observable<I>, initialState: S): LiveData<PModel<*, I>> {
         currentStateStream.onNext(initialState)
         val pModels = events.toResult()
-        val liveState = MutableLiveData<PModel<*, I>>()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
+        val liveState = MutableLiveData<PModel<*, I>>()
         Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { t: PModel<*, I> -> liveState.value = t }
-                .let { disposables.set(it) }
+                .let { disposable.set(it) }
         return liveState
     }
 
