@@ -10,7 +10,7 @@ sealed class PModel<S, I> {
 sealed class PEffect<E, I> : PModel<E, I>()
 
 data class LoadingEffect<E, I>(override val bundle: E,
-                                              override val event: I) : PEffect<E, I>() {
+                               override val event: I) : PEffect<E, I>() {
     override fun toString() = "Effect: Loading, " + super.toString()
 }
 

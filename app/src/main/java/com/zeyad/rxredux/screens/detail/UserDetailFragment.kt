@@ -17,7 +17,7 @@ import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.getErrorMessage
-import com.zeyad.rxredux.core.view.BaseFragment
+import com.zeyad.rxredux.core.view.BaseCFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
@@ -31,7 +31,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
+class UserDetailFragment : BaseCFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -66,7 +66,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
 
     override fun onResume() {
         super.onResume()
-        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
+        viewModel.events.offer(GetReposEvent((viewState as IntentBundleState).user.login))
 //        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
     }
 

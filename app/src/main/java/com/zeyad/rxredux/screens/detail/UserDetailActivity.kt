@@ -31,11 +31,12 @@ class UserDetailActivity : AppCompatActivity() {
             actionBar.title = ""
         }
         if (savedInstanceState == null) {
-            val fragment: androidx.fragment.app.Fragment = if (intent.getBooleanExtra(INTERFACE_KEY, false)) {
-                UserDetailFragment2.newInstance(intent.getParcelableExtra(P_MODEL))
-            } else {
+            val fragment: androidx.fragment.app.Fragment =
+//                    if (intent.getBooleanExtra(INTERFACE_KEY, false)) {
+//                UserDetailFragment2.newInstance(intent.getParcelableExtra(P_MODEL))
+//            } else {
                 UserDetailFragment.newInstance(intent.getParcelableExtra(P_MODEL))
-            }
+//            }
             addFragment(R.id.user_detail_container, fragment, fragment.tag, null)
         }
     }

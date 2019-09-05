@@ -2,17 +2,17 @@ package com.zeyad.rxredux.screens.detail
 
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
+import com.zeyad.rxredux.core.viewmodel.coroutines.Machine
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
-import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
+import com.zeyad.rxredux.screens.User
 import com.zeyad.usecases.api.IDataService
-import com.zeyad.usecases.requests.GetRequest
-import io.reactivex.Flowable
 import io.reactivex.Observable
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 
 class UserDetailVM(private val dataUseCase: IDataService) :
-        BaseViewModel<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect>() {
+        Machine<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect>() {
 
     override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
         return when (currentState) {
@@ -26,14 +26,14 @@ class UserDetailVM(private val dataUseCase: IDataService) :
         }
     }
 
-    override fun reduceEventsToResults(event: UserDetailEvents<*>, currentState: Any): Flowable<*> {
+    override fun reduceEventsToResults(event: UserDetailEvents<*>, currentState: Any): Flow<*> {
         return when (event) {
             is GetReposEvent -> getRepositories(event.getPayLoad())
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(event.getPayLoad(), false), event))
+            is NavigateToEvent -> flowOf(SuccessEffectResult(Pair(event.getPayLoad(), false), event))
         }
     }
 
-    private fun getRepositories(userLogin: String): Flowable<ListRepository> =
+    private fun getRepositories(userLogin: String): Flow<ListRepository> =
 //            dataUseCase.queryDisk(object : RealmQueryProvider<Repository> {
 //                override fun create(realm: Realm): RealmQuery<Repository> =
 //                        realm.where(Repository::class.java).equalTo("owner.login", userLogin)
@@ -41,8 +41,9 @@ class UserDetailVM(private val dataUseCase: IDataService) :
 //                if (list.isNotEmpty())
 //                    Flowable.just(list)
 //                else
-            dataUseCase.getList<Repository>(GetRequest.Builder(Repository::class.java, true)
-                    .url(String.format(REPOSITORIES, userLogin)).build())
+            flowOf(ListRepository(listOf(Repository(1, "Repo", User("Sayed")))))
+//            dataUseCase.getList<Repository>(GetRequest.Builder(Repository::class.java, true)
+//                    .url(String.format(REPOSITORIES, userLogin)).build())
 //            }
-                    .map { ListRepository(it) }
+//                    .map { ListRepository(it) }
 }

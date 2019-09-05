@@ -1,8 +1,8 @@
 package com.zeyad.rxredux
 
-import android.app.Application
 import android.os.Looper
 import android.os.StrictMode
+import androidx.multidex.MultiDexApplication
 import com.zeyad.rxredux.di.myModule
 import io.reactivex.android.plugins.RxAndroidPlugins
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -11,7 +11,7 @@ import io.realm.RealmConfiguration
 import io.realm.rx.RealmObservableFactory
 import org.koin.android.ext.android.startKoin
 
-class RxReduxApplication : Application() {
+class RxReduxApplication : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
