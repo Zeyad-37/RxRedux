@@ -2,6 +2,7 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -32,7 +33,7 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onStart() {
         super.onStart()
         //TODO considered move this call to onCreate() to bind the events only once.
-        vmStart(viewModel, viewState!!, events(), this, this)
+        vmStart(viewModel, viewState!!, events(), this, AndroidLifecycleScopeProvider.from(this))
     }
 
     override fun setState(bundle: S) {

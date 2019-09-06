@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.subjects.PublishSubject
@@ -38,7 +39,7 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onStart()
         viewState?.let { vs ->
             //TODO considered move this call to onCreate() to bind the events only once.
-            vmStart(viewModel, vs, events(), this, this)
+            vmStart(viewModel, vs, events(), this, AndroidLifecycleScopeProvider.from(this))
         } ?: run { throw IllegalArgumentException("ViewState is not initialized") }
     }
 

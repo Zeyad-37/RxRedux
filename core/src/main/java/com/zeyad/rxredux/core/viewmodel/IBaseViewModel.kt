@@ -2,15 +2,12 @@ package com.zeyad.rxredux.core.viewmodel
 
 import android.os.Parcelable
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import com.jakewharton.rx.ReplayingShare
 import com.zeyad.rxredux.core.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.SerialDisposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
@@ -20,8 +17,6 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
         throw IllegalStateException("Can not reduce from $this to ${T::class.java.simpleName} with $result")
 
 interface IBaseViewModel<I, R, S : Parcelable, E> {
-
-    var disposable: SerialDisposable
 
     val currentStateStream: BehaviorSubject<Any>
 
@@ -37,18 +32,14 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         else Log.d("IBaseViewModel", "PModel: $it")
     }
 
-    fun store(events: Observable<I>, initialState: S): LiveData<PModel<*, I>> {
+    fun store(events: Observable<I>, initialState: S): Flowable<PModel<*, I>> {
         currentStateStream.onNext(initialState)
         val pModels = events.toResult()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
-        val liveState = MutableLiveData<PModel<*, I>>()
-        Flowable.merge(states, effects)
+        return Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { t: PModel<*, I> -> liveState.value = t }
-                .let { disposable.set(it) }
-        return liveState
     }
 
     private fun stateStream(pModels: Flowable<Result<R, I>>, initialState: S): Flowable<PModel<S, I>> =
