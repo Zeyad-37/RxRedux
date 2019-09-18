@@ -10,9 +10,12 @@ import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.requests.GetRequest
 import io.reactivex.Flowable
 import io.reactivex.Observable
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 
 class UserDetailVM(private val dataUseCase: IDataService) :
         BaseViewModel<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect>() {
+    override var disposable: Disposable = CompositeDisposable()
 
     override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
         return when (currentState) {
