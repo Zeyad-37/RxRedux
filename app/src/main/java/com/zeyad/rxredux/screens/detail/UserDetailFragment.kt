@@ -66,7 +66,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
 
     override fun onResume() {
         super.onResume()
-        postOnResumeEvents.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
+        postOnResumeEvents?.onNext(GetReposEvent((viewState as IntentBundleState).user.login))
 //        postOnResumeEvents.onNext(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
     }
 

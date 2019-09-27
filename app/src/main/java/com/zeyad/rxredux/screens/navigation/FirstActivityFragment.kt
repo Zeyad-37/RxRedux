@@ -48,14 +48,14 @@ class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstE
     override fun onResume() {
         super.onResume()
         if (viewState == EmptyFirstState) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(0))
             var isSecond = false
             Flowable.timer(2000, TimeUnit.MILLISECONDS, Schedulers.computation()).repeat(2)
                     .subscribe({
                         if (isSecond)
-                            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+                            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(0))
                         else {
-                            postOnResumeEvents.onNext(EmptyEvent)
+                            postOnResumeEvents?.onNext(EmptyEvent)
                             isSecond = true
                         }
                     }, { it.printStackTrace() })

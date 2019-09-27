@@ -55,7 +55,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
     override var eventObservable: Observable<UserListEvents<*>> = Observable.empty()
-    override val postOnResumeEvents = PublishSubject.create<UserListEvents<*>>()
+    override var postOnResumeEvents: PublishSubject<UserListEvents<*>>? = PublishSubject.create<UserListEvents<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -100,7 +100,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(0))
         }
     }
 
@@ -209,7 +209,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -236,7 +236,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            postOnResumeEvents?.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true
