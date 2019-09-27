@@ -6,10 +6,9 @@ import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.screens.detail.NavigateToEvent
 import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
 import io.reactivex.Flowable
-import io.reactivex.disposables.Disposable
 import io.reactivex.disposables.SerialDisposable
 
-class FirstVM(override var disposable: Disposable = SerialDisposable()) : BaseViewModel<BaseEvent<*>, Any, FirstState, FirstEffect>() {
+class FirstVM(override var disposable: SerialDisposable = SerialDisposable()) : BaseViewModel<BaseEvent<*>, Any, FirstState, FirstEffect>() {
 
     override fun stateReducer(newResult: Any, currentState: FirstState): FirstState {
         return when (newResult) {
