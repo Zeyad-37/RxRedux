@@ -36,7 +36,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
-    override val postOnResumeEvents: PublishSubject<UserDetailEvents<*>> = PublishSubject.create()
+    override var postOnResumeEvents: PublishSubject<UserDetailEvents<*>>? = PublishSubject.create()
     override var eventObservable: Observable<UserDetailEvents<*>> = Observable.empty()
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter

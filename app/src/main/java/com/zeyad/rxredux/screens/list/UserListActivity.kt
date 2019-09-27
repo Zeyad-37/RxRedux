@@ -68,7 +68,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(0))
         }
     }
 
@@ -102,7 +102,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
 
     override fun showError(errorMessage: Message, event: UserListEvents<*>) {
         showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
-                View.OnClickListener { postOnResumeEvents.onNext(event) })
+                View.OnClickListener { postOnResumeEvents?.onNext(event) })
     }
 
     private fun setupRecyclerView() {
@@ -177,7 +177,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -193,7 +193,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            postOnResumeEvents?.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

@@ -8,7 +8,7 @@ import io.reactivex.subjects.PublishSubject
 
 abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, S, E> {
 
-    override val postOnResumeEvents = PublishSubject.create<I>()
+    override var postOnResumeEvents: PublishSubject<I>? = PublishSubject.create<I>()
     override var eventObservable: Observable<I> = Observable.empty()
     lateinit var viewModel: VM
     var viewState: S? = null

@@ -15,7 +15,7 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
 
 interface BaseView<I, S : Parcelable, E> {
 
-    val postOnResumeEvents: PublishSubject<I>
+    var postOnResumeEvents: PublishSubject<I>?
     var eventObservable: Observable<I>
 
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
