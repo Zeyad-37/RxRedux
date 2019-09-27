@@ -48,14 +48,13 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-
 class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
     override var eventObservable: Observable<UserListEvents<*>> = Observable.empty()
-    override var postOnResumeEvents: PublishSubject<UserListEvents<*>>? = PublishSubject.create<UserListEvents<*>>()
+    override val postOnResumeEvents: PublishSubject<UserListEvents<*>> = PublishSubject.create<UserListEvents<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -100,7 +99,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(0))
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
         }
     }
 
@@ -209,7 +208,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            postOnResumeEvents?.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            postOnResumeEvents.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -236,7 +235,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            postOnResumeEvents?.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true
