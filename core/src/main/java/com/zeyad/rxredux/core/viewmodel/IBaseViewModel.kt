@@ -30,7 +30,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
     fun reduceEventsToResults(event: I, currentState: Any): Flowable<*>
 
     fun errorMessageFactory(throwable: Throwable, event: I, currentStateBundle: E): Message =
-            StringMessage(throwable.localizedMessage)
+            StringMessage(throwable.message.orEmpty())
 
     fun middleware(it: PModel<*, I>) {
         if (it is ErrorEffect) Log.e("IBaseViewModel", "Error", it.error)
