@@ -17,6 +17,10 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onCreate(savedInstanceState)
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         vmStart(viewModel, viewState!!, events(), this, this)
     }
 
