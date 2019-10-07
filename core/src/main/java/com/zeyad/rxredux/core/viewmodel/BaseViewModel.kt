@@ -2,8 +2,8 @@ package com.zeyad.rxredux.core.viewmodel
 
 import android.os.Parcelable
 import androidx.lifecycle.ViewModel
+import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.SerialDisposable
 import io.reactivex.subjects.BehaviorSubject
 import io.reactivex.subjects.PublishSubject
 
@@ -13,7 +13,7 @@ abstract class BaseViewModel<I, R, S : Parcelable, E> : ViewModel(), IBaseViewMo
 
     override val events: PublishSubject<I> = PublishSubject.create()
 
-    override var disposable: Disposable = SerialDisposable()
+    override var disposable: Disposable = CompositeDisposable()
 
     override fun onCleared() {
         onClearImpl()
