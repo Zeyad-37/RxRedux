@@ -6,13 +6,12 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.disposables.Disposable
 
 abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : AppCompatActivity(), BaseView<I, S, E> {
 
-    override val postOnResumeEvents = PublishSubject.create<I>()
     override var eventObservable: Observable<I> = Observable.empty()
-
+    override lateinit var disposable: Disposable
     lateinit var viewModel: VM
     var viewState: S? = null
 
@@ -22,6 +21,8 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
         setupUI(savedInstanceState == null)
+        viewState?.let { vmStart(viewModel, it, this, this) }
+                ?: run { throw IllegalArgumentException("ViewState is not initialized") }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -34,12 +35,14 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onSaveInstanceState(bundle)
     }
 
-    override fun onStart() {
-        super.onStart()
-        viewState?.let { vs ->
-            //TODO considered move this call to onCreate() to bind the events only once.
-            vmStart(viewModel, vs, events(), this, this)
-        } ?: run { throw IllegalArgumentException("ViewState is not initialized") }
+    override fun onResume() {
+        super.onResume()
+        disposable = eventObservable.subscribe { viewModel.events.onNext(it) }
+    }
+
+    override fun onPause() {
+        onPauseImpl()
+        super.onPause()
     }
 
     override fun setState(bundle: S) {

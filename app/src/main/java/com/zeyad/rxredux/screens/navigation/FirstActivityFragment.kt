@@ -8,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.google.android.material.snackbar.Snackbar
-import com.jakewharton.rxbinding2.view.RxView
+import com.jakewharton.rxbinding2.view.clicks
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.EmptyEvent
@@ -18,7 +18,6 @@ import com.zeyad.rxredux.screens.detail.NavigateToEvent
 import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
 import com.zeyad.rxredux.utils.showErrorSnackBar
 import io.reactivex.Flowable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_first.*
 import kotlinx.android.synthetic.main.view_progress.*
 import java.util.concurrent.TimeUnit
@@ -34,28 +33,26 @@ class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstE
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
-                              savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_first, container, false)
-    }
+                              savedInstanceState: Bundle?): View? =
+            inflater.inflate(R.layout.fragment_first, container, false)
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        eventObservable = eventObservable.mergeWith(RxView.clicks(fab)
-                .map<BaseEvent<*>> { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) })
+        eventObservable = fab.clicks().map { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) }
     }
 
     @SuppressLint("RxLeakedSubscription", "CheckResult")
     override fun onResume() {
         super.onResume()
         if (viewState == EmptyFirstState) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            viewModel.events.onNext(GetPaginatedUsersEvent(0))
             var isSecond = false
-            Flowable.timer(2000, TimeUnit.MILLISECONDS, Schedulers.computation()).repeat(2)
+            Flowable.timer(2000, TimeUnit.MILLISECONDS).repeat(2)
                     .subscribe({
                         if (isSecond)
-                            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+                            viewModel.events.onNext(GetPaginatedUsersEvent(0))
                         else {
-                            postOnResumeEvents.onNext(EmptyEvent)
+                            viewModel.events.onNext(EmptyEvent)
                             isSecond = true
                         }
                     }, { it.printStackTrace() })

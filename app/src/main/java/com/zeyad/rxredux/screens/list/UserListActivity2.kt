@@ -34,8 +34,8 @@ import com.zeyad.rxredux.screens.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
+import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
-import io.reactivex.subjects.PublishSubject
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -52,10 +52,10 @@ import java.util.concurrent.TimeUnit
 class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
+    override lateinit var eventObservable: Observable<UserListEvents<*>>
+    override lateinit var disposable: Disposable
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
-    override var eventObservable: Observable<UserListEvents<*>> = Observable.empty()
-    override val postOnResumeEvents = PublishSubject.create<UserListEvents<*>>()
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -100,7 +100,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(0))
+            viewModel?.events?.onNext(GetPaginatedUsersEvent(0))
         }
     }
 
@@ -181,13 +181,10 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
                 return true
             }
         })
-        eventObservable = eventObservable.mergeWith(usersAdapter.itemSwipeObservable
-                .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
-                .doOnEach { Log.d("DeleteEvent", UserListActivity.FIRED) })
         user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
-        //        fastScroller.setRecyclerView(userRecycler);
+        //        fastScroller.setRecyclerView(userRecycler)
         eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
                 .map { recyclerViewScrollEvent ->
                     GetPaginatedUsersEvent(
@@ -199,6 +196,9 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .doOnNext { Log.d("NextPageEvent", UserListActivity.FIRED) })
+                .mergeWith(usersAdapter.itemSwipeObservable
+                        .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
+                        .doOnEach { Log.d("DeleteEvent", UserListActivity.FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
     }
@@ -209,7 +209,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            postOnResumeEvents.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            viewModel?.events?.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -236,7 +236,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel?.events?.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

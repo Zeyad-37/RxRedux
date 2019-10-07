@@ -21,7 +21,7 @@ import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -34,10 +34,10 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 @SuppressLint("ValidFragment")
 class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
+    override lateinit var eventObservable: Observable<UserDetailEvents<*>>
+    override lateinit var disposable: Disposable
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
-    override val postOnResumeEvents: PublishSubject<UserDetailEvents<*>> = PublishSubject.create()
-    override var eventObservable: Observable<UserDetailEvents<*>> = Observable.empty()
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 

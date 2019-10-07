@@ -14,6 +14,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.PublishSubject
 
 @Throws(IllegalStateException::class)
 inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
@@ -22,6 +23,8 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     var disposable: Disposable
+
+    val events: PublishSubject<I>
 
     val currentStateStream: BehaviorSubject<Any>
 
@@ -37,7 +40,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         else Log.d("IBaseViewModel", "PModel: $it")
     }
 
-    fun store(events: Observable<I>, initialState: S): LiveData<PModel<*, I>> {
+    fun store(initialState: S): LiveData<PModel<*, I>> {
         currentStateStream.onNext(initialState)
         val pModels = events.toResult()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)

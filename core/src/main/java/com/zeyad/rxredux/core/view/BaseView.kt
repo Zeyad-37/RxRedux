@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.os.Parcelable
 import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
-import io.reactivex.subjects.PublishSubject
+import io.reactivex.disposables.Disposable
 
 const val P_MODEL = "viewState"
 
@@ -15,23 +15,23 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
 
 interface BaseView<I, S : Parcelable, E> {
 
-    val postOnResumeEvents: PublishSubject<I>
     var eventObservable: Observable<I>
+
+    var disposable: Disposable
 
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
+
+    fun onPauseImpl() {
+        if (!disposable.isDisposed) {
+            disposable.dispose()
+        }
+    }
 
     /**
      * Initialize objects or any required dependencies.
      */
     fun initialize()
-
-    /**
-     * Merge all events into one [Observable].
-     *
-     * @return [Observable].
-     */
-    fun events(): Observable<I> = eventObservable.mergeWith(postOnResumeEvents)
 
     /**
      * Renders the model of the view
