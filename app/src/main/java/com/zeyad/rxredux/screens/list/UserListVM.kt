@@ -14,14 +14,11 @@ import com.zeyad.usecases.db.RealmQueryProvider
 import com.zeyad.usecases.requests.GetRequest
 import com.zeyad.usecases.requests.PostRequest
 import io.reactivex.Flowable
-import io.reactivex.disposables.Disposable
-import io.reactivex.disposables.SerialDisposable
 import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents<*>, UserListResult, UserListState, UserListEffect>() {
-    override var disposable: Disposable = SerialDisposable()
 
     override fun reduceEventsToResults(event: UserListEvents<*>, currentState: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")

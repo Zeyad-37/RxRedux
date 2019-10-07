@@ -40,6 +40,10 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         else Log.d("IBaseViewModel", "PModel: $it")
     }
 
+    fun offer(event: I) {
+        events.onNext(event)
+    }
+
     fun store(initialState: S): LiveData<PModel<*, I>> {
         currentStateStream.onNext(initialState)
         val pModels = events.toResult()
@@ -122,4 +126,10 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                         currentUIModel.bundle, event)
                 is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
             }
+
+    fun onClearImpl() {
+        if (!disposable.isDisposed) {
+            disposable.dispose()
+        }
+    }
 }

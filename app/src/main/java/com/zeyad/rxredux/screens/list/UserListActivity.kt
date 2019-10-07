@@ -43,8 +43,8 @@ import java.util.concurrent.TimeUnit
  * lead to a [UserDetailActivity] representing item details. On tablets, the activity presents
  * the list of items and item details side-by-side using two vertical panes.
  */
-class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>(),
-        OnStartDragListener, ActionMode.Callback {
+class UserListActivity : OnStartDragListener, ActionMode.Callback,
+        BaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
@@ -68,7 +68,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            viewModel.events.onNext(GetPaginatedUsersEvent(0))
+            viewModel.offer(GetPaginatedUsersEvent(0))
         }
     }
 
@@ -102,7 +102,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
 
     override fun showError(errorMessage: Message, event: UserListEvents<*>) {
         showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
-                View.OnClickListener { viewModel.events.onNext(event) })
+                View.OnClickListener { viewModel.offer(event) })
     }
 
     private fun setupRecyclerView() {
@@ -177,7 +177,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            viewModel.events.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            viewModel.offer(GetPaginatedUsersEvent(viewState?.lastId!!))
             false
         }
         eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -193,7 +193,7 @@ class UserListActivity : BaseActivity<UserListEvents<*>, UserListResult, UserLis
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            viewModel.events.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel.offer(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

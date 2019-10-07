@@ -37,7 +37,7 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
 
     override fun onResume() {
         super.onResume()
-        disposable = eventObservable.subscribe { viewModel.events.onNext(it) }
+        disposable = eventObservable.subscribe { viewModel.offer(it) }
     }
 
     override fun onPause() {

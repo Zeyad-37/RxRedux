@@ -181,7 +181,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            postOnResumeEvents.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel.offer(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
                 .map<String> { itemInfo -> itemInfo.getData<User>().login }.toList()
                 .blockingGet()))
                 true
