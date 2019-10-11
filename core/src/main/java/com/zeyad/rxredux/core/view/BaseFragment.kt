@@ -2,6 +2,8 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
+import com.uber.autodispose.AutoDispose
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
@@ -37,13 +39,14 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
 
     override fun onResume() {
         super.onResume()
-        disposable = eventObservable.subscribe { viewModel.offer(it) }
+        eventObservable.`as`(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe { viewModel.offer(it) }
     }
 
-    override fun onPause() {
-        onPauseImpl()
-        super.onPause()
-    }
+//    override fun onPause() {
+//        onPauseImpl()
+//        super.onPause()
+//    }
 
     override fun setState(bundle: S) {
         viewState = bundle
