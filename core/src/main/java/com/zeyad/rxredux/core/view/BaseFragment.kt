@@ -2,7 +2,7 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
-import com.uber.autodispose.AutoDispose
+import com.uber.autodispose.AutoDispose.autoDisposable
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
@@ -25,6 +25,8 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onActivityCreated(savedInstanceState)
         viewState?.let { vmStart(viewModel, it, this, this) }
                 ?: run { throw IllegalArgumentException("ViewState is not initialized") }
+        eventObservable.`as`(autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe { viewModel.offer(it) }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -37,11 +39,10 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
     }
 
-    override fun onResume() {
-        super.onResume()
-        eventObservable.`as`(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe { viewModel.offer(it) }
-    }
+//    override fun onResume() {
+//        super.onResume()
+//
+//    }
 
 //    override fun onPause() {
 //        onPauseImpl()

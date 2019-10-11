@@ -25,6 +25,8 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         setupUI(savedInstanceState == null)
         viewState?.let { vmStart(viewModel, it, this, this) }
                 ?: run { throw IllegalArgumentException("ViewState is not initialized") }
+        eventObservable.`as`(autoDisposable(AndroidLifecycleScopeProvider.from(this)))
+                .subscribe { viewModel.offer(it) }
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -36,17 +38,6 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         onSaveInstanceStateImpl(bundle, viewState)
         super.onSaveInstanceState(bundle)
     }
-
-    override fun onResume() {
-        super.onResume()
-        eventObservable.`as`(autoDisposable(AndroidLifecycleScopeProvider.from(this)))
-                .subscribe { viewModel.offer(it) }
-    }
-
-//    override fun onPause() {
-//        onPauseImpl()
-//        super.onPause()
-//    }
 
     override fun setState(bundle: S) {
         viewState = bundle
