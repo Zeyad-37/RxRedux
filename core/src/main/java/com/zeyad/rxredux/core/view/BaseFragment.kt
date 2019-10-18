@@ -19,6 +19,12 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         initialize()
     }
 
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+        viewState?.let { vmStart(viewModel, it, events(), this, this) }
+                ?: throw IllegalArgumentException("ViewState is not initialized")
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
         onSaveInstanceStateImpl(outState, viewState)
         super.onSaveInstanceState(outState)
@@ -27,12 +33,6 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onViewStateRestored(savedInstanceState: Bundle?) {
         super.onViewStateRestored(savedInstanceState)
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        //TODO considered move this call to onCreate() to bind the events only once.
-        vmStart(viewModel, viewState!!, events(), this, this)
     }
 
     override fun setState(bundle: S) {

@@ -22,6 +22,8 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initialize()
         setupUI(savedInstanceState == null)
+        viewState?.let { vmStart(viewModel, it, events(), this, this) }
+                ?: throw IllegalArgumentException("ViewState is not initialized")
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {
@@ -32,14 +34,6 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onSaveInstanceState(bundle: Bundle) {
         onSaveInstanceStateImpl(bundle, viewState)
         super.onSaveInstanceState(bundle)
-    }
-
-    override fun onStart() {
-        super.onStart()
-        viewState?.let { vs ->
-            //TODO considered move this call to onCreate() to bind the events only once.
-            vmStart(viewModel, vs, events(), this, this)
-        } ?: run { throw IllegalArgumentException("ViewState is not initialized") }
     }
 
     override fun setState(bundle: S) {
