@@ -23,8 +23,8 @@ interface IBaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : 
         }
     }
 
-    fun onResumeImpl() {
-        disposable = eventObservable.subscribe { viewModel?.events?.onNext(it) }
+    fun connectEventsToVM() {
+        disposable = eventObservable.subscribe { viewModel?.offer(it) }
     }
 
     override fun setState(bundle: S) {

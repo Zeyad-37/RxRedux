@@ -22,7 +22,7 @@ interface BaseView<I, S : Parcelable, E> {
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
 
-    fun onPauseImpl() {
+    fun disposeEventStream() {
         if (!disposable.isDisposed) {
             disposable.dispose()
         }

@@ -35,14 +35,14 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onSaveInstanceState(bundle)
     }
 
-    override fun onResume() {
-        super.onResume()
+    override fun onStart() {
+        super.onStart()
         disposable = eventObservable.subscribe { viewModel.offer(it) }
     }
 
-    override fun onPause() {
-        onPauseImpl()
-        super.onPause()
+    override fun onStop() {
+        disposeEventStream()
+        super.onStop()
     }
 
     override fun setState(bundle: S) {
