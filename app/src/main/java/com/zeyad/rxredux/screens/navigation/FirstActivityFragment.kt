@@ -27,6 +27,8 @@ import java.util.concurrent.TimeUnit
  */
 class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstEffect, FirstVM>() {
 
+    override var vMOwnsStream: Boolean = true
+
     override fun initialize() {
         viewModel = FirstVM()
         viewState = EmptyFirstState

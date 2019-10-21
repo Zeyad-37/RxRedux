@@ -19,6 +19,8 @@ interface BaseView<I, S : Parcelable, E> {
 
     var disposable: Disposable
 
+    var vMOwnsStream: Boolean
+
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
 

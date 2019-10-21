@@ -56,6 +56,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override lateinit var disposable: Disposable
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
+    override var vMOwnsStream: Boolean = true
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null

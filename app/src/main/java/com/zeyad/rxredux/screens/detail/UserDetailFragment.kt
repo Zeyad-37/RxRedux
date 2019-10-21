@@ -33,6 +33,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  */
 class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
+    override var vMOwnsStream: Boolean = true
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {

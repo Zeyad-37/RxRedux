@@ -38,7 +38,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
     override lateinit var disposable: Disposable
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
-
+    override var vMOwnsStream: Boolean = true
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {

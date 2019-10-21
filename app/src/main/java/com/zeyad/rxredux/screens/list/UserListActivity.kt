@@ -51,6 +51,7 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
     private var actionMode: ActionMode? = null
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
+    override var vMOwnsStream: Boolean = true
 
     override fun initialize() {
         viewModel = getViewModel()

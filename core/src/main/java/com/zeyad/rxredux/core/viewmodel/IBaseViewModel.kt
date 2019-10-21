@@ -44,9 +44,9 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         events.onNext(event)
     }
 
-    fun store(initialState: S): LiveData<PModel<*, I>> {
+    fun store(initialState: S, viewOwnedEventStream: Observable<I> = Observable.empty()): LiveData<PModel<*, I>> {
         currentStateStream.onNext(initialState)
-        val pModels = events.toResult()
+        val pModels = events.mergeWith(viewOwnedEventStream).toResult()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
         val liveState = MutableLiveData<PModel<*, I>>()
