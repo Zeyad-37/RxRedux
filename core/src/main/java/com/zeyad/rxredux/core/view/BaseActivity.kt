@@ -22,7 +22,7 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         initialize()
         setupUI(savedInstanceState == null)
         viewState?.let { vmStart(viewModel, it, this, this) }
-                ?: run { throw IllegalArgumentException("ViewState is not initialized") }
+                ?: throw IllegalArgumentException("ViewState is not initialized")
     }
 
     override fun onRestoreInstanceState(savedInstanceState: Bundle) {

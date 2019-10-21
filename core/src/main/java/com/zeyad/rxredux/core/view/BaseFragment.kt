@@ -22,7 +22,7 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewState?.let { vmStart(viewModel, it, this, this) }
-                ?: run { throw IllegalArgumentException("ViewState is not initialized") }
+                ?: throw IllegalArgumentException("ViewState is not initialized")
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
