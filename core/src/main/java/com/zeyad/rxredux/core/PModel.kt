@@ -1,38 +1,38 @@
 package com.zeyad.rxredux.core
 
 sealed class PModel<S, I> {
-    abstract val event: I?
+    abstract val intent: I?
     abstract val bundle: S
 
-    override fun toString() = "Event: $event"
+    override fun toString() = "Intent: $intent"
 }
 
 sealed class PEffect<E, I> : PModel<E, I>()
 
-data class LoadingEffect<E, I>(override val bundle: E,
-                                              override val event: I) : PEffect<E, I>() {
+internal data class LoadingEffect<E, I>(override val bundle: E,
+                                        override val intent: I) : PEffect<E, I>() {
     override fun toString() = "Effect: Loading, " + super.toString()
 }
 
-data class ErrorEffect<E, I>(val error: Throwable,
-                             val errorMessage: Message,
-                             override val bundle: E,
-                             override val event: I) : PEffect<E, I>() {
+internal data class ErrorEffect<E, I>(val error: Throwable,
+                                      val errorMessage: String,
+                                      override val bundle: E,
+                                      override val intent: I) : PEffect<E, I>() {
     override fun toString() = "Effect: Error, ${super.toString()}, Throwable: $error"
 }
 
-data class SuccessEffect<E, I>(override val bundle: E,
-                               override val event: I) : PEffect<E, I>() {
+internal data class SuccessEffect<E, I>(override val bundle: E,
+                                        override val intent: I) : PEffect<E, I>() {
     override fun toString() = "Effect: Success, ${super.toString()}, Bundle: $bundle"
 }
 
-data class EmptySuccessEffect(override val bundle: Unit = Unit,
-                              override val event: EmptyEvent? = null) : PEffect<Unit, EmptyEvent>()
+internal data class EmptySuccessEffect(override val bundle: Unit = Unit,
+                                       override val intent: Any? = null) : PEffect<Unit, Any?>()
 
 data class SuccessState<S, I>(override val bundle: S,
-                              override val event: I?) : PModel<S, I>() {
+                              override val intent: I?) : PModel<S, I>() {
     override fun toString() = "State: Success, ${super.toString()}, Bundle: $bundle"
 }
 
-data class EmptySuccessState(override val bundle: Unit = Unit,
-                             override val event: EmptyEvent? = null) : PModel<Unit, EmptyEvent>()
+internal data class EmptySuccessState(override val bundle: Unit = Unit,
+                                      override val intent: Any? = null) : PModel<Unit, Any?>()

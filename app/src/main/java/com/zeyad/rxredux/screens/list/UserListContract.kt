@@ -3,7 +3,6 @@ package com.zeyad.rxredux.screens.list
 import android.os.Parcelable
 import androidx.recyclerview.widget.DiffUtil
 import com.zeyad.gadapter.ItemInfo
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.UserDiffCallBack
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -43,23 +42,15 @@ data class GetState(override val list: List<ItemInfo<User>> = emptyList(),
 sealed class UserListEffect
 data class NavigateTo(val user: User) : UserListEffect()
 
-sealed class UserListEvents<T> : BaseEvent<T>
+sealed class UserListIntents
 
-data class DeleteUsersEvent(private val selectedItemsIds: List<String>) : UserListEvents<List<String>>() {
-    override fun getPayLoad(): List<String> = selectedItemsIds
-}
+data class DeleteUsersIntent(val selectedItemsIds: List<String>) : UserListIntents()
 
-data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Long>() {
-    override fun getPayLoad(): Long = lastId
-}
+data class GetPaginatedUsersIntent(val lastId: Long) : UserListIntents()
 
-data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
-    override fun getPayLoad(): String = query
-}
+data class SearchUsersIntent(val query: String) : UserListIntents()
 
-data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
-    override fun getPayLoad(): User = user
-}
+data class UserClickedIntent(val user: User) : UserListIntents()
 
 sealed class UserListResult
 

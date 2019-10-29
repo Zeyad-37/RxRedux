@@ -8,15 +8,16 @@ class PModelObserver<I, V : BaseView<I, S, E>, S : Parcelable, E>(private val vi
     override fun onChanged(uiModel: PModel<*, I>?) {
         uiModel?.apply {
             when (this) {
-                is ErrorEffect -> view.showError(errorMessage, event)
-                is SuccessEffect -> view.applyEffect(bundle as E)
+                is ErrorEffect -> view.bindError(errorMessage, error, intent)
+                is SuccessEffect -> view.bindEffect(bundle as E)
                 is SuccessState -> {
-                    val successStateBundle = bundle as S
-                    view.setState(successStateBundle)
-                    view.renderSuccessState(successStateBundle)
+                    (bundle as? S)?.also {
+                        view.setState(it)
+                        view.bindState(it)
+                    }
                 }
             }
-            view.toggleViews(this is LoadingEffect, event)
+            view.toggleLoadingViews(this is LoadingEffect, intent)
         }
     }
 }

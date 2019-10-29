@@ -16,8 +16,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
 import com.zeyad.gadapter.GenericAdapter.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.Message
-import com.zeyad.rxredux.core.getErrorMessage
 import com.zeyad.rxredux.core.view.BaseActivity
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.detail.IntentBundleState
@@ -44,7 +42,7 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 class UserListActivity : OnStartDragListener, ActionMode.Callback,
-        BaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>() {
+        BaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM>() {
 
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
@@ -68,15 +66,15 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            viewModel.offer(GetPaginatedUsersEvent(0))
+            viewModel.offer(GetPaginatedUsersIntent(0))
         }
     }
 
-    override fun renderSuccessState(successState: UserListState) {
+    override fun bindState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)
     }
 
-    override fun applyEffect(effectBundle: UserListEffect) {
+    override fun bindEffect(effectBundle: UserListEffect) {
         when (effectBundle) {
             is NavigateTo -> {
                 val userDetailState = IntentBundleState(twoPane, effectBundle.user)
@@ -95,14 +93,14 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
         }
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>?) {
+    override fun toggleLoadingViews(isLoading: Boolean, intent: UserListIntents?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserListEvents<*>) {
-        showErrorSnackBarWithAction(errorMessage.getErrorMessage(this), user_list, "Retry",
-                View.OnClickListener { viewModel.offer(event) })
+    override fun bindError(errorMessage: String, cause: Throwable, intent: UserListIntents) {
+        showErrorSnackBarWithAction(errorMessage, user_list, "Retry",
+                View.OnClickListener { viewModel.offer(intent) })
     }
 
     private fun setupRecyclerView() {
@@ -129,33 +127,33 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
                 return true
             }
         })
-        eventObservable = eventObservable
+        intentStream = intentStream
                 .mergeWith(usersAdapter.itemClickObservable.flatMap {
                     if (actionMode != null) {
                         toggleItemSelection(it.position)
                         Observable.empty()
                     } else {
-                        Observable.just(UserClickedEvent(it.itemInfo.data as User))
+                        Observable.just(UserClickedIntent(it.itemInfo.data as User))
                     }
                 })
                 .mergeWith(usersAdapter.itemSwipeObservable
-                        .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
-                        .doOnEach { Log.d("DeleteEvent", FIRED) })
+                        .map { itemInfo -> DeleteUsersIntent(listOf((itemInfo.data as User).login)) }
+                        .doOnEach { Log.d("DeleteIntent", FIRED) })
         user_list.layoutManager = androidx.recyclerview.widget.LinearLayoutManager(this)
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler);
-        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
+        intentStream = intentStream.mergeWith(RxRecyclerView.scrollEvents(user_list)
                 .map { recyclerViewScrollEvent ->
-                    GetPaginatedUsersEvent(
+                    GetPaginatedUsersIntent(
                             if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
                                 viewState!!.lastId
                             else -1)
                 }
-                .filter { it.getPayLoad() != -1L }
+                .filter { it.lastId != -1L }
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .doOnNext { Log.d("NextPageEvent", FIRED) })
+                .doOnNext { Log.d("NextPageIntent", FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
     }
@@ -177,23 +175,23 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            viewModel.offer(GetPaginatedUsersEvent(viewState?.lastId!!))
+            viewModel.offer(GetPaginatedUsersIntent(viewState?.lastId!!))
             false
         }
-        eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
+        intentStream = intentStream.mergeWith(RxSearchView.queryTextChanges(searchView)
                 .filter { charSequence -> charSequence.toString().isNotEmpty() }
                 .throttleLast(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(200, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .map { query -> SearchUsersEvent(query.toString()) }
+                .map { query -> SearchUsersIntent(query.toString()) }
                 .distinctUntilChanged()
-                .doOnEach { Log.d("SearchEvent", FIRED) })
+                .doOnEach { Log.d("SearchIntent", FIRED) })
         return super.onCreateOptionsMenu(menu)
     }
 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            viewModel.offer(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel.offer(DeleteUsersIntent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

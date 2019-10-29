@@ -53,41 +53,39 @@ override fun stateReducer(newResult: R, currentState: S): S {
 ```
 Its a good practice to have a type for every state for your view.
 
-Secondly, mapEventsToActions.
+Secondly, mapIntentsToActions.
 ```
-override fun reduceEventsToResults(event: I, currentState: Any): Flowable<*>
-    return when (event) {
-            is GetPaginatedUsersEvent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+override fun reduceIntentsToResults(intent: I, currentState: Any): Flowable<*>
+    return when (intent) {
+            is GetPaginatedUsersIntent -> when (currentState) {
+                is EmptyState, is GetState -> getUsers(intent.getPayLoad())
+                else -> throwIllegalStateException(intent)
             }
-            is DeleteUsersEvent -> when (currentState) {
-                is GetState -> deleteCollection(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+            is DeleteUsersIntent -> when (currentState) {
+                is GetState -> deleteCollection(intent.getPayLoad())
+                else -> throwIllegalStateException(intent)
             }
-            is SearchUsersEvent -> when (currentState) {
-                is GetState -> search(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+            is SearchUsersIntent -> when (currentState) {
+                is GetState -> search(intent.getPayLoad())
+                else -> throwIllegalStateException(intent)
             }
-            is UserClickedEvent -> when (currentState) {
-                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.getPayLoad()), event))
-                else -> throwIllegalStateException(event)
+            is UserClickedIntent -> when (currentState) {
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(intent.getPayLoad()), intent))
+                else -> throwIllegalStateException(intent)
             }
         }
 }
 ```
-This is a simple mapping function that links every Event with its corresponding action
+This is a simple mapping function that links every Intent with its corresponding action
 function. The rest of the class holds your executables which are methods that return Flowables.
 
 ### Middleware
 If you want to hookup a crash reporting library or any middleware of any sorts you can override the middleware method
 ```
-override fun middleware(): (UIModel<UserListState>) -> Unit {
-    return {
-        when (it) {
-            is SuccessState, is LoadingState -> Crashlytics.log(Log.DEBUG, "UIModel", it.toString())
-            is ErrorState -> Crashlytics.logException(it.error)
-        }
+override fun middleware(it: PModel<*, I>) { {
+    when (it) {
+        is SuccessState, is LoadingState -> Crashlytics.log(Log.DEBUG, "UIModel", it.toString())
+        is ErrorState -> Crashlytics.logException(it.error)
     }
 }
 ```
@@ -96,7 +94,7 @@ override fun middleware(): (UIModel<UserListState>) -> Unit {
 ### Option A: Activities/Fragments extend abstract classes
 Your Activities or Fragments need to extend BaseActivity<UIModel, ViewModel> or
 BaseFragment<UIModel, ViewModel>. These base classes handle life cycle events. You will need to
-implement 8 methods and initialize your Events stream, more on that in a bit.
+implement 8 methods and initialize your Intents stream, more on that in a bit.
 First method: initialize(). You should instantiate all your dependencies here, including your ViewModels.
 Second method: setupUI(). Here you setContentView() and all other ui related stuff.
 Third method: errorMessageFactory(). Its a method that returns an interface that when given a Throwable it should return a String error message.
@@ -110,12 +108,15 @@ Eighth method: events(). Provide an Observable of the events.
 Activities/Fragments will override the viewModel and viewState from the interface 
 IBaseActivity/Fragment
 ```
-class UserListActivity() : BaseActivity<UserListState, UserListVM>() {}
+class UserListActivity() : BaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM>() {}
 
-class UserListActivity2(override var viewModel: UserListVM?, override var viewState: UserListState?)
-    : AppCompatActivity(), IBaseActivity<UserListState, UserListVM> {
+class UserListActivity2
+    : AppCompatActivity(), IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM> {
     
-    constructor() : this(null, null)
+    override lateinit var intentStream: Observable<UserListIntents>
+    override lateinit var disposable: Disposable
+    override var viewModel: UserListVM? = null
+    override var viewState: UserListState? = null
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -141,8 +142,8 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     override fun initialize() {
         viewModel = getViewModel()
         if (viewState == null) {
-            eventObservable = Single.just<BaseEvent<*>>(GetPaginatedUsersEvent(0))
-                .doOnSuccess { Log.d("GetPaginatedUsersEvent", FIRED) }.toObservable()
+            intentObservable = Single.just<Any>(GetPaginatedUsersIntent(0))
+                .doOnSuccess { Log.d("GetPaginatedUsersIntent", FIRED) }.toObservable()
         }
     }
     
@@ -161,27 +162,25 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
        }
     }
     
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>) {
+    override fun toggleViews(isLoading: Boolean, intent: I) {
         // Your Implementation here
     }
     
-    override fun showError(errorMessage: String, event: BaseEvent<*>) {
+    override fun showError(errorMessage: String, cause: Throwable, intent: I) {
         showErrorSnackBar(message, anyView, LENGTH_LONG);
     }
     
      override fun errorMessageFactory(): ErrorMessageFactory {
-            return { throwable, event: BaseEvent<*> -> throwable.localizedMessage }
+            return { throwable, intent: Any -> throwable.localizedMessage }
         }
     
-    override fun events(): Observable<BaseEvent<*>> {
-        return eventObservable.mergeWith(postOnResumeEvents())
-    }
+    override fun intents(): Observable<I> = intentObservable
     
     // An example on how to merge post OnResume generated events
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            viewModel.offer(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel.offer(DeleteUsersIntent(Observable.fromIterable(usersAdapter.selectedItems)
                 .map<String> { itemInfo -> itemInfo.getData<User>().login }.toList()
                 .blockingGet()))
                 true
@@ -190,7 +189,7 @@ class UserListActivity2(override var viewModel: UserListVM?, override var viewSt
     }
 }
 ```
-Your events should collect the needed input and encapsulate it in an object that implements the BaseEvent interface.
+Your events should collect the needed input and encapsulate it in an object that implements the BaseIntent interface.
 And your done. So lets recap
 
 # Be Aware

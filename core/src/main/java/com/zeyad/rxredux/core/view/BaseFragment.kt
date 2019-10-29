@@ -8,7 +8,7 @@ import io.reactivex.disposables.Disposable
 
 abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, S, E> {
 
-    override var eventObservable: Observable<I> = Observable.empty()
+    override var intentStream: Observable<I> = Observable.empty()
     override lateinit var disposable: Disposable
     lateinit var viewModel: VM
     var viewState: S? = null
@@ -35,14 +35,14 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
     }
 
-    override fun onStart() {
-        super.onStart()
-        disposable = eventObservable.subscribe { viewModel.offer(it) }
+    override fun onResume() {
+        super.onResume()
+        disposable = intentStream.subscribe { viewModel.offer(it) }
     }
 
-    override fun onStop() {
-        disposeEventStream()
-        super.onStop()
+    override fun onPause() {
+        disposeIntentStream()
+        super.onPause()
     }
 
     override fun setState(bundle: S) {

@@ -10,12 +10,9 @@ import android.view.ViewGroup
 import com.google.android.material.snackbar.Snackbar
 import com.jakewharton.rxbinding2.view.clicks
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.BaseEvent
-import com.zeyad.rxredux.core.EmptyEvent
-import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.BaseFragment
-import com.zeyad.rxredux.screens.detail.NavigateToEvent
-import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
+import com.zeyad.rxredux.screens.detail.NavigateToIntent
+import com.zeyad.rxredux.screens.list.GetPaginatedUsersIntent
 import com.zeyad.rxredux.utils.showErrorSnackBar
 import io.reactivex.Flowable
 import kotlinx.android.synthetic.main.fragment_first.*
@@ -25,7 +22,7 @@ import java.util.concurrent.TimeUnit
 /**
  * A placeholder fragment containing a simple view.
  */
-class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstEffect, FirstVM>() {
+class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, FirstVM>() {
 
     override fun initialize() {
         viewModel = FirstVM()
@@ -38,42 +35,42 @@ class FirstActivityFragment : BaseFragment<BaseEvent<*>, Any, FirstState, FirstE
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        eventObservable = fab.clicks().map { NavigateToEvent(Intent(requireContext(), SecondActivity::class.java)) }
+        intentStream = fab.clicks().map { NavigateToIntent(Intent(requireContext(), SecondActivity::class.java)) }
     }
 
     @SuppressLint("RxLeakedSubscription", "CheckResult")
     override fun onResume() {
         super.onResume()
         if (viewState == EmptyFirstState) {
-            viewModel.offer(GetPaginatedUsersEvent(0))
+            viewModel.offer(GetPaginatedUsersIntent(0))
             var isSecond = false
             Flowable.timer(2000, TimeUnit.MILLISECONDS).repeat(2)
                     .subscribe({
                         if (isSecond)
-                            viewModel.offer(GetPaginatedUsersEvent(0))
+                            viewModel.offer(GetPaginatedUsersIntent(0))
                         else {
-                            viewModel.offer(EmptyEvent)
+                            viewModel.offer(Any())
                             isSecond = true
                         }
                     }, { it.printStackTrace() })
         }
     }
 
-    override fun renderSuccessState(successState: FirstState) {
+    override fun bindState(successState: FirstState) {
         Log.d("FirstFragment", "Other State = ${successState.javaClass}")
     }
 
-    override fun toggleViews(isLoading: Boolean, event: BaseEvent<*>?) {
+    override fun toggleLoadingViews(isLoading: Boolean, intent: Any?) {
         Log.d("FirstFragment", "Loading $isLoading")
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun applyEffect(effectBundle: FirstEffect) {
+    override fun bindEffect(effectBundle: FirstEffect) {
         startActivity((effectBundle as NavigateToEffect).intent)
     }
 
-    override fun showError(errorMessage: Message, event: BaseEvent<*>) {
+    override fun bindError(errorMessage: String, cause: Throwable, intent: Any) {
         showErrorSnackBar("Oops", fab, Snackbar.LENGTH_INDEFINITE)
     }
 }

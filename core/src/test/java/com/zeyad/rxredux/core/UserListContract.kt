@@ -42,21 +42,21 @@ data class GetState(override val list: List<ItemInfo> = emptyList(),
 sealed class UserListEffect
 data class NavigateTo(val user: User) : UserListEffect(), Leaf
 
-sealed class UserListEvents<T> : BaseEvent<T>
+sealed class UserListIntents<T> : BaseIntent<T>
 
-data class DeleteUsersEvent(private val selectedItemsIds: List<String>) : UserListEvents<List<String>>() {
+data class DeleteUsersIntent(private val selectedItemsIds: List<String>) : UserListIntents<List<String>>() {
     override fun getPayLoad(): List<String> = selectedItemsIds
 }
 
-data class GetPaginatedUsersEvent(private val lastId: Long) : UserListEvents<Long>() {
+data class GetPaginatedUsersIntent(private val lastId: Long) : UserListIntents<Long>() {
     override fun getPayLoad(): Long = lastId
 }
 
-data class SearchUsersEvent(private val query: String) : UserListEvents<String>() {
+data class SearchUsersIntent(private val query: String) : UserListIntents<String>() {
     override fun getPayLoad(): String = query
 }
 
-data class UserClickedEvent(private val user: User) : UserListEvents<User>() {
+data class UserClickedIntent(private val user: User) : UserListIntents<User>() {
     override fun getPayLoad(): User = user
 }
 

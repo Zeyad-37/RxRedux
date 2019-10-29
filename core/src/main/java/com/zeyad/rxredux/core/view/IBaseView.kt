@@ -14,17 +14,15 @@ interface IBaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : 
     var viewState: S?
 
     fun onStartImpl() {
-        viewModel?.let { vm ->
-            viewState?.let { vs ->
+        viewModel?.let { vm: VM ->
+            viewState?.let { vs: S ->
                 vmStart(vm, vs, this, this)
-            } ?: run { throw KotlinNullPointerException("ViewState is null!") }
-        } ?: run {
-            throw KotlinNullPointerException("ViewModel is null!")
-        }
+            } ?: throw KotlinNullPointerException("ViewState is null!")
+        } ?: throw KotlinNullPointerException("ViewModel is null!")
     }
 
-    fun connectEventsToVM() {
-        disposable = eventObservable.subscribe { viewModel?.offer(it) }
+    fun connectIntentStreamToVM() {
+        disposable = intentStream.subscribe { viewModel?.offer(it) }
     }
 
     override fun setState(bundle: S) {

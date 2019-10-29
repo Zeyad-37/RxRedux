@@ -1,13 +1,12 @@
 package com.zeyad.rxredux.screens.navigation
 
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
-import com.zeyad.rxredux.screens.detail.NavigateToEvent
-import com.zeyad.rxredux.screens.list.GetPaginatedUsersEvent
+import com.zeyad.rxredux.screens.detail.NavigateToIntent
+import com.zeyad.rxredux.screens.list.GetPaginatedUsersIntent
 import io.reactivex.Flowable
 
-class FirstVM : BaseViewModel<BaseEvent<*>, Any, FirstState, FirstEffect>() {
+class FirstVM : BaseViewModel<Any, Any, FirstState, FirstEffect>() {
 
     override fun stateReducer(newResult: Any, currentState: FirstState): FirstState {
         return when (newResult) {
@@ -16,10 +15,10 @@ class FirstVM : BaseViewModel<BaseEvent<*>, Any, FirstState, FirstEffect>() {
         }
     }
 
-    override fun reduceEventsToResults(event: BaseEvent<*>, currentState: Any): Flowable<*> {
-        return when (event) {
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(NavigateToEffect(event.getPayLoad()), event))
-            is GetPaginatedUsersEvent -> Flowable.just(event.getPayLoad())
+    override fun reduceIntentsToResults(intent: Any, currentState: Any): Flowable<*> {
+        return when (intent) {
+            is NavigateToIntent -> Flowable.just(SuccessEffectResult(NavigateToEffect(intent.intent), intent))
+            is GetPaginatedUsersIntent -> Flowable.just(intent.lastId)
             else -> Flowable.error<Any>(RuntimeException("Forced Error"))
         }
     }

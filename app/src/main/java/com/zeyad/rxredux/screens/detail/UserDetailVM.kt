@@ -12,7 +12,7 @@ import io.reactivex.Flowable
 import io.reactivex.Observable
 
 class UserDetailVM(private val dataUseCase: IDataService) :
-        BaseViewModel<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect>() {
+        BaseViewModel<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect>() {
 
     override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
         return when (currentState) {
@@ -26,10 +26,10 @@ class UserDetailVM(private val dataUseCase: IDataService) :
         }
     }
 
-    override fun reduceEventsToResults(event: UserDetailEvents<*>, currentState: Any): Flowable<*> {
-        return when (event) {
-            is GetReposEvent -> getRepositories(event.getPayLoad())
-            is NavigateToEvent -> Flowable.just(SuccessEffectResult(Pair(event.getPayLoad(), false), event))
+    override fun reduceIntentsToResults(intent: UserDetailIntents, currentState: Any): Flowable<*> {
+        return when (intent) {
+            is GetReposIntent -> getRepositories(intent.login)
+            is NavigateToIntent -> Flowable.just(SuccessEffectResult(Pair(intent.intent, false), intent))
         }
     }
 

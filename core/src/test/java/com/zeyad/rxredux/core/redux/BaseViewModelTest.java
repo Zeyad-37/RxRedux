@@ -57,23 +57,23 @@ public class BaseViewModelTest {
 //        when(mockDataUseCase.<List<String>>deleteCollectionByIds((PostRequest) any())).thenReturn(deleteResult);
 //
 //        TestSubscriber<PModel<UserListState>> testSubscriber =
-//                viewModel.store(Observable.<BaseEvent<?>>just(new GetPaginatedUsersEvent(1)),
+//                viewModel.store(Observable.<BaseIntent<?>>just(new GetPaginatedUsersIntent(1)),
 //                        UserListState.builder()
 //                                .lastId(0)
 //                                .build())
 //                        .test();
 
-//        viewModel.store(Observable.fromArray(new GetPaginatedUsersEvent(0),
-//                new GetPaginatedUsersEvent(1),
-//                new DeleteUsersEvent(Collections.singletonList("1"))));
+//        viewModel.store(Observable.fromArray(new GetPaginatedUsersIntent(0),
+//                new GetPaginatedUsersIntent(1),
+//                new DeleteUsersIntent(Collections.singletonList("1"))));
 //                ,
-//                new SearchUsersEvent("1")));
+//                new SearchUsersIntent("1")));
 
-//        testSubscriber.awaitTerminalEvent();
+//        testSubscriber.awaitTerminalIntent();
 //        testSubscriber.assertNoErrors();
 
 //        testSubscriber.assertValueAt(0,
-//                userListStateUIModel -> userListStateUIModel.getEvent().equals("idle"));
+//                userListStateUIModel -> userListStateUIModel.getIntent().equals("idle"));
 //
 //        testSubscriber.assertValueAt(1, Result::isLoading);
 //

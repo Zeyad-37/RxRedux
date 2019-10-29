@@ -2,7 +2,6 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
-import com.zeyad.rxredux.core.Message
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 
@@ -15,14 +14,14 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
 
 interface BaseView<I, S : Parcelable, E> {
 
-    var eventObservable: Observable<I>
+    var intentStream: Observable<I>
 
     var disposable: Disposable
 
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
 
-    fun disposeEventStream() {
+    fun disposeIntentStream() {
         if (!disposable.isDisposed) {
             disposable.dispose()
         }
@@ -38,31 +37,31 @@ interface BaseView<I, S : Parcelable, E> {
      *
      * @param successState the model to be rendered.
      */
-    fun renderSuccessState(successState: S)
+    fun bindState(successState: S)
 
     /**
      * Apply the effect to the view
      *
      * @param effectBundle the model to be rendered.
      */
-    fun applyEffect(effectBundle: E)
+    fun bindEffect(effectBundle: E)
 
     /**
      * Show or hide a view with a progress bar indicating a loading process.
      *
      * @param isLoading whether to show or hide the loading view.
      */
-    fun toggleViews(isLoading: Boolean, event: I?)
+    fun toggleLoadingViews(isLoading: Boolean, intent: I?)
 
     /**
      * Show an errorResult messageId
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun showError(errorMessage: Message, event: I)
+    fun bindError(errorMessage: String, cause: Throwable, intent: I)
 
     /**
-     * Sets the viewState and the firing event on the implementing View.
+     * Sets the viewState and the firing intent on the implementing View.
      * @param bundle state to be saved.
      */
     fun setState(bundle: S)

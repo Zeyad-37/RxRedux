@@ -4,10 +4,10 @@ import java.util.*
 import kotlin.collections.LinkedHashSet
 import kotlin.reflect.KClass
 
-interface Root
-interface Leaf
+internal interface Root
+internal interface Leaf
 
-data class Graph(val adjVertices: MutableMap<KClass<*>, Set<KClass<*>>> = mutableMapOf()) {
+internal data class Graph(val adjVertices: MutableMap<KClass<*>, Set<KClass<*>>> = mutableMapOf()) {
 
     fun depthFirstTraversal(root: KClass<*>): Set<KClass<*>> {
         val visited = LinkedHashSet<KClass<*>>()

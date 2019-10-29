@@ -15,8 +15,6 @@ import com.google.android.material.snackbar.Snackbar
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.Message
-import com.zeyad.rxredux.core.getErrorMessage
 import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
@@ -31,7 +29,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * [UserListActivity] in two-pane mode (on tablets) or a [UserDetailActivity] on
  * handsets.
  */
-class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
+class UserDetailFragment : BaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -66,8 +64,8 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
 
     override fun onResume() {
         super.onResume()
-        viewModel.offer(GetReposEvent((viewState as IntentBundleState).user.login))
-//        viewModel.offer(NavigateToEvent(UserListActivity2.getCallingIntent(requireContext())))
+        viewModel.offer(GetReposIntent((viewState as IntentBundleState).user.login))
+//        viewModel.offer(NavigateToIntent(UserListActivity2.getCallingIntent(requireContext())))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -84,7 +82,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
         recyclerView_repositories.adapter = repositoriesAdapter
     }
 
-    override fun renderSuccessState(successState: UserDetailState) {
+    override fun bindState(successState: UserDetailState) {
         when (successState) {
             is FullDetailState -> {
                 repositoriesAdapter.setDataList(successState.repos, null)
@@ -114,7 +112,7 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
         }
     }
 
-    override fun applyEffect(effectBundle: UserDetailEffect) {
+    override fun bindEffect(effectBundle: UserDetailEffect) {
         if (effectBundle is NavigateFromDetail)
             startActivity(effectBundle.intent)
     }
@@ -124,13 +122,13 @@ class UserDetailFragment : BaseFragment<UserDetailEvents<*>, UserDetailResult, U
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>?) {
+    override fun toggleLoadingViews(isLoading: Boolean, intent: UserDetailIntents?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserDetailEvents<*>) {
-        showErrorSnackBar(errorMessage.getErrorMessage(requireContext()), linear_layout_loader, Snackbar.LENGTH_LONG)
+    override fun bindError(errorMessage: String, cause: Throwable, intent: UserDetailIntents) {
+        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 
     companion object {

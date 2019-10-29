@@ -2,7 +2,7 @@ package com.zeyad.rxredux.core.eventbus
 
 import io.reactivex.Flowable
 
-interface IRxEventBus<T> {
+interface IRxIntentBus<T> {
     fun send(t: T)
 
     fun observe(): Flowable<T>

@@ -24,7 +24,7 @@ class GraphVerifierTest {
     @Test
     fun verify() {
         assertTrue(graphVerifier.verify(viewModel,
-                listOf(GetPaginatedUsersEvent(1), UserClickedEvent(user)),
+                listOf(GetPaginatedUsersIntent(1), UserClickedIntent(user)),
                 listOf(EmptyState(), GetState()),
                 listOf(NavigateTo(user)),
                 listOf(EmptyResult, UsersResult(listOf(user)))))

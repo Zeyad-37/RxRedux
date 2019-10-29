@@ -15,7 +15,6 @@ import com.bumptech.glide.request.target.Target
 import com.zeyad.gadapter.GenericRecyclerViewAdapter
 import com.zeyad.gadapter.GenericViewHolder
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.IBaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
@@ -32,9 +31,9 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailEvents<*>, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
-    override lateinit var eventObservable: Observable<UserDetailEvents<*>>
+    override lateinit var intentStream: Observable<UserDetailIntents>
     override lateinit var disposable: Disposable
     override var viewModel: UserDetailVM? = null
     override var viewState: UserDetailState? = null
@@ -76,7 +75,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
     override fun initialize() {
         viewModel = getViewModel()
         viewState = arguments?.getParcelable(P_MODEL)!!
-        eventObservable = Observable.just(GetReposEvent((viewState as IntentBundleState).user.login))
+        intentStream = Observable.just(GetReposIntent((viewState as IntentBundleState).user.login))
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? =
@@ -93,7 +92,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
         recyclerView_repositories.adapter = repositoriesAdapter
     }
 
-    override fun renderSuccessState(successState: UserDetailState) {
+    override fun bindState(successState: UserDetailState) {
         when (successState) {
             is FullDetailState -> {
                 repositoriesAdapter.setDataList(successState.repos, null)
@@ -123,7 +122,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
         }
     }
 
-    override fun applyEffect(effectBundle: UserDetailEffect) {
+    override fun bindEffect(effectBundle: UserDetailEffect) {
         if (effectBundle is NavigateFromDetail)
             startActivity(effectBundle.intent)
     }
@@ -133,12 +132,12 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
         return false
     }
 
-    override fun toggleViews(isLoading: Boolean, event: UserDetailEvents<*>?) {
+    override fun toggleLoadingViews(isLoading: Boolean, intent: UserDetailIntents?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserDetailEvents<*>) {
+    override fun bindError(errorMessage: String, cause: Throwable, intent: UserDetailIntents) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

@@ -18,26 +18,26 @@ import io.reactivex.functions.BiFunction
 import io.realm.Realm
 import io.realm.RealmQuery
 
-class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListEvents<*>, UserListResult, UserListState, UserListEffect>() {
+class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListIntents, UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceEventsToResults(event: UserListEvents<*>, currentState: Any): Flowable<*> {
+    override fun reduceIntentsToResults(intent: UserListIntents, currentState: Any): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")
-        return when (event) {
-            is GetPaginatedUsersEvent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+        return when (intent) {
+            is GetPaginatedUsersIntent -> when (currentState) {
+                is EmptyState, is GetState -> getUsers(intent.lastId)
+                else -> throwIllegalStateException(intent)
             }
-            is DeleteUsersEvent -> when (currentState) {
-                is GetState -> deleteCollection(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+            is DeleteUsersIntent -> when (currentState) {
+                is GetState -> deleteCollection(intent.selectedItemsIds)
+                else -> throwIllegalStateException(intent)
             }
-            is SearchUsersEvent -> when (currentState) {
-                is GetState -> search(event.getPayLoad())
-                else -> throwIllegalStateException(event)
+            is SearchUsersIntent -> when (currentState) {
+                is GetState -> search(intent.query)
+                else -> throwIllegalStateException(intent)
             }
-            is UserClickedEvent -> when (currentState) {
-                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(event.getPayLoad()), event))
-                else -> throwIllegalStateException(event)
+            is UserClickedIntent -> when (currentState) {
+                is GetState -> Flowable.just(SuccessEffectResult(NavigateTo(intent.user), intent))
+                else -> throwIllegalStateException(intent)
             }
         }
     }

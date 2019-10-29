@@ -1,14 +1,13 @@
 package com.zeyad.rxredux.core.verification
 
 import android.os.Parcelable
-import com.zeyad.rxredux.core.BaseEvent
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import kotlin.reflect.KClass
 
-class GraphVerifier {
+internal class GraphVerifier {
 
-    fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<I, R, S, E>,
+    fun <I, R, S : Parcelable, E : Any> verify(vm: IBaseViewModel<I, R, S, E>,
                                                               events: List<I>,
                                                               states: List<S>,
                                                               effects: List<E>,
@@ -19,19 +18,19 @@ class GraphVerifier {
         }
     }
 
-    private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<I, R, S, E>,
-                                                                          events: List<I>,
-                                                                          states: List<S>,
-                                                                          effects: List<E>,
-                                                                          results: List<R>) {
-        fillByReducingEventsWithStates(vm, events, states)
-        fillByReducingEventsWithEffects(vm, events, effects)
+    private fun <I, R, S : Parcelable, E : Any> Graph.fill(vm: IBaseViewModel<I, R, S, E>,
+                                                           events: List<I>,
+                                                           states: List<S>,
+                                                           effects: List<E>,
+                                                           results: List<R>) {
+        fillByReducingIntentsWithStates(vm, events, states)
+        fillByReducingIntentsWithEffects(vm, events, effects)
         fillByReducingStatesWithResults(vm, states, results)
     }
 
-    private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<I, R, S, E>,
-                                                                                                     states: List<S>,
-                                                                                                     results: List<R>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingStatesWithResults(vm: IBaseViewModel<I, R, S, E>,
+                                                                                      states: List<S>,
+                                                                                      results: List<R>) {
         val graphStates = mutableSetOf<KClass<*>>()
         for (state in states) {
             for (result in results) {
@@ -45,36 +44,36 @@ class GraphVerifier {
         }
     }
 
-    private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithEffects(vm: IBaseViewModel<I, R, S, E>,
-                                                                                                     events: List<I>,
-                                                                                                     effects: List<E>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingIntentsWithEffects(vm: IBaseViewModel<I, R, S, E>,
+                                                                                      events: List<I>,
+                                                                                      effects: List<E>) {
         val graphEffects: MutableSet<KClass<*>> = mutableSetOf()
         for (effect in effects) {
-            for (event in events) {
-                reduceEvents(vm, event, effect, graphEffects)
+            for (intent in events) {
+                reduceIntents(vm, intent, effect, graphEffects)
             }
             insertWisely(effect::class, graphEffects)
         }
     }
 
-    private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> Graph.fillByReducingEventsWithStates(vm: IBaseViewModel<I, R, S, E>,
-                                                                                                    events: List<I>,
-                                                                                                    states: List<S>) {
+    private fun <I, R, S : Parcelable, E : Any> Graph.fillByReducingIntentsWithStates(vm: IBaseViewModel<I, R, S, E>,
+                                                                                     events: List<I>,
+                                                                                     states: List<S>) {
         val graphEffects: MutableSet<KClass<*>> = mutableSetOf()
         for (state in states) {
-            for (event in events) {
-                reduceEvents(vm, event, state, graphEffects)
+            for (intent in events) {
+                reduceIntents(vm, intent, state, graphEffects)
             }
             insertWisely(state::class, graphEffects)
         }
     }
 
-    private fun <I : BaseEvent<*>, R, S : Parcelable, E : Any> reduceEvents(vm: IBaseViewModel<I, R, S, E>,
-                                                                            event: I,
-                                                                            effect: Any,
-                                                                            graphEffects: MutableSet<KClass<*>>) {
+    private fun <I, R, S : Parcelable, E : Any> reduceIntents(vm: IBaseViewModel<I, R, S, E>,
+                                                             intent: I,
+                                                             effect: Any,
+                                                             graphEffects: MutableSet<KClass<*>>) {
         val result = try {
-            vm.reduceEventsToResults(event, effect).blockingFirst()
+            vm.reduceIntentsToResults(intent, effect).blockingFirst()
         } catch (exception: Exception) {
             return
         }

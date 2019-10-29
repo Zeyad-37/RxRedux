@@ -23,7 +23,6 @@ import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
 import com.zeyad.gadapter.*
 import com.zeyad.gadapter.GenericAdapter.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
-import com.zeyad.rxredux.core.Message
 import com.zeyad.rxredux.core.view.IBaseActivity
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.detail.IntentBundleState
@@ -49,10 +48,10 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, UserListResult, UserListState, UserListEffect, UserListVM>,
+class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM>,
         OnStartDragListener, ActionMode.Callback {
 
-    override lateinit var eventObservable: Observable<UserListEvents<*>>
+    override lateinit var intentStream: Observable<UserListIntents>
     override lateinit var disposable: Disposable
     override var viewModel: UserListVM? = null
     override var viewState: UserListState? = null
@@ -100,22 +99,22 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            viewModel?.events?.onNext(GetPaginatedUsersEvent(0))
+            viewModel?.intents?.onNext(GetPaginatedUsersIntent(0))
         }
     }
 
-    override fun renderSuccessState(successState: UserListState) {
+    override fun bindState(successState: UserListState) {
         usersAdapter.setDataList(successState.list, successState.callback)
     }
 
-    override fun applyEffect(effectBundle: UserListEffect) = Unit
+    override fun bindEffect(effectBundle: UserListEffect) = Unit
 
-    override fun toggleViews(isLoading: Boolean, event: UserListEvents<*>?) {
+    override fun toggleLoadingViews(isLoading: Boolean, intent: UserListIntents?) {
         linear_layout_loader.bringToFront()
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun showError(errorMessage: Message, event: UserListEvents<*>) {
+    override fun bindError(errorMessage: String, cause: Throwable, intent: UserListIntents) {
 //        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
@@ -185,20 +184,20 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler)
-        eventObservable = eventObservable.mergeWith(RxRecyclerView.scrollEvents(user_list)
+        intentStream = intentStream.mergeWith(RxRecyclerView.scrollEvents(user_list)
                 .map { recyclerViewScrollEvent ->
-                    GetPaginatedUsersEvent(
+                    GetPaginatedUsersIntent(
                             if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
                                 viewState!!.lastId
                             else -1)
                 }
-                .filter { it.getPayLoad() != -1L }
+                .filter { it.lastId != -1L }
                 .throttleLast(200, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .doOnNext { Log.d("NextPageEvent", UserListActivity.FIRED) })
+                .doOnNext { Log.d("NextPageIntent", UserListActivity.FIRED) })
                 .mergeWith(usersAdapter.itemSwipeObservable
-                        .map { itemInfo -> DeleteUsersEvent(listOf((itemInfo.data as User).login)) }
-                        .doOnEach { Log.d("DeleteEvent", UserListActivity.FIRED) })
+                        .map { itemInfo -> DeleteUsersIntent(listOf((itemInfo.data as User).login)) }
+                        .doOnEach { Log.d("DeleteIntent", UserListActivity.FIRED) })
         itemTouchHelper = ItemTouchHelper(SimpleItemTouchHelperCallback(usersAdapter))
         itemTouchHelper.attachToRecyclerView(user_list)
     }
@@ -209,16 +208,16 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            viewModel?.events?.onNext(GetPaginatedUsersEvent(viewState?.lastId!!))
+            viewModel?.intents?.onNext(GetPaginatedUsersIntent(viewState?.lastId!!))
             false
         }
-        eventObservable = eventObservable.mergeWith(RxSearchView.queryTextChanges(searchView)
+        intentStream = intentStream.mergeWith(RxSearchView.queryTextChanges(searchView)
                 .filter { charSequence -> charSequence.toString().isNotEmpty() }
                 .throttleLast(100, TimeUnit.MILLISECONDS, Schedulers.computation())
                 .debounce(200, TimeUnit.MILLISECONDS, Schedulers.computation())
-                .map { query -> SearchUsersEvent(query.toString()) }
+                .map { query -> SearchUsersIntent(query.toString()) }
                 .distinctUntilChanged()
-                .doOnEach { Log.d("SearchEvent", FIRED) })
+                .doOnEach { Log.d("SearchIntent", FIRED) })
         return super.onCreateOptionsMenu(menu)
     }
 
@@ -236,7 +235,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListEvents<*>, 
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            viewModel?.events?.onNext(DeleteUsersEvent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel?.intents?.onNext(DeleteUsersIntent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

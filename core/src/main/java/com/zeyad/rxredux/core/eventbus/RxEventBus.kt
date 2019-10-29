@@ -4,8 +4,8 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.subjects.PublishSubject
 
-internal class RxEventBus(private val rxBus: PublishSubject<Any> = PublishSubject.create(),
-                          val backPressureStrategy: BackpressureStrategy = BackpressureStrategy.BUFFER) : IRxEventBus<Any> {
+internal class RxIntentBus(private val rxBus: PublishSubject<Any> = PublishSubject.create(),
+                          val backPressureStrategy: BackpressureStrategy = BackpressureStrategy.BUFFER) : IRxIntentBus<Any> {
 
     private val flowable = rxBus.toFlowable(backPressureStrategy).share()
 
@@ -13,7 +13,7 @@ internal class RxEventBus(private val rxBus: PublishSubject<Any> = PublishSubjec
 
     override fun observe(): Flowable<Any> = flowable
 
-    companion object : SingletonHolder<BackpressureStrategy, IRxEventBus<Any>>({
-        RxEventBus(backPressureStrategy = it)
+    companion object : SingletonHolder<BackpressureStrategy, IRxIntentBus<Any>>({
+        RxIntentBus(backPressureStrategy = it)
     })
 }
