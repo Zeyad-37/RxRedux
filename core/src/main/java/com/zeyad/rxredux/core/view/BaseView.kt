@@ -2,6 +2,8 @@ package com.zeyad.rxredux.core.view
 
 import android.os.Bundle
 import android.os.Parcelable
+import androidx.lifecycle.LifecycleOwner
+import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 
@@ -12,23 +14,15 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
             savedInstanceState.getParcelable(P_MODEL)
         else null
 
-interface BaseView<I, S : Parcelable, E> {
+interface BaseView<I, S : Parcelable, E, R, VM : IBaseViewModel<I, R, S, E>> : LifecycleOwner {
 
     var intentStream: Observable<I>
-
+    var viewModel: VM
+    var viewState: S
     var disposable: Disposable
 
-    fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
-            bundle.putParcelable(P_MODEL, viewState)
-
-    fun disposeIntentStream() {
-        if (!disposable.isDisposed) {
-            disposable.dispose()
-        }
-    }
-
     /**
-     * Initialize objects or any required dependencies.
+     * Initialize objects or any required dependencies, including viewModel and viewState.
      */
     fun initialize()
 
@@ -60,9 +54,24 @@ interface BaseView<I, S : Parcelable, E> {
      */
     fun bindError(errorMessage: String, cause: Throwable, intent: I)
 
-    /**
-     * Sets the viewState and the firing intent on the implementing View.
-     * @param bundle state to be saved.
-     */
-    fun setState(bundle: S)
+    fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
+            bundle.putParcelable(P_MODEL, viewState)
+
+    fun disposeIntentStream() {
+        if (!disposable.isDisposed) {
+            disposable.dispose()
+        }
+    }
+
+    fun activate() {
+        viewModel.store(viewState).observe(this, PModelObserver(this))
+    }
+
+    fun connectIntentStreamToVM() {
+        disposable = intentStream.subscribe { viewModel.offer(it) }
+    }
+
+    fun setState(bundle: S) {
+        viewState = bundle
+    }
 }

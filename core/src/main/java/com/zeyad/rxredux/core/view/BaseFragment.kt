@@ -6,12 +6,12 @@ import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 
-abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, S, E> {
+abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, S, E, R, VM> {
 
     override var intentStream: Observable<I> = Observable.empty()
     override lateinit var disposable: Disposable
-    lateinit var viewModel: VM
-    var viewState: S? = null
+    override lateinit var viewModel: VM
+    override lateinit var viewState: S
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,8 +21,7 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        viewState?.let { vmStart(viewModel, it, this, this) }
-                ?: throw IllegalArgumentException("ViewState is not initialized")
+        activate()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -37,15 +36,11 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
 
     override fun onResume() {
         super.onResume()
-        disposable = intentStream.subscribe { viewModel.offer(it) }
+        connectIntentStreamToVM()
     }
 
     override fun onPause() {
         disposeIntentStream()
         super.onPause()
-    }
-
-    override fun setState(bundle: S) {
-        viewState = bundle
     }
 }

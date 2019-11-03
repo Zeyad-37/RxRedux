@@ -18,8 +18,8 @@ import androidx.appcompat.view.ActionMode
 import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.ItemTouchHelper
-import com.jakewharton.rxbinding2.support.v7.widget.RxRecyclerView
 import com.jakewharton.rxbinding2.support.v7.widget.RxSearchView
+import com.jakewharton.rxbinding2.support.v7.widget.scrollEvents
 import com.zeyad.gadapter.*
 import com.zeyad.gadapter.GenericAdapter.Companion.SECTION_HEADER
 import com.zeyad.rxredux.R
@@ -53,8 +53,8 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
 
     override lateinit var intentStream: Observable<UserListIntents>
     override lateinit var disposable: Disposable
-    override var viewModel: UserListVM? = null
-    override var viewState: UserListState? = null
+    override lateinit var viewModel: UserListVM
+    override lateinit var viewState: UserListState
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
@@ -70,7 +70,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
 
     override fun onStart() {
         super.onStart()
-        onStartImpl()
+        activate()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -86,6 +86,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
     override fun initialize() {
         viewModel = getViewModel()
         viewState = EmptyState()
+        intentStream = Observable.empty()
     }
 
     override fun setupUI(isNew: Boolean) {
@@ -99,7 +100,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
     override fun onResume() {
         super.onResume()
         if (viewState is EmptyState) {
-            viewModel?.intents?.onNext(GetPaginatedUsersIntent(0))
+            viewModel.intents.onNext(GetPaginatedUsersIntent(0))
         }
     }
 
@@ -184,11 +185,11 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         user_list.adapter = usersAdapter
         usersAdapter.setAllowSelection(true)
         //        fastScroller.setRecyclerView(userRecycler)
-        intentStream = intentStream.mergeWith(RxRecyclerView.scrollEvents(user_list)
+        intentStream = intentStream.mergeWith(user_list.scrollEvents()
                 .map { recyclerViewScrollEvent ->
                     GetPaginatedUsersIntent(
                             if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
-                                viewState!!.lastId
+                                viewState.lastId
                             else -1)
                 }
                 .filter { it.lastId != -1L }
@@ -208,7 +209,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            viewModel?.intents?.onNext(GetPaginatedUsersIntent(viewState?.lastId!!))
+            viewModel.intents.onNext(GetPaginatedUsersIntent(viewState.lastId))
             false
         }
         intentStream = intentStream.mergeWith(RxSearchView.queryTextChanges(searchView)
@@ -235,7 +236,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
-            viewModel?.intents?.onNext(DeleteUsersIntent(Observable.fromIterable(usersAdapter.selectedItems)
+            viewModel.intents.onNext(DeleteUsersIntent(Observable.fromIterable(usersAdapter.selectedItems)
                     .map<String> { itemInfo -> (itemInfo.data as User).login }.toList()
                     .blockingGet()))
             true

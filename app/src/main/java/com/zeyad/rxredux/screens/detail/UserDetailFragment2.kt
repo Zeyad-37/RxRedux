@@ -35,8 +35,8 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override lateinit var intentStream: Observable<UserDetailIntents>
     override lateinit var disposable: Disposable
-    override var viewModel: UserDetailVM? = null
-    override var viewState: UserDetailState? = null
+    override lateinit var viewModel: UserDetailVM
+    override lateinit var viewState: UserDetailState
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
 
@@ -64,7 +64,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override fun onStart() {
         super.onStart()
-        onStartImpl()
+        activate()
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
