@@ -1,6 +1,6 @@
 package com.zeyad.rxredux.core.eventbus
 
-open class SingletonHolder<in A, out T>(creator: (A) -> T) {
+internal open class SingletonHolder<in A, out T>(creator: (A) -> T) {
     private var creator: ((A) -> T)? = creator
     @Volatile
     private var instance: T? = null

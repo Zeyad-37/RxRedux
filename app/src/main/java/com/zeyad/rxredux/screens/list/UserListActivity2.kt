@@ -278,7 +278,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
      * @param fragment        The fragment to be added.
      */
     @SafeVarargs
-    fun addFragment(containerViewId: Int, fragment: androidx.fragment.app.Fragment, currentFragTag: String?,
+    fun addFragment(containerViewId: Int, fragment: Fragment, currentFragTag: String?,
                     vararg sharedElements: Pair<View, String>) {
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         for (pair in sharedElements) {

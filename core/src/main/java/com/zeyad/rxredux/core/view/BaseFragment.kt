@@ -6,12 +6,14 @@ import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
 import io.reactivex.disposables.Disposable
 
-abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, S, E, R, VM> {
+abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : androidx.fragment.app.Fragment(), BaseView<I, R, S, E, VM> {
 
     override var intentStream: Observable<I> = Observable.empty()
     override lateinit var disposable: Disposable
     override lateinit var viewModel: VM
     override lateinit var viewState: S
+
+    fun isStateInitialized() = ::viewState.isInitialized
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

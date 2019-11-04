@@ -14,7 +14,7 @@ fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
             savedInstanceState.getParcelable(P_MODEL)
         else null
 
-interface BaseView<I, S : Parcelable, E, R, VM : IBaseViewModel<I, R, S, E>> : LifecycleOwner {
+interface BaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : LifecycleOwner {
 
     var intentStream: Observable<I>
     var viewModel: VM

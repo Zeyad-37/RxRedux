@@ -147,7 +147,7 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
                 .map { recyclerViewScrollEvent ->
                     GetPaginatedUsersIntent(
                             if (ScrollEventCalculator.isAtScrollEnd(recyclerViewScrollEvent))
-                                viewState!!.lastId
+                                viewState.lastId
                             else -1)
                 }
                 .filter { it.lastId != -1L }
@@ -175,7 +175,7 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
         val searchView = menu.findItem(R.id.menu_search).actionView as SearchView
         searchView.setSearchableInfo(searchManager.getSearchableInfo(componentName))
         searchView.setOnCloseListener {
-            viewModel.offer(GetPaginatedUsersIntent(viewState?.lastId!!))
+            viewModel.offer(GetPaginatedUsersIntent(viewState.lastId))
             false
         }
         intentStream = intentStream.mergeWith(RxSearchView.queryTextChanges(searchView)
