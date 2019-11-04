@@ -52,7 +52,7 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
 
     override fun initialize() {
         viewModel = getViewModel()
-        viewState = EmptyState()
+        provideFallbackViewState(EmptyState())
     }
 
     override fun setupUI(isNew: Boolean) {

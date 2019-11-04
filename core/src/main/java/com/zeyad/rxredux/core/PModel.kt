@@ -26,8 +26,8 @@ internal data class SuccessEffect<E, I>(override val bundle: E,
     override fun toString() = "Effect: Success, ${super.toString()}, Bundle: $bundle"
 }
 
-internal data class EmptySuccessEffect(override val bundle: Unit = Unit,
-                                       override val intent: Any? = null) : PEffect<Unit, Any?>()
+data class EmptySuccessEffect(override val bundle: Unit = Unit,
+                              override val intent: Any? = null) : PEffect<Unit, Any?>()
 
 data class SuccessState<S, I>(override val bundle: S,
                               override val intent: I?) : PModel<S, I>() {

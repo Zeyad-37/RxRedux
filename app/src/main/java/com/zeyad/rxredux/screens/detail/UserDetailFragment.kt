@@ -59,7 +59,7 @@ class UserDetailFragment : BaseFragment<UserDetailIntents, UserDetailResult, Use
 
     override fun initialize() {
         viewModel = getViewModel()
-        viewState = arguments?.getParcelable(P_MODEL)!!
+        provideFallbackViewState(arguments?.getParcelable(P_MODEL))
     }
 
     override fun onResume() {
