@@ -29,6 +29,11 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         return false
     }
 
+    /**
+     * returns if the viewState has been initialized
+     */
+    fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
