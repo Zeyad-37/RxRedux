@@ -8,7 +8,7 @@ class PModelObserver<I, V : BaseView<I, *, S, E, *>, S : Parcelable, E>(private 
     override fun onChanged(uiModel: PModel<*, I>?) {
         uiModel?.apply {
             when (this) {
-                is ErrorEffect -> view.bindError(errorMessage, error, intent)
+                is ErrorEffect -> view.bindError(errorMessage, intent, error)
                 is SuccessEffect -> view.bindEffect(bundle as E)
                 is SuccessState -> {
                     (bundle as? S)?.also {

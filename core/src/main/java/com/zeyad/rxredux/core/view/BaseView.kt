@@ -52,7 +52,7 @@ interface BaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : L
      *
      * @param errorMessage A string representing an errorResult.
      */
-    fun bindError(errorMessage: String, cause: Throwable, intent: I)
+    fun bindError(errorMessage: String, intent: I, cause: Throwable = Throwable())
 
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)

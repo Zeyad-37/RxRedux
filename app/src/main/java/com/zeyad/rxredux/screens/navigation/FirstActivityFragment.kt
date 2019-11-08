@@ -70,7 +70,7 @@ class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, Fi
         startActivity((effectBundle as NavigateToEffect).intent)
     }
 
-    override fun bindError(errorMessage: String, cause: Throwable, intent: Any) {
+    override fun bindError(errorMessage: String, intent: Any, cause: Throwable) {
         showErrorSnackBar("Oops", fab, Snackbar.LENGTH_INDEFINITE)
     }
 }

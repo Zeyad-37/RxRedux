@@ -137,7 +137,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun bindError(errorMessage: String, cause: Throwable, intent: UserDetailIntents) {
+    override fun bindError(errorMessage: String, intent: UserDetailIntents, cause: Throwable) {
 //        showErrorSnackBar(errorMessage, linear_layout_loader, Snackbar.LENGTH_LONG)
     }
 

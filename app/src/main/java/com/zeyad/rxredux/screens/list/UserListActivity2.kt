@@ -115,7 +115,7 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun bindError(errorMessage: String, cause: Throwable, intent: UserListIntents) {
+    override fun bindError(errorMessage: String, intent: UserListIntents, cause: Throwable) {
 //        showErrorSnackBar(errorMessage, user_list, Snackbar.LENGTH_LONG)
     }
 
