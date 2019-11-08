@@ -68,6 +68,10 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         Log.d("UserListActivity2", "we are here!")
     }
 
+    override fun initialStateProvider(): UserListState = EmptyState()
+
+    override fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
+
     override fun onStart() {
         super.onStart()
         activate()
@@ -85,7 +89,6 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
 
     override fun initialize() {
         viewModel = getViewModel()
-        viewState = EmptyState()
         intentStream = Observable.empty()
     }
 

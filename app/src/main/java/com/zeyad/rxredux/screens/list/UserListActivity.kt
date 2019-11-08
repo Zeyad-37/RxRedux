@@ -50,9 +50,10 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
     private var currentFragTag: String = ""
     private var twoPane: Boolean = false
 
+    override fun initialStateProvider(): UserListState = EmptyState()
+
     override fun initialize() {
         viewModel = getViewModel()
-        provideFallbackViewState(EmptyState())
     }
 
     override fun setupUI(isNew: Boolean) {

@@ -24,9 +24,10 @@ import java.util.concurrent.TimeUnit
  */
 class FirstActivityFragment : BaseFragment<Any, Any, FirstState, FirstEffect, FirstVM>() {
 
+    override fun initialStateProvider(): FirstState = EmptyFirstState
+
     override fun initialize() {
         viewModel = FirstVM()
-        viewState = EmptyFirstState
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,

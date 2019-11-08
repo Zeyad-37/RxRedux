@@ -14,29 +14,13 @@ abstract class BaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
     override lateinit var viewState: S
 
     /**
-     * Initializes viewState if it was not recovered from the savedInstanceState: Bundle. If the
-     * provided defaultState is null, nothing happens.
-     *
-     * @param defaultState is fallback viewState
-     */
-    fun provideFallbackViewState(defaultState: S?): Boolean {
-        if (!::viewState.isInitialized) {
-            if (defaultState != null) {
-                viewState = defaultState
-                return true
-            }
-        }
-        return false
-    }
-
-    /**
      * returns if the viewState has been initialized
      */
-    fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
+    override fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+        initViewState(savedInstanceState)
         initialize()
     }
 

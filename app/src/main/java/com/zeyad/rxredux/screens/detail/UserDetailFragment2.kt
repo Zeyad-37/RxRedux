@@ -62,6 +62,10 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
         //        setSharedElementReturnTransition(null); // supply the correct element for return transition
     }
 
+    override fun initialStateProvider(): UserDetailState = arguments?.getParcelable(P_MODEL)!!
+
+    override fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
+
     override fun onStart() {
         super.onStart()
         activate()
@@ -74,7 +78,6 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override fun initialize() {
         viewModel = getViewModel()
-        viewState = arguments?.getParcelable(P_MODEL)!!
         intentStream = Observable.just(GetReposIntent((viewState as IntentBundleState).user.login))
     }
 

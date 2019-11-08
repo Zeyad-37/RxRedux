@@ -32,6 +32,7 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 class UserDetailFragment : BaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>() {
 
     private lateinit var repositoriesAdapter: GenericRecyclerViewAdapter
+    override fun initialStateProvider(): UserDetailState = arguments?.getParcelable(P_MODEL)!!
 
     private val requestListener = object : RequestListener<String, GlideDrawable> {
         override fun onException(e: Exception,
@@ -59,7 +60,6 @@ class UserDetailFragment : BaseFragment<UserDetailIntents, UserDetailResult, Use
 
     override fun initialize() {
         viewModel = getViewModel()
-        provideFallbackViewState(arguments?.getParcelable(P_MODEL))
     }
 
     override fun onResume() {

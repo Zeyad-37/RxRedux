@@ -21,8 +21,19 @@ interface BaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : L
     var viewState: S
     var disposable: Disposable
 
+    fun initialStateProvider(): S
+
+    fun initViewState(savedInstanceState: Bundle?) {
+        getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+        if (!isViewStateInitialized()) {
+            viewState = initialStateProvider()
+        }
+    }
+
+    fun isViewStateInitialized(): Boolean
+
     /**
-     * Initialize objects or any required dependencies, including viewModel and viewState.
+     * Initialize objects or any required dependencies, including viewModel.
      */
     fun initialize()
 
