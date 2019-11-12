@@ -8,6 +8,7 @@ interface IBaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>
 
     fun onCreateImpl(savedInstanceState: Bundle?) {
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
+        initViewState(savedInstanceState)
         initialize()
         setupUI(savedInstanceState == null)
     }

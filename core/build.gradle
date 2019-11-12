@@ -110,8 +110,7 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Deps.kotlin_stdlib
-    api "androidx.appcompat:appcompat:1.0.2"
-
+    api "androidx.appcompat:appcompat:1.1.0"
     api Deps.rx_android
     api Deps.rx_java
 
