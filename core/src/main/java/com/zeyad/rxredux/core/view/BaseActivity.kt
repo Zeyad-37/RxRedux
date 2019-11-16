@@ -6,12 +6,10 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 
 abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : AppCompatActivity(), BaseView<I, R, S, E, VM> {
 
     override var intentStream: Observable<I> = Observable.empty()
-    override lateinit var disposable: Disposable
     override lateinit var viewModel: VM
     override lateinit var viewState: S
 
@@ -36,14 +34,9 @@ abstract class BaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S
         super.onSaveInstanceState(bundle)
     }
 
-    override fun onResume() {
-        super.onResume()
-        connectIntentStreamToVM()
-    }
-
-    override fun onPause() {
-        disposeIntentStream()
-        super.onPause()
+    override fun onDestroy() {
+        deactivate()
+        super.onDestroy()
     }
 
     /**

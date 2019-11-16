@@ -20,7 +20,6 @@ import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
 import com.zeyad.rxredux.screens.list.UserListActivity2
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
 import org.koin.android.viewmodel.ext.android.getViewModel
@@ -34,7 +33,6 @@ import org.koin.android.viewmodel.ext.android.getViewModel
 class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
 
     override lateinit var intentStream: Observable<UserDetailIntents>
-    override lateinit var disposable: Disposable
     override lateinit var viewModel: UserDetailVM
     override lateinit var viewState: UserDetailState
 
@@ -66,8 +64,8 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
 
-    override fun onStart() {
-        super.onStart()
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
         activate()
     }
 

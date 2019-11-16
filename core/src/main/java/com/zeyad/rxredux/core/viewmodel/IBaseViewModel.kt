@@ -10,7 +10,7 @@ import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.disposables.Disposable
 import io.reactivex.functions.BiFunction
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
@@ -23,7 +23,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     var currentPModel: Any
 
-    var disposable: CompositeDisposable
+    var disposable: Disposable
 
     val intents: PublishSubject<I>
 
@@ -43,9 +43,9 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         intents.onNext(intent)
     }
 
-    fun store(initialState: S): LiveData<PModel<*, I>> {
+    fun store(initialState: S, intentStream: Observable<I>): LiveData<PModel<*, I>> {
         currentPModel = initialState
-        val pModels = intents.toResult()
+        val pModels = intentStream.mergeWith(intents).toResult()
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
         val liveState = MutableLiveData<PModel<*, I>>()
@@ -53,7 +53,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pModel: PModel<*, I> -> liveState.value = pModel }
-                .let { disposable.add(it) }
+                .also { disposable = it }
         return liveState
     }
 

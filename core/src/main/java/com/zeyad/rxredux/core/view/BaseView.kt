@@ -5,7 +5,6 @@ import android.os.Parcelable
 import androidx.lifecycle.LifecycleOwner
 import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 
 const val P_MODEL = "viewState"
 
@@ -19,7 +18,6 @@ interface BaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : L
     var intentStream: Observable<I>
     var viewModel: VM
     var viewState: S
-    var disposable: Disposable
 
     fun initialStateProvider(): S
 
@@ -68,18 +66,12 @@ interface BaseView<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : L
     fun <S : Parcelable> onSaveInstanceStateImpl(bundle: Bundle, viewState: S?) =
             bundle.putParcelable(P_MODEL, viewState)
 
-    fun disposeIntentStream() {
-        if (!disposable.isDisposed) {
-            disposable.dispose()
-        }
-    }
-
     fun activate() {
-        viewModel.store(viewState).observe(this, PModelObserver(this))
+        viewModel.store(viewState, intentStream).observe(this, PModelObserver(this))
     }
 
-    fun connectIntentStreamToVM() {
-        disposable = intentStream.subscribe { viewModel.offer(it) }
+    fun deactivate() {
+        viewModel.onClearImpl()
     }
 
     fun setState(bundle: S) {

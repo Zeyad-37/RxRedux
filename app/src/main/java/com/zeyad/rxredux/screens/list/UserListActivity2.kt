@@ -33,7 +33,6 @@ import com.zeyad.rxredux.screens.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
 import com.zeyad.rxredux.utils.hasLollipop
 import io.reactivex.Observable
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_user_list.*
 import kotlinx.android.synthetic.main.user_list.*
@@ -52,7 +51,6 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         OnStartDragListener, ActionMode.Callback {
 
     override lateinit var intentStream: Observable<UserListIntents>
-    override lateinit var disposable: Disposable
     override lateinit var viewModel: UserListVM
     override lateinit var viewState: UserListState
     private lateinit var itemTouchHelper: ItemTouchHelper
@@ -65,17 +63,13 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         onCreateImpl(savedInstanceState)
+        activate()
         Log.d("UserListActivity2", "we are here!")
     }
 
     override fun initialStateProvider(): UserListState = EmptyState()
 
     override fun isViewStateInitialized(): Boolean = ::viewState.isInitialized
-
-    override fun onStart() {
-        super.onStart()
-        activate()
-    }
 
     override fun onSaveInstanceState(outState: Bundle) {
         onSaveInstanceStateImpl(outState, viewState)
