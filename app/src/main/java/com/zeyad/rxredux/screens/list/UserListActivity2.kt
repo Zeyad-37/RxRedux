@@ -47,8 +47,8 @@ import java.util.concurrent.TimeUnit
  * the list of items and item details side-by-side using two vertical panes.
  */
 
-class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM>,
-        OnStartDragListener, ActionMode.Callback {
+class UserListActivity2 : AppCompatActivity(), OnStartDragListener, ActionMode.Callback,
+        IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM> {
 
     override lateinit var intentStream: Observable<UserListIntents>
     override lateinit var viewModel: UserListVM
@@ -63,7 +63,6 @@ class UserListActivity2 : AppCompatActivity(), IBaseActivity<UserListIntents, Us
         super.onCreate(savedInstanceState)
         AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         onCreateImpl(savedInstanceState)
-        activate()
         Log.d("UserListActivity2", "we are here!")
     }
 

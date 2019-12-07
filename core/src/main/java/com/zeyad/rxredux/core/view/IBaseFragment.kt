@@ -6,10 +6,11 @@ import com.zeyad.rxredux.core.viewmodel.IBaseViewModel
 
 interface IBaseFragment<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>> : BaseView<I, R, S, E, VM> {
 
-    fun onCreateImpl(savedInstanceState: Bundle?) {
+    fun onActivityCreateImpl(savedInstanceState: Bundle?) {
         getViewStateFrom<S>(savedInstanceState)?.let { viewState = it }
         initViewState(savedInstanceState)
         initialize()
+        activate()
     }
 
     fun onViewStateRestoredImpl(savedInstanceState: Bundle?) {

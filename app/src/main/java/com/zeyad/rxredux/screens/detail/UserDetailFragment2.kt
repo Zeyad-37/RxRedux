@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.widget.Toolbar
+import androidx.fragment.app.Fragment
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
@@ -30,7 +31,8 @@ import org.koin.android.viewmodel.ext.android.getViewModel
  * handsets.
  */
 @SuppressLint("ValidFragment")
-class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM> {
+class UserDetailFragment2 : IBaseFragment<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect, UserDetailVM>,
+        Fragment() {
 
     override lateinit var intentStream: Observable<UserDetailIntents>
     override lateinit var viewModel: UserDetailVM
@@ -52,7 +54,6 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        onCreateImpl(savedInstanceState)
         postponeEnterTransition()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             sharedElementEnterTransition = TransitionInflater.from(context).inflateTransition(android.R.transition.move)
@@ -66,7 +67,7 @@ class UserDetailFragment2 : androidx.fragment.app.Fragment(), IBaseFragment<User
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        activate()
+        onActivityCreateImpl(savedInstanceState)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {

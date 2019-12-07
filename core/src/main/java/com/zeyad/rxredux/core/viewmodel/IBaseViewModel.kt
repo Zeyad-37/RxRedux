@@ -68,7 +68,6 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                             }.onErrorReturn { ErrorEffectResult(it, intent) }
                             .startWith(LoadingEffectResult(intent))
                 }
-//                .distinctUntilChanged()
                 .share()
     }
 
@@ -103,12 +102,10 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     private fun effectReducer(): BiFunction<PEffect<E, I>, in EffectResult<E, I>, PEffect<E, I>> =
             BiFunction { currentUIModel: PEffect<E, I>, result: EffectResult<E, I> ->
-                result.run {
-                    when (this) {
-                        is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, intent)
-                        is SuccessEffectResult -> successEffect(currentUIModel)
-                        is ErrorEffectResult -> errorEffect(currentUIModel)
-                    }
+                when (result) {
+                    is LoadingEffectResult -> LoadingEffect(currentUIModel.bundle, result.intent)
+                    is SuccessEffectResult -> result.successEffect(currentUIModel)
+                    is ErrorEffectResult -> result.errorEffect(currentUIModel)
                 }
             }
 

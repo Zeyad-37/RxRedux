@@ -11,6 +11,7 @@ interface IBaseActivity<I, R, S : Parcelable, E, VM : IBaseViewModel<I, R, S, E>
         initViewState(savedInstanceState)
         initialize()
         setupUI(savedInstanceState == null)
+        activate()
     }
 
     fun onRestoreInstanceStateImpl(savedInstanceState: Bundle) =
