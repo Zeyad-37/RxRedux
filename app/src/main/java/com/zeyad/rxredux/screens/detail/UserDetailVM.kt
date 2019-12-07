@@ -9,7 +9,6 @@ import com.zeyad.rxredux.utils.Constants.URLS.REPOSITORIES
 import com.zeyad.usecases.api.IDataService
 import com.zeyad.usecases.requests.GetRequest
 import io.reactivex.Flowable
-import io.reactivex.Observable
 
 class UserDetailVM(private val dataUseCase: IDataService) :
         BaseViewModel<UserDetailIntents, UserDetailResult, UserDetailState, UserDetailEffect>() {
@@ -18,9 +17,7 @@ class UserDetailVM(private val dataUseCase: IDataService) :
         return when (currentState) {
             is IntentBundleState -> when (newResult) {
                 is ListRepository -> FullDetailState(currentState.isTwoPane, currentState.user,
-                        Observable.fromIterable(newResult.repos)
-                                .map { ItemInfo(it, R.layout.repo_item_layout) }
-                                .toList(newResult.repos.size).blockingGet())
+                        newResult.repos.map { ItemInfo(it, R.layout.repo_item_layout) })
             }
             is FullDetailState -> throwIllegalStateException(newResult)
         }

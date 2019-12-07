@@ -116,7 +116,6 @@ dependencies {
 
     implementation "android.arch.lifecycle:extensions:${Versions.archComp}"
     implementation Deps.rx_replay_share
-    implementation "androidx.recyclerview:recyclerview:1.0.0"
 
     testImplementation Deps.generic_recycler_review
     testImplementation Deps.junit

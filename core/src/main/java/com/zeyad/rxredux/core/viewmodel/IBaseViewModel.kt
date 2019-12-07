@@ -39,9 +39,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         else Log.d(this.javaClass.simpleName, "PModel: $it")
     }
 
-    fun offer(intent: I) {
-        intents.onNext(intent)
-    }
+    fun offer(intent: I): Unit = intents.onNext(intent)
 
     fun store(initialState: S, intentStream: Observable<I>): LiveData<PModel<*, I>> {
         currentPModel = initialState
@@ -109,20 +107,18 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 }
             }
 
-    private fun SuccessEffectResult<E, I>.successEffect(currentUIModel: PEffect<E, I>): SuccessEffect<E, I> {
-        return when (currentUIModel) {
-            is LoadingEffect -> SuccessEffect(bundle, intent)
-            is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
-        }
-    }
+    private fun SuccessEffectResult<E, I>.successEffect(currentUIModel: PEffect<E, I>): SuccessEffect<E, I> =
+            when (currentUIModel) {
+                is LoadingEffect -> SuccessEffect(bundle, intent)
+                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
+            }
 
-    private fun ErrorEffectResult<I>.errorEffect(currentUIModel: PEffect<E, I>): ErrorEffect<E, I> {
-        return when (currentUIModel) {
-            is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, intent, currentUIModel.bundle),
-                    currentUIModel.bundle, intent)
-            is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
-        }
-    }
+    private fun ErrorEffectResult<I>.errorEffect(currentUIModel: PEffect<E, I>): ErrorEffect<E, I> =
+            when (currentUIModel) {
+                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, intent, currentUIModel.bundle),
+                        currentUIModel.bundle, intent)
+                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentUIModel.throwIllegalStateException(this)
+            }
 
     fun onClearImpl() {
         if (!disposable.isDisposed) {
