@@ -9,7 +9,7 @@ import io.reactivex.Observable
 const val P_MODEL = "viewState"
 
 fun <S : Parcelable> getViewStateFrom(savedInstanceState: Bundle?): S? =
-        if (savedInstanceState != null && savedInstanceState.containsKey(P_MODEL))
+        if (savedInstanceState?.containsKey(P_MODEL) == true)
             savedInstanceState.getParcelable(P_MODEL)
         else null
 
