@@ -4,7 +4,7 @@ object Versions {
     const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
-    val kotlin = "1.3.41"
+    val kotlin = "1.3.61"
 
     // Realm
     val realm = "4.2.0"
@@ -31,8 +31,8 @@ object Versions {
     val okhttpVersion = "3.12.3"
 
     // - Reactive
-    val rxjava = "2.2.6"
-    val rxAndroid = "2.1.0"
+    val rxjava = "2.2.17"
+    val rxAndroid = "2.1.1"
     val rxbinding = "2.1.1"
     val rxredux = "2.1.2"
 
@@ -111,9 +111,8 @@ object Deps {
     val rx_binding_design = "com.jakewharton.rxbinding2:rxbinding-design-kotlin:${Versions.rxbinding}"
     val rx_binding_recycler_view = "com.jakewharton.rxbinding2:rxbinding-recyclerview-v7-kotlin:${Versions
             .rxbinding}"
-    val rx_redux = "com.github.Zeyad-37:RxRedux:${Versions.rxredux}"
     val kotlinx_coroutines = "org.jetbrains.kotlinx:kotlinx-coroutines-core:0.22.5"
-    val rx_replay_share = "com.jakewharton.rx2:replaying-share-kotlin:2.0.1"
+    val rx_replay_share = "com.jakewharton.rx2:replaying-share-kotlin:2.2.0"
 
     // - Injection
     val koin_core = "org.koin:koin-core:${Versions.koin_version}"
