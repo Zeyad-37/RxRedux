@@ -9,7 +9,7 @@ abstract class BaseViewModel<I, R, S : Parcelable, E> : ViewModel(), IBaseViewMo
 
     override val intents: PublishSubject<I> = PublishSubject.create()
 
-    override lateinit var currentPModel: Any
+    override lateinit var currentPModel: S
 
     override lateinit var disposable: Disposable
 

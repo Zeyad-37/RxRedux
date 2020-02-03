@@ -21,7 +21,7 @@ inline fun <reified T> T.throwIllegalStateException(result: Any): Nothing =
 
 interface IBaseViewModel<I, R, S : Parcelable, E> {
 
-    var currentPModel: Any
+    var currentPModel: S
 
     var disposable: Disposable
 
@@ -65,8 +65,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                                 else SuccessResult(it, intent)
                             }.onErrorReturn { ErrorEffectResult(it, intent) }
                             .startWith(LoadingEffectResult(intent))
-                }
-                .share()
+                }.share()
     }
 
     private fun stateStream(pModels: Flowable<Result<R, I>>, initialState: S): Flowable<PModel<S, I>> {
@@ -80,8 +79,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                         currentPModel = it.bundle
                         it
                     }
-                }
-                .compose(ReplayingShare.instance())
+                }.compose(ReplayingShare.instance())
     }
 
     private fun effectStream(pModels: Flowable<Result<E, I>>): Flowable<PEffect<E, I>> {
@@ -90,7 +88,6 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .scan(EmptySuccessEffect() as PEffect<E, I>, effectReducer())
                 .filter { t: PEffect<E, I> -> t !is EmptySuccessEffect }
                 .distinctUntilChanged()
-                .doOnNext { pEffect: PEffect<E, I> -> (pEffect as? SuccessEffectResult<*, *>)?.also { currentPModel = it } }
     }
 
     private fun stateReducer(): BiFunction<PModel<S, I>, SuccessResult<R, I>, PModel<S, I>> =
