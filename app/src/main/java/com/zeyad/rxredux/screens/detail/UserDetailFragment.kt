@@ -6,7 +6,6 @@ import android.transition.TransitionInflater
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.widget.Toolbar
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.drawable.GlideDrawable
 import com.bumptech.glide.request.RequestListener
@@ -18,7 +17,6 @@ import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.view.BaseFragment
 import com.zeyad.rxredux.core.view.P_MODEL
 import com.zeyad.rxredux.screens.list.UserListActivity
-import com.zeyad.rxredux.screens.list.UserListActivity2
 import com.zeyad.rxredux.utils.showErrorSnackBar
 import kotlinx.android.synthetic.main.user_detail.*
 import kotlinx.android.synthetic.main.view_progress.*
@@ -87,25 +85,12 @@ class UserDetailFragment : BaseFragment<UserDetailIntents, UserDetailResult, Use
             is FullDetailState -> {
                 repositoriesAdapter.setDataList(successState.repos, null)
                 val user = successState.user
-                if (successState.isTwoPane) {
-                    (activity as UserListActivity2).let { activity ->
-                        val appBarLayout = activity.findViewById<Toolbar>(R.id.toolbar)
-                        if (appBarLayout != null) {
-                            appBarLayout.title = user.login
-                        }
-                        if (user.avatarUrl.isNotBlank()) {
-                            Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
-                                    .into(activity.getImageViewAvatar())
-                        }
-                    }
-                } else {
-                    (activity as UserDetailActivity).let { activity ->
-                        val appBarLayout = activity.getCollapsingToolbarLayout()
-                        appBarLayout.title = user.login
-                        if (user.avatarUrl.isNotBlank()) {
-                            Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
-                                    .into(activity.getImageViewAvatar())
-                        }
+                (activity as UserDetailActivity).let { activity ->
+                    val appBarLayout = activity.getCollapsingToolbarLayout()
+                    appBarLayout.title = user.login
+                    if (user.avatarUrl.isNotBlank()) {
+                        Glide.with(context).load(user.avatarUrl).dontAnimate().listener(requestListener)
+                                .into(activity.getImageViewAvatar())
                     }
                 }
             }

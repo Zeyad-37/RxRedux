@@ -47,11 +47,10 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         val states = stateStream(pModels as Flowable<Result<R, I>>, initialState)
         val effects = effectStream(pModels as Flowable<Result<E, I>>)
         val liveState = MutableLiveData<PModel<*, I>>()
-        Flowable.merge(states, effects)
+        disposable = Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { pModel: PModel<*, I> -> liveState.value = pModel }
-                .also { disposable = it }
         return liveState
     }
 

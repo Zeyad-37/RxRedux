@@ -9,12 +9,10 @@ import kotlinx.android.parcel.Parcelize
 sealed class UserDetailState : Parcelable
 
 @Parcelize
-data class IntentBundleState(val isTwoPane: Boolean = false,
-                             val user: User = User()) : UserDetailState()
+data class IntentBundleState(val user: User = User()) : UserDetailState()
 
 @Parcelize
-data class FullDetailState(val isTwoPane: Boolean = false,
-                           val user: User = User(),
+data class FullDetailState(val user: User = User(),
                            val repos: List<ItemInfo<Repository>> = emptyList()) : UserDetailState()
 
 sealed class UserDetailEffect

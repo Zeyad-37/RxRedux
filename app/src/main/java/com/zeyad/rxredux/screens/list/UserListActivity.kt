@@ -20,12 +20,9 @@ import com.zeyad.rxredux.core.view.BaseActivity
 import com.zeyad.rxredux.screens.User
 import com.zeyad.rxredux.screens.detail.IntentBundleState
 import com.zeyad.rxredux.screens.detail.UserDetailActivity
-import com.zeyad.rxredux.screens.detail.UserDetailFragment
 import com.zeyad.rxredux.screens.list.viewHolders.EmptyViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.SectionHeaderViewHolder
 import com.zeyad.rxredux.screens.list.viewHolders.UserViewHolder
-import com.zeyad.rxredux.utils.addFragment
-import com.zeyad.rxredux.utils.removeFragment
 import com.zeyad.rxredux.utils.showErrorSnackBarWithAction
 import io.reactivex.Observable
 import io.reactivex.schedulers.Schedulers
@@ -47,8 +44,6 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
     private lateinit var itemTouchHelper: ItemTouchHelper
     private lateinit var usersAdapter: GenericRecyclerViewAdapter
     private var actionMode: ActionMode? = null
-    private var currentFragTag: String = ""
-    private var twoPane: Boolean = false
 
     override fun initialStateProvider(): UserListState = EmptyState()
 
@@ -61,7 +56,6 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
         setSupportActionBar(toolbar)
         toolbar.title = title
         setupRecyclerView()
-        twoPane = findViewById<View>(R.id.user_detail_container) != null
     }
 
     override fun onResume() {
@@ -78,18 +72,9 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
     override fun bindEffect(effectBundle: UserListEffect) {
         when (effectBundle) {
             is NavigateTo -> {
-                val userDetailState = IntentBundleState(twoPane, effectBundle.user)
-                if (twoPane) {
-                    if (currentFragTag.isNotBlank()) {
-                        removeFragment(currentFragTag)
-                    }
-                    val orderDetailFragment = UserDetailFragment.newInstance(userDetailState)
-                    currentFragTag = orderDetailFragment.javaClass.simpleName + effectBundle.user.id
-                    addFragment(R.id.user_detail_container, orderDetailFragment, currentFragTag)
-                } else {
-                    startActivity(UserDetailActivity
-                            .getCallingIntent(this@UserListActivity, userDetailState, false))
-                }
+                val userDetailState = IntentBundleState(effectBundle.user)
+                startActivity(UserDetailActivity
+                        .getCallingIntent(this@UserListActivity, userDetailState, false))
             }
         }
     }

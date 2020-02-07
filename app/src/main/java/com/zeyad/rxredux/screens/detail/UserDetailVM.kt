@@ -16,7 +16,7 @@ class UserDetailVM(private val dataUseCase: IDataService) :
     override fun stateReducer(newResult: UserDetailResult, currentState: UserDetailState): UserDetailState {
         return when (currentState) {
             is IntentBundleState -> when (newResult) {
-                is ListRepository -> FullDetailState(currentState.isTwoPane, currentState.user,
+                is ListRepository -> FullDetailState(currentState.user,
                         newResult.repos.map { ItemInfo(it, R.layout.repo_item_layout) })
             }
             is FullDetailState -> throwIllegalStateException(newResult)

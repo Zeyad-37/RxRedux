@@ -136,7 +136,7 @@ class UserListActivity2 : AppCompatActivity(), OnStartDragListener, ActionMode.C
                     toggleItemSelection(position)
                 } else if (itemInfo.data is User) {
                     val userModel = itemInfo.data as User
-                    val userDetailState = IntentBundleState(twoPane, userModel)
+                    val userDetailState = IntentBundleState(userModel)
                     var pair: Pair<View, String>? = null
                     var secondPair: Pair<View, String>? = null
                     if (hasLollipop()) {
