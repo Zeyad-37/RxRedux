@@ -56,7 +56,11 @@ override fun reduceIntentsToResults(intent: I, currentState: Any): Flowable<*>
 This is a simple mapping function that links every Intent with its corresponding action
 function. The rest of the class holds your executables which are methods that return Flowables.
 
-Secondly, a stateReducer method that manages the transition between your success states, by
+### States vs Effects
+A state is view binding that is persistent, while effects are one off. So effects can be used to for navigation  
+and UI changes that should not be persisted across the life cycle of the view
+
+Second, a stateReducer method that manages the transition between your success states, by
  implementing StateReducer interface.
 PS. BaseViewModel extends ViewModel from Android Architecture Components
 ```
