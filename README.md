@@ -24,36 +24,13 @@ dependencies {
 # Step1
 
 ViewModels must extend BaseViewModel\<I, R, S, E>. <br />
-I are your events, <br />
+I are your intents, <br />
 R are your Results, <br />
-S is your UIModel, <br />
+S are your States, <br />
 E are your Effects. <br />
 There are two abstract methods that you will need to implement.
-First, a stateReducer method that manages the transition between your success states, by
- implementing StateReducer interface.
-PS. BaseViewModel extends ViewModel from Android Architecture Components
-```
-override fun stateReducer(newResult: R, currentState: S): S {
-        return { newResult, currentStateBundle ->
-            val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
-            return when (currentStateBundle) {
-                is EmptyState -> when (newResult) {
-                    is List<*> -> getListState(newResult, currentItemInfo)
-                    else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
-                }
-                is ListState -> when (newResult) {
-                    is List<*> -> getListState(newResult, currentItemInfo)
-                    else -> throw IllegalStateException("Can not reduce ListState with this result: $newResult!")
-                }
-                else -> throw IllegalStateException("Can not reduce $currentStateBundle")
-            }
-        }
-    }
-}
-```
-Its a good practice to have a type for every state for your view.
 
-Secondly, mapIntentsToActions.
+First, reduceIntentsToResults.
 ```
 override fun reduceIntentsToResults(intent: I, currentState: Any): Flowable<*>
     return when (intent) {
@@ -79,31 +56,64 @@ override fun reduceIntentsToResults(intent: I, currentState: Any): Flowable<*>
 This is a simple mapping function that links every Intent with its corresponding action
 function. The rest of the class holds your executables which are methods that return Flowables.
 
+Secondly, a stateReducer method that manages the transition between your success states, by
+ implementing StateReducer interface.
+PS. BaseViewModel extends ViewModel from Android Architecture Components
+```
+override fun stateReducer(newResult: R, currentState: S): S {
+        return { newResult, currentStateBundle ->
+            val currentItemInfo = currentStateBundle?.list?.toMutableList() ?: mutableListOf()
+            return when (currentStateBundle) {
+                is EmptyState -> when (newResult) {
+                    is List<*> -> getListState(newResult, currentItemInfo)
+                    else -> throw IllegalStateException("Can not reduce EmptyState with this result: $newResult!")
+                }
+                is ListState -> when (newResult) {
+                    is List<*> -> getListState(newResult, currentItemInfo)
+                    else -> throw IllegalStateException("Can not reduce ListState with this result: $newResult!")
+                }
+                else -> throw IllegalStateException("Can not reduce $currentStateBundle")
+            }
+        }
+    }
+}
+```
+Its a good practice to have a type for every state for your view.
+
 ### Middleware
 If you want to hookup a crash reporting library or any middleware of any sorts you can override the middleware method
 ```
 override fun middleware(it: PModel<*, I>) { {
     when (it) {
-        is SuccessState, is LoadingState -> Crashlytics.log(Log.DEBUG, "UIModel", it.toString())
+        is SuccessState, is LoadingState -> Crashlytics.log(Log.DEBUG, "PModel", it.toString())
         is ErrorState -> Crashlytics.logException(it.error)
     }
 }
 ```
 
+### Error Message Factory
+When any of your actions return an error you can override the `errorMessageFactory` function to generate the correct  
+error message depending on the `Intent` that caused it and the throwable that was thrown.
+
+```
+override fun errorMessageFactory(throwable: Throwable, intent: I, currentStateBundle: E): String {
+    return throwable.message.orEmpty()
+}
+```
+
 # Step 2
 ### Option A: Activities/Fragments extend abstract classes
-Your Activities or Fragments need to extend BaseActivity<UIModel, ViewModel> or
-BaseFragment<UIModel, ViewModel>. These base classes handle life cycle events. You will need to
+Your Activities or Fragments need to extend BaseActivity<PModel, ViewModel> or
+BaseFragment<PModel, ViewModel>. These base classes handle life cycle events. You will need to
 implement 8 methods and initialize your Intents stream, more on that in a bit.
 First method: initialize(). You should instantiate all your dependencies here, including your ViewModels.
 Second method: setupUI(). Here you setContentView() and all other ui related stuff.
-Third method: errorMessageFactory(). Its a method that returns an interface that when given a Throwable it should return a String error message.
-Fourth method: showError(String message). Given the error message, provide an implementation to display it on the screen. Could be SnackBars, Toast messages, error dialogs or whatever.
-Fifth method: toggleViews(boolean isLoading). Given a boolean value indicating if the current state is a loading state, you should enable/disable buttons, hide/show progress bars and so on.
-Sixth method: renderSuccessState(S state). Given a state, provide an implementation to display that
+Third method: showError(String message). Given the error message, provide an implementation to display it on the screen. Could be SnackBars, Toast messages, error dialogs or whatever.
+Forth method: toggleViews(boolean isLoading). Given a boolean value indicating if the current state is a loading state, you should enable/disable buttons, hide/show progress bars and so on.
+Fifth method: renderSuccessState(S state). Given a state, provide an implementation to display that
 success state.
-Seventh method: initialState(). Provide the initial state of the view.
-Eighth method: events(). Provide an Observable of the events.
+Sixth method: initialStateProvider(). Provide the initial state of the view.
+Seventh method: intents(). Provide an Observable of the intents.
 ### Option B: Activities/Fragments implement BaseActivity/Fragment interfaces
 Activities/Fragments will override the viewModel and viewState from the interface 
 IBaseActivity/Fragment
@@ -114,13 +124,11 @@ class UserListActivity2
     : AppCompatActivity(), IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM> {
     
     override lateinit var intentStream: Observable<UserListIntents>
-    override lateinit var disposable: Disposable
-    override var viewModel: UserListVM? = null
-    override var viewState: UserListState? = null
+    override lateinit var viewModel: UserListVM
+    override lateinit var viewState: UserListState
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        AppCompatDelegate.setCompatVectorFromResourcesEnabled(true)
         onCreateImpl(savedInstanceState)
     }
 
@@ -170,13 +178,7 @@ class UserListActivity2
         showErrorSnackBar(message, anyView, LENGTH_LONG);
     }
     
-     override fun errorMessageFactory(): ErrorMessageFactory {
-            return { throwable, intent: Any -> throwable.localizedMessage }
-        }
-    
-    override fun intents(): Observable<I> = intentObservable
-    
-    // An example on how to merge post OnResume generated events
+    // An example on how to merge post OnResume generated intents
     override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
         mode.menuInflater.inflate(R.menu.selected_list_menu, menu)
         menu.findItem(R.id.delete_item).setOnMenuItemClickListener {
@@ -189,7 +191,7 @@ class UserListActivity2
     }
 }
 ```
-Your events should collect the needed input and encapsulate it in an object that implements the BaseIntent interface.
+Your intents should collect the needed input and encapsulate it in an object of type `I`.
 And your done. So lets recap
 
 # Be Aware
@@ -197,7 +199,7 @@ And your done. So lets recap
 Everything executed in Views are on the Main Thread, while everything executed on the ViewModel are
 on the Computation Scheduler.
 
-Un/Subscribing from the streams are handled automatically with LiveData and happen on Start/Stop
+Un/Subscribing from the streams are handled automatically with LiveData and happen on onCreate/onDestroy
 
 Since the library is written in Kotlin there are no nullable objects used or allowed, only the
 viewState is null until you provide the initialization.
@@ -205,13 +207,12 @@ viewState is null until you provide the initialization.
 # Benefits
 
 Applying this pattern, we ensure:
-That all our events(inputs) pass through 1 stream, which is a nice way to clarify and organize what are the possible actions allowed on the view.
-Single source of truth to the current UIModel, which is automatically persisted in instanceState,
- needs to implement Parcelable.
+That all our intents(inputs) pass through 1 stream, which is a nice way to clarify and organize what are the possible actions allowed on the view.
+Single source of truth to the current PModel, which is automatically persisted in instanceState, needs to implement Parcelable.
 Error handling is an ease since we can map Throwables to messages and display them as we see fit.
 Loading States are also an ease, through the toggle(boolean isLoading) callback that signals whenever the load state starts or ends.
 Transition between success states is more clear through the StateReducer and the renderSuccessState() call back
-We crash the app if something outside the states and events we have declared causes any unexpected behavior.
+We crash the app if something outside the states and intents we have declared causes any unexpected behavior.
 
 # License
 

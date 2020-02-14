@@ -73,7 +73,7 @@ public class BaseViewModelTest {
 //        testSubscriber.assertNoErrors();
 
 //        testSubscriber.assertValueAt(0,
-//                userListStateUIModel -> userListStateUIModel.getIntent().equals("idle"));
+//                userListStatePModel -> userListStatePModel.getIntent().equals("idle"));
 //
 //        testSubscriber.assertValueAt(1, Result::isLoading);
 //
