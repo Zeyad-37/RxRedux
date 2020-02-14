@@ -109,15 +109,14 @@ override fun errorMessageFactory(throwable: Throwable, intent: I, currentStateBu
 ### Option A: Activities/Fragments extend abstract classes
 Your Activities or Fragments need to extend BaseActivity<PModel, ViewModel> or
 BaseFragment<PModel, ViewModel>. These base classes handle life cycle events. You will need to
-implement 8 methods and initialize your Intents stream, more on that in a bit.
-First method: initialize(). You should instantiate all your dependencies here, including your ViewModels.
-Second method: setupUI(). Here you setContentView() and all other ui related stuff.
-Third method: showError(String message). Given the error message, provide an implementation to display it on the screen. Could be SnackBars, Toast messages, error dialogs or whatever.
-Forth method: toggleViews(boolean isLoading). Given a boolean value indicating if the current state is a loading state, you should enable/disable buttons, hide/show progress bars and so on.
-Fifth method: renderSuccessState(S state). Given a state, provide an implementation to display that
-success state.
-Sixth method: initialStateProvider(). Provide the initial state of the view.
-Seventh method: intents(). Provide an Observable of the intents.
+implement 7 methods and initialize your Intents stream, more on that in a bit. <br />
+First method: initialize(). You should instantiate all your dependencies here, including your ViewModels.<br />
+Second method: setupUI(). Here you setContentView() and all other ui related stuff.<br />
+Third method: showError(String message). Given the error message, provide an implementation to display it on the screen. Could be SnackBars, Toast messages, error dialogs or whatever.<br />
+Forth method: toggleViews(boolean isLoading). Given a boolean value indicating if the current state is a loading state, you should enable/disable buttons, hide/show progress bars and so on.<br />
+Fifth method: renderSuccessState(S state). Given a state, provide an implementation to display thatsuccess state.<br />
+Sixth method: initialStateProvider(). Provide the initial state of the view.<br />
+Seventh method: intents(). Provide an Observable of the intents.<br />
 ### Option B: Activities/Fragments implement BaseActivity/Fragment interfaces
 Activities/Fragments will override the viewModel and viewState from the interface 
 IBaseActivity/Fragment
@@ -127,7 +126,7 @@ class UserListActivity() : BaseActivity<UserListIntents, UserListResult, UserLis
 class UserListActivity2
     : AppCompatActivity(), IBaseActivity<UserListIntents, UserListResult, UserListState, UserListEffect, UserListVM> {
     
-    override lateinit var intentStream: Observable<UserListIntents>
+    override lateinit var intentStream: Observable<UserListIntents> // <== intentStream to be initialized 
     override lateinit var viewModel: UserListVM
     override lateinit var viewState: UserListState
     
