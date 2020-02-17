@@ -29,7 +29,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     fun stateReducer(newResult: R, currentState: S): S
 
-    fun reduceIntentsToResults(intent: I, currentState: Any): Flowable<*>
+    fun reduceIntentsToResults(intent: I, currentState: S): Flowable<*>
 
     fun errorMessageFactory(throwable: Throwable, intent: I, currentStateBundle: E): String =
             throwable.message.orEmpty()
