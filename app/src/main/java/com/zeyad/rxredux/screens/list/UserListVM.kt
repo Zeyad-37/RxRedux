@@ -5,6 +5,7 @@ import androidx.recyclerview.widget.DiffUtil
 import com.zeyad.gadapter.ItemInfo
 import com.zeyad.rxredux.R
 import com.zeyad.rxredux.core.viewmodel.BaseViewModel
+import com.zeyad.rxredux.core.viewmodel.EmptyEffectResult
 import com.zeyad.rxredux.core.viewmodel.SuccessEffectResult
 import com.zeyad.rxredux.core.viewmodel.throwIllegalStateException
 import com.zeyad.rxredux.screens.User
@@ -20,13 +21,13 @@ import io.realm.RealmQuery
 
 class UserListVM(private val dataUseCase: IDataService) : BaseViewModel<UserListIntents, UserListResult, UserListState, UserListEffect>() {
 
-    override fun reduceIntentsToResults(intent: UserListIntents, currentState: Any): Flowable<*> {
+    override fun reduceIntentsToResults(intent: UserListIntents, currentState: UserListState): Flowable<*> {
         Log.d("UserListVM", "currentStateBundle: $currentState")
         return when (intent) {
-            is GetPaginatedUsersIntent -> when (currentState) {
-                is EmptyState, is GetState -> getUsers(intent.lastId)
-                else -> throwIllegalStateException(intent)
-            }
+            is GetPaginatedUsersIntent -> Flowable.just(EmptyEffectResult)
+//                when (currentState) {
+//                is EmptyState, is GetState -> getUsers(intent.lastId)
+//            }
             is DeleteUsersIntent -> when (currentState) {
                 is GetState -> deleteCollection(intent.selectedItemsIds)
                 else -> throwIllegalStateException(intent)

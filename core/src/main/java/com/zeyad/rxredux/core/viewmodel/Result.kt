@@ -11,6 +11,10 @@ internal data class LoadingEffectResult<I>(override val intent: I) : EffectResul
 internal data class ErrorEffectResult<I>(val error: Throwable,
                                          override val intent: I) : EffectResult<Nothing, I>()
 
+object EmptyEffectResult : EffectResult<Unit, Any?>() {
+    override val intent: Any? = null
+}
+
 data class SuccessEffectResult<E, I>(val bundle: E,
                                      override val intent: I) : EffectResult<E, I>()
 

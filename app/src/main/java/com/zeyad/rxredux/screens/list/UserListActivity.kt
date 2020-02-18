@@ -84,9 +84,9 @@ class UserListActivity : OnStartDragListener, ActionMode.Callback,
         linear_layout_loader.visibility = if (isLoading) View.VISIBLE else View.GONE
     }
 
-    override fun bindError(errorMessage: String, intent: UserListIntents, cause: Throwable) {
+    override fun bindError(errorMessage: String, intent: UserListIntents?, cause: Throwable) {
         showErrorSnackBarWithAction(errorMessage, user_list, "Retry",
-                View.OnClickListener { viewModel.offer(intent) })
+                View.OnClickListener { intent?.let { it1 -> viewModel.offer(it1) } })
     }
 
     private fun setupRecyclerView() {

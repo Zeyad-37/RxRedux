@@ -15,7 +15,7 @@ class FirstVM : BaseViewModel<Any, Any, FirstState, FirstEffect>() {
         }
     }
 
-    override fun reduceIntentsToResults(intent: Any, currentState: Any): Flowable<*> {
+    override fun reduceIntentsToResults(intent: Any, currentState: FirstState): Flowable<*> {
         return when (intent) {
             is NavigateToIntent -> Flowable.just(SuccessEffectResult(NavigateToEffect(intent.intent), intent))
             is GetPaginatedUsersIntent -> Flowable.just(intent.lastId)

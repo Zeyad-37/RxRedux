@@ -23,7 +23,7 @@ class UserDetailVM(private val dataUseCase: IDataService) :
         }
     }
 
-    override fun reduceIntentsToResults(intent: UserDetailIntents, currentState: Any): Flowable<*> {
+    override fun reduceIntentsToResults(intent: UserDetailIntents, currentState: UserDetailState): Flowable<*> {
         return when (intent) {
             is GetReposIntent -> getRepositories(intent.login)
             is NavigateToIntent -> Flowable.just(SuccessEffectResult(Pair(intent.intent, false), intent))

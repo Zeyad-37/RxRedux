@@ -78,15 +78,18 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                         currentPModel = it.bundle
                         it
                     }
-                }.compose(ReplayingShare.instance())
+                }
+                .onErrorReturn { ErrorEffect(it, "Error not handled on state stream", currentPModel, null) }
+                .compose(ReplayingShare.instance())
     }
 
     private fun effectStream(pModels: Flowable<Result<E, I>>): Flowable<PEffect<E, I>> {
         return pModels.filter { it is EffectResult }
                 .map { it as EffectResult }
-                .scan(EmptySuccessEffect() as PEffect<E, I>, effectReducer())
-                .filter { t: PEffect<E, I> -> t !is EmptySuccessEffect }
+                .filter { it !is EmptyEffectResult }
+                .scan(EmptySuccessEffect as PEffect<E, I>, effectReducer())
                 .distinctUntilChanged()
+                .onErrorReturn { ErrorEffect(it, "Error not handled on effect stream", currentPModel, null) as PEffect<E, I> }
     }
 
     private fun stateReducer(): BiFunction<PModel<S, I>, SuccessResult<R, I>, PModel<S, I>> =
@@ -100,6 +103,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                     is LoadingEffectResult -> LoadingEffect(currentPModel.bundle, result.intent)
                     is SuccessEffectResult -> result.successEffect(currentPModel)
                     is ErrorEffectResult -> result.errorEffect(currentPModel)
+                    is EmptyEffectResult -> throw IllegalArgumentException("Cannot reduce EmptyEffectResult to an Effect")
                 }
             }
 

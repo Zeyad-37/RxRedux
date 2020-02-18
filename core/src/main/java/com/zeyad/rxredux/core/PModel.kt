@@ -17,7 +17,7 @@ internal data class LoadingEffect<E, I>(override val bundle: E,
 internal data class ErrorEffect<E, I>(val error: Throwable,
                                       val errorMessage: String,
                                       override val bundle: E,
-                                      override val intent: I) : PEffect<E, I>() {
+                                      override val intent: I? = null) : PEffect<E, I>() {
     override fun toString() = "Effect: Error, ${super.toString()}, Throwable: $error"
 }
 
@@ -26,8 +26,10 @@ internal data class SuccessEffect<E, I>(override val bundle: E,
     override fun toString() = "Effect: Success, ${super.toString()}, Bundle: $bundle"
 }
 
-data class EmptySuccessEffect(override val bundle: Unit = Unit,
-                              override val intent: Any? = null) : PEffect<Unit, Any?>()
+internal object EmptySuccessEffect : PEffect<Unit, Any?>() {
+    override val intent: Any? = null
+    override val bundle: Unit = Unit
+}
 
 data class SuccessState<S, I>(override val bundle: S,
                               override val intent: I?) : PModel<S, I>() {
