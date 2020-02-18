@@ -36,5 +36,7 @@ data class SuccessState<S, I>(override val bundle: S,
     override fun toString() = "State: Success, ${super.toString()}, Bundle: $bundle"
 }
 
-internal data class EmptySuccessState(override val bundle: Unit = Unit,
-                                      override val intent: Any? = null) : PModel<Unit, Any?>()
+internal object EmptySuccessState : PModel<Unit, Any?>() {
+    override val intent: Any? = null
+    override val bundle: Unit = Unit
+}

@@ -73,7 +73,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 .scan(SuccessState(initialState, null) as PModel<S, I>, stateReducer())
                 .map {
                     if (currentPModel == it.bundle && initialState != it.bundle) {
-                        EmptySuccessState() as PModel<S, I>
+                        EmptySuccessState as PModel<S, I>
                     } else {
                         currentPModel = it.bundle
                         it
