@@ -31,7 +31,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     fun reduceIntentsToResults(intent: I, currentState: S): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, intent: I, currentStateBundle: E): String =
+    fun errorMessageFactory(throwable: Throwable, intent: I): String =
             throwable.message.orEmpty()
 
     fun middleware(it: PModel<*, I>) {
@@ -67,13 +67,13 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 }.share()
     }
 
-    private fun stateStream(results: Flowable<Result<R, I>>, initialState: S): Flowable<PModel<S, I>> {
+    private fun stateStream(results: Flowable<Result<R, I>>, initialState: S): Flowable<PState<S, I>> {
         return results.filter { it is SuccessResult }
                 .map { it as SuccessResult }
-                .scan(SuccessState(initialState, null) as PModel<S, I>, stateReducer())
+                .scan(SuccessState(initialState, null) as PState<S, I>, stateReducer())
                 .map {
                     if (currentPModel == it.bundle && initialState != it.bundle) {
-                        EmptySuccessState as PModel<S, I>
+                        EmptySuccessState as PState<S, I>
                     } else {
                         currentPModel = it.bundle
                         it
@@ -81,40 +81,41 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
                 }.compose(ReplayingShare.instance())
     }
 
-    private fun effectStream(results: Flowable<Result<E, I>>): Flowable<PEffect<E, I>> {
+    private fun effectStream(results: Flowable<Result<E, I>>): Flowable<PEffect<E?, I>> {
         return results.filter { it is EffectResult }
-                .filter { it !is EmptyEffectResult }
                 .map { it as EffectResult }
-                .scan(EmptySuccessEffect as PEffect<E, I>, effectReducer())
+                .scan(InitialSuccessEffect as PEffect<E?, I>, effectReducer())
                 .distinctUntilChanged()
     }
 
-    private fun stateReducer(): BiFunction<PModel<S, I>, SuccessResult<R, I>, PModel<S, I>> =
-            BiFunction { currentPModel: PModel<S, I>, result: SuccessResult<R, I> ->
+    private fun stateReducer(): BiFunction<PState<S, I>, SuccessResult<R, I>, PState<S, I>> =
+            BiFunction { currentPModel: PState<S, I>, result: SuccessResult<R, I> ->
                 SuccessState(stateReducer(result.bundle, currentPModel.bundle), result.intent)
             }
 
-    private fun effectReducer(): BiFunction<PEffect<E, I>, in EffectResult<E, I>, PEffect<E, I>> =
-            BiFunction { currentPEffect: PEffect<E, I>, result: EffectResult<E, I> ->
+    private fun effectReducer(): BiFunction<PEffect<E?, I>, in EffectResult<E, I>, PEffect<E?, I>> =
+            BiFunction { currentPEffect, result ->
                 when (result) {
                     is LoadingEffectResult -> LoadingEffect(currentPEffect.bundle, result.intent)
                     is SuccessEffectResult -> result.successEffect(currentPEffect)
                     is ErrorEffectResult -> result.errorEffect(currentPEffect)
-                    is EmptyEffectResult -> throw IllegalArgumentException("Cannot reduce EmptyEffectResult is not filtered out.")
+                    is EmptyEffectResult -> EmptySuccessEffect(result.intent, currentPEffect.bundle)
                 }
             }
 
-    private fun SuccessEffectResult<E, I>.successEffect(currentPEffect: PEffect<E, I>): SuccessEffect<E, I> =
+    private fun SuccessEffectResult<E, I>.successEffect(currentPEffect: PEffect<E?, I>): SuccessEffect<E?, I> =
             when (currentPEffect) {
                 is LoadingEffect -> SuccessEffect(bundle, intent)
-                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentPEffect.throwIllegalStateException(this)
+                is InitialSuccessEffect, is EmptySuccessEffect, is SuccessEffect, is ErrorEffect ->
+                    currentPEffect.throwIllegalStateException(this)
             }
 
-    private fun ErrorEffectResult<I>.errorEffect(currentPEffect: PEffect<E, I>): ErrorEffect<E, I> =
+    private fun ErrorEffectResult<I>.errorEffect(currentPEffect: PEffect<E?, I>): ErrorEffect<E?, I> =
             when (currentPEffect) {
-                is LoadingEffect -> ErrorEffect(error, errorMessageFactory(error, intent, currentPEffect.bundle),
-                        currentPEffect.bundle, intent)
-                is EmptySuccessEffect, is SuccessEffect, is ErrorEffect -> currentPEffect.throwIllegalStateException(this)
+                is LoadingEffect ->
+                    ErrorEffect(error, errorMessageFactory(error, intent), currentPEffect.bundle, intent)
+                is InitialSuccessEffect, is EmptySuccessEffect, is SuccessEffect, is ErrorEffect ->
+                    currentPEffect.throwIllegalStateException(this)
             }
 
     fun onClearImpl() {
