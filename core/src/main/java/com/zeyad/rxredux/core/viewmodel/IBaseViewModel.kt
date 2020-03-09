@@ -31,8 +31,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
 
     fun reduceIntentsToResults(intent: I, currentState: S): Flowable<*>
 
-    fun errorMessageFactory(throwable: Throwable, intent: I): String =
-            throwable.message.orEmpty()
+    fun errorMessageFactory(throwable: Throwable, intent: I?): String = throwable.message.orEmpty()
 
     fun middleware(it: PModel<*, I>) {
         if (it is ErrorEffect) Log.e(this.javaClass.simpleName, "Error", it.error)
@@ -50,7 +49,7 @@ interface IBaseViewModel<I, R, S : Parcelable, E> {
         disposable = Flowable.merge(states, effects)
                 .doAfterNext { middleware(it) }
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe { pModel: PModel<*, I> -> liveState.value = pModel }
+                .subscribe({ pModel: PModel<*, I> -> liveState.value = pModel }, { throw it })
         return liveState
     }
 
