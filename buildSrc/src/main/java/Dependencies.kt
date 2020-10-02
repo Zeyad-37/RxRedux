@@ -23,12 +23,13 @@ object Versions {
     // - Support
     val support_lib = "28.0.0"
     val contraint_layout = "1.1.3"
-    val archComp = "2.0.0"
+    val archComp = "2.2.0"
+    val lifeCycle = "2.1.0"
 
     // - Network
     val retrofit = "2.5.0"
     val glide = "3.8.0"
-    val okhttpVersion = "3.12.3"
+    val okhttpVersion = "3.12.12"
 
     // - Reactive
     val rxjava = "2.2.17"
