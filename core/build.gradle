@@ -110,11 +110,12 @@ android {
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation Deps.kotlin_stdlib
-    api "androidx.appcompat:appcompat:1.1.0"
+    api "androidx.appcompat:appcompat:1.2.0"
     api Deps.rx_android
     api Deps.rx_java
 
     implementation "android.arch.lifecycle:extensions:${Versions.archComp}"
+    implementation "androidx.lifecycle:lifecycle-viewmodel-savedstate:2.2.0"
     implementation Deps.rx_replay_share
 
     testImplementation Deps.generic_recycler_review

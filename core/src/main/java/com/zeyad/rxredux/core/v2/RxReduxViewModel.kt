@@ -1,6 +1,7 @@
 package com.zeyad.rxredux.core.v2
 
 import android.util.Log
+import androidx.lifecycle.*
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
 import io.reactivex.Observable
@@ -9,6 +10,7 @@ import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates.observable
 
 const val ARG_STATE = "arg_state"
 
@@ -27,24 +29,46 @@ internal data class RxError(var error: Error) : RxOutcome() {
         }
 }
 
-interface IRxViewModel<I : Input, R : Result, S : State, E : Effect> {
+abstract class RxReduxViewModel<I : Input, R : Result, S : State, E : Effect>(
+        private val reducer: Reducer<S, R>,
+        private val inputHandler: InputHandler<I, S>,
+        private val savedStateHandle: SavedStateHandle?,
+) : ViewModel() {
 
     private data class RxState<S>(val state: S) : RxOutcome()
-    data class RxEffect<E>(val effect: E) : RxOutcome()
-    data class RxResult<R>(val result: R) : RxOutcome()
+    private data class RxEffect<E>(val effect: E) : RxOutcome()
+    private data class RxResult<R>(val result: R) : RxOutcome()
 
-    var disposable: Disposable
-    var currentState: S
-    var viewModelListener: ViewModelListener<S, E>?
-    var progress: Progress
+    private lateinit var disposable: Disposable
+    private lateinit var currentState: S
+    private var viewModelListener: ViewModelListener<S, E>? = null
+        set(value) {
+            value?.states?.invoke(currentState)
+            field = value
+        }
+    private var progress: Progress by observable(Progress(false, EmptyInput),
+            { _, oldValue, newValue ->
+                if (newValue != oldValue) notifyProgressChanged(newValue)
+            })
 
-    val trackingListener: TrackingListener<I, R, S, E>
-    val loggingListener: LoggingListener<I, R, S, E>
-    val inputs: PublishSubject<I>
-    val throttledInputs: PublishSubject<I>
-    val debouncedInputs: PublishSubject<I>
-    val inputHandler: InputHandler<I, S>
-    val reducer: Reducer<S, R>
+    private val inputs: PublishSubject<I> = PublishSubject.create()
+    private val throttledInputs: PublishSubject<I> = PublishSubject.create()
+    private val debouncedInputs: PublishSubject<I> = PublishSubject.create()
+    private val trackingListener: TrackingListener<I, R, S, E> = this.initTracking()
+    private val loggingListener: LoggingListener<I, R, S, E> = this.initLogging()
+
+    fun bind(initialState: S, inputs: () -> Observable<I>): RxReduxViewModel<I, R, S, E> {
+        currentState = savedStateHandle?.get(ARG_STATE) ?: initialState
+        bindInputs(inputs)
+        return this
+    }
+
+    fun observe(lifecycleOwner: LifecycleOwner, init: ViewModelListenerHelper<S, E>.() -> Unit) {
+        val helper = ViewModelListenerHelper<S, E>()
+        helper.init()
+        viewModelListener = helper
+        removeObservers(lifecycleOwner)
+    }
 
     /**
      * Input source provider. By default it returns empty
@@ -58,25 +82,22 @@ interface IRxViewModel<I : Input, R : Result, S : State, E : Effect> {
         InputStrategy.DEBOUNCE -> debouncedInputs
     }.onNext(input)
 
-    fun bind(initialState: S, inputs: () -> Observable<I> = { Observable.empty() }): IRxViewModel<I, R, S, E>
-
-    fun saveState(state: S)
 
     fun log(): LoggingListenerHelper<I, R, S, E>.() -> Unit = {
-        inputs { Log.d(this@IRxViewModel::class.simpleName, " - Input: $it") }
+        inputs { Log.d(this@RxReduxViewModel::class.simpleName, " - Input: $it") }
 
-        progress { Log.d(this@IRxViewModel::class.simpleName, " - Progress: $it") }
+        progress { Log.d(this@RxReduxViewModel::class.simpleName, " - Progress: $it") }
 
-        results { Log.d(this@IRxViewModel::class.simpleName, " - Result: $it") }
+        results { Log.d(this@RxReduxViewModel::class.simpleName, " - Result: $it") }
 
-        effects { Log.d(this@IRxViewModel::class.simpleName, " - Effect: $it") }
+        effects { Log.d(this@RxReduxViewModel::class.simpleName, " - Effect: $it") }
 
-        states { Log.d(this@IRxViewModel::class.simpleName, " - State: $it") }
+        states { Log.d(this@RxReduxViewModel::class.simpleName, " - State: $it") }
     }
 
     fun track(): TrackingListenerHelper<I, R, S, E>.() -> Unit = { /*empty*/ }
 
-    fun bindInputs(inputs: () -> Observable<I>) {
+    private fun bindInputs(inputs: () -> Observable<I>) {
         val outcome = createOutcomes(inputs)
         val stateResult = outcome.filter { it is RxResult<*> }.map { it as RxResult<R> }
                 .scan(RxState(currentState)) { state: RxState<S>, result: RxResult<R> ->
@@ -174,7 +195,7 @@ interface IRxViewModel<I : Input, R : Result, S : State, E : Effect> {
         }
     }
 
-    fun notifyProgressChanged(progress: Progress) = viewModelListener?.progress?.invoke(progress)
+    private fun notifyProgressChanged(progress: Progress) = viewModelListener?.progress?.invoke(progress)
 
     private fun notifyEffect(effect: E) = viewModelListener?.effects?.invoke(effect)
 
@@ -185,17 +206,35 @@ interface IRxViewModel<I : Input, R : Result, S : State, E : Effect> {
         viewModelListener?.states?.invoke(state)
     }
 
-    fun initTracking(): TrackingListener<I, R, S, E> {
+    private fun initTracking(): TrackingListener<I, R, S, E> {
         val trackingListenerHelper = TrackingListenerHelper<I, R, S, E>()
         val init: TrackingListenerHelper<I, R, S, E>.() -> Unit = track()
         trackingListenerHelper.init()
         return trackingListenerHelper
     }
 
-    fun initLogging(): LoggingListener<I, R, S, E> {
+    private fun initLogging(): LoggingListener<I, R, S, E> {
         val loggingListenerHelper = LoggingListenerHelper<I, R, S, E>()
         val init: LoggingListenerHelper<I, R, S, E>.() -> Unit = log()
         loggingListenerHelper.init()
         return loggingListenerHelper
+    }
+
+    private fun saveState(state: S) = savedStateHandle?.set(ARG_STATE, state) ?: Unit
+
+    private fun removeObservers(lifecycleOwner: LifecycleOwner) =
+            lifecycleOwner.lifecycle.addObserver(object : LifecycleObserver {
+                @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+                fun onDestroy() {
+                    unBind()
+                    lifecycleOwner.lifecycle.removeObserver(this)
+                }
+            })
+
+    override fun onCleared() = unBind()
+
+    private fun unBind() {
+        viewModelListener = null
+        disposable.dispose()
     }
 }
