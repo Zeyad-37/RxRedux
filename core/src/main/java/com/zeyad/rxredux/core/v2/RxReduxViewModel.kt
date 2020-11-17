@@ -9,10 +9,17 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import io.reactivex.subjects.PublishSubject
+import org.reactivestreams.Subscriber
 import java.util.concurrent.TimeUnit
 import kotlin.properties.Delegates.observable
 
 const val ARG_STATE = "arg_state"
+
+class AsyncOutcomeFlowable(val flowable: Flowable<RxOutcome>) : Flowable<RxOutcome>() {
+    override fun subscribeActual(s: Subscriber<in RxOutcome>?) = Unit
+}
+
+data class InputOutcomeStream(val input: Input, val outcomes: Flowable<RxOutcome>)
 
 internal object EmptyInput : Input()
 
@@ -21,6 +28,7 @@ open class RxOutcome(open var input: Input = EmptyInput)
 object EmptyOutcome : RxOutcome()
 
 private data class RxProgress(val progress: Progress) : RxOutcome()
+
 internal data class RxError(var error: Error) : RxOutcome() {
     override var input: Input = EmptyInput
         set(value) {
@@ -36,8 +44,8 @@ abstract class RxReduxViewModel<I : Input, R : Result, S : State, E : Effect>(
 ) : ViewModel() {
 
     private data class RxState<S>(val state: S) : RxOutcome()
-    private data class RxEffect<E>(val effect: E) : RxOutcome()
-    private data class RxResult<R>(val result: R) : RxOutcome()
+    internal data class RxEffect<E>(val effect: E) : RxOutcome()
+    internal data class RxResult<R>(val result: R) : RxOutcome()
 
     private lateinit var disposable: Disposable
     private lateinit var currentState: S
@@ -81,7 +89,6 @@ abstract class RxReduxViewModel<I : Input, R : Result, S : State, E : Effect>(
         InputStrategy.THROTTLE -> throttledInputs
         InputStrategy.DEBOUNCE -> debouncedInputs
     }.onNext(input)
-
 
     fun log(): LoggingListenerHelper<I, R, S, E>.() -> Unit = {
         inputs { Log.d(this@RxReduxViewModel::class.simpleName, " - Input: $it") }
