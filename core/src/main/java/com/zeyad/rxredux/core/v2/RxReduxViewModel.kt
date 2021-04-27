@@ -114,11 +114,12 @@ abstract class RxReduxViewModel<I : Input, R : Result, S : State, E : Effect>(
                     logState(it.state)
                 }
         disposable = Flowable.merge(outcome.filter { it !is RxResult<*> }, stateResult)
-                .doOnNext {
+                .observeOn(AndroidSchedulers.mainThread())
+                .map {
                     trackEvents(it)
                     logEvents(it)
-                }.observeOn(AndroidSchedulers.mainThread())
-                .subscribe { handleResult(it) }
+                    handleResult(it)
+                }.subscribe()
     }
 
     private fun createOutcomes(inputs: () -> Observable<I>): Flowable<RxOutcome> {
