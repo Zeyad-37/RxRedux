@@ -4,7 +4,7 @@ object Versions {
     const val android_gradle_plugin = "3.0.1"
 
     // Kotlin
-    val kotlin = "1.3.61"
+    val kotlin = "1.5.31"
 
     // Realm
     val realm = "4.2.0"
